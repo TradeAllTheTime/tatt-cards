@@ -4,11 +4,29 @@
   <title>TATT Cards</title>
 </head>
 <body>
+<h1 style="text-align:center; font-family: Arial;">TATT Cards</h1>
 
-<h1>TATT Cards</h1>
-<h2>Next Concert In:</h2>
+<div style="
+  max-width: 420px;
+  margin: 40px auto;
+  padding: 24px;
+  border-radius: 16px;
+  background: #111;
+  color: white;
+  text-align: center;
+  font-family: Arial;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+">
 
-<p id="timer">Loading...</p>
+  <div style="font-size: 12px; opacity: 0.7; letter-spacing: 2px;">
+    NEXT SHOW
+  </div>
+
+  <h2 id="timer" style="margin: 16px 0; font-size: 20px;">
+    Loading...
+  </h2>
+
+</div>
 
 <script>
 const concerts = [
