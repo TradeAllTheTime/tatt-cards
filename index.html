@@ -1,18 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TATT Cards</title>
+</head>
+<body>
+
+<h1>TATT Cards</h1>
+<h2>Next Concert In:</h2>
+
+<p id="timer">Loading...</p>
+
 <script>
-let concerts = [];
-
-function parseCSV(text) {
-  const rows = text.trim().split("\n").slice(1);
-
-  return rows.map(row => {
-    const [name, time] = row.split(",");
-
-    return {
-      name: name.trim(),
-      time: new Date(time.trim())
-    };
-  });
-}
+const concerts = [
+  { name: "Amsterdam Night 1", time: new Date("2026-05-20T18:00:00Z") },
+  { name: "Wembley Night 1", time: new Date("2026-06-12T19:00:00Z") },
+  { name: "MSG Night 1", time: new Date("2026-07-17T00:00:00Z") },
+  { name: "HARRYWEEN Night 1", time: new Date("2026-10-30T00:00:00Z") }
+];
 
 function getNextConcert() {
   const now = new Date();
@@ -40,22 +44,9 @@ function updateTimer() {
     `${next.name}: ${d}d ${h}h ${m}m ${s}s`;
 }
 
-async function loadConcerts() {
-  try {
-    const res = await fetch("shows.csv");
-    const text = await res.text();
-
-    concerts = parseCSV(text);
-
-    updateTimer();
-    setInterval(updateTimer, 1000);
-
-  } catch (err) {
-    console.log(err);
-    document.getElementById("timer").textContent =
-      "Failed to load concerts";
-  }
-}
-
-loadConcerts();
+setInterval(updateTimer, 1000);
+updateTimer();
 </script>
+
+</body>
+</html>
