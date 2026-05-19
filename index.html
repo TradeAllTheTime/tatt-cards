@@ -264,22 +264,40 @@ setTimeout(() => {
 
     const card = document.createElement("div");
 
-    card.style.padding = "8px";
-    card.style.margin = "6px 0";
-    card.style.borderRadius = "8px";
-    card.style.background = "#222";
-    card.style.opacity = "0";
-    card.style.transform = "translateY(10px)";
-    card.style.transition = "all 0.3s ease";
+  card.style.padding = "10px";
+card.style.margin = "8px 0";
+card.style.borderRadius = "10px";
+card.style.background = "#222";
+card.style.opacity = "0";
+card.style.transform = "rotateY(90deg)";
+card.style.transition = "all 0.4s ease";
+card.style.fontFamily = "Arial";
 
     card.textContent = `${pack[i].name} (${pack[i].rarity})`;
+    const rarity = pack[i].rarity;
+
+if (rarity === "common") {
+  card.style.boxShadow = "0 0 10px yellow";
+}
+
+if (rarity === "uncommon") {
+  card.style.boxShadow = "0 0 10px dodgerblue";
+}
+
+if (rarity === "rare") {
+  card.style.boxShadow = "0 0 12px purple";
+}
+
+if (rarity === "ultra rare") {
+  card.style.boxShadow = "0 0 15px magenta, 0 0 25px gold";
+}
 
     container.appendChild(card);
 
-    setTimeout(() => {
-      card.style.opacity = "1";
-      card.style.transform = "translateY(0)";
-    }, 50);
+setTimeout(() => {
+  card.style.opacity = "1";
+  card.style.transform = "rotateY(0deg)";
+}, 50);
 
     i++;
     setTimeout(showNextCard, 250);
