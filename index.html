@@ -161,7 +161,9 @@ function updateTimer() {
 
 setInterval(updateTimer, 1000);
 updateTimer();
-  const cardPool = {
+
+  <script>
+const cardPool = {
   common: [
     "Common Outfit Sketch",
     "Tour Hoodie Draft",
@@ -192,7 +194,6 @@ updateTimer();
   ]
 };
 
-// track pack odds
 let packCounter = 0;
 
 function getRandom(arr) {
@@ -204,12 +205,12 @@ function openPack() {
 
   let pack = [];
 
-  // 4 commons minimum
+  // 4 commons
   for (let i = 0; i < 4; i++) {
     pack.push({ name: getRandom(cardPool.common), rarity: "common" });
   }
 
-  // 3 uncommons minimum
+  // 3 uncommons
   for (let i = 0; i < 3; i++) {
     pack.push({ name: getRandom(cardPool.uncommon), rarity: "uncommon" });
   }
@@ -224,12 +225,12 @@ function openPack() {
     pack.push({ name: getRandom(cardPool.ultraRare), rarity: "ultraRare" });
   }
 
-  // fill remaining slots to make 10 cards total
+  // fill to 10 cards total
   while (pack.length < 10) {
     pack.push({ name: getRandom(cardPool.common), rarity: "common" });
   }
 
-  // shuffle pack
+  // shuffle
   pack.sort(() => Math.random() - 0.5);
 
   alert(
