@@ -161,6 +161,81 @@ function updateTimer() {
 
 setInterval(updateTimer, 1000);
 updateTimer();
+  const cardPool = {
+  common: [
+    "Common Outfit Sketch",
+    "Tour Hoodie Draft",
+    "Stage Light Study",
+    "Backstage Pass Sketch",
+    "Microphone Design",
+    "Crowd Shot Concept"
+  ],
+
+  uncommon: [
+    "Silver Stage Moment",
+    "Lighting Beam Concept",
+    "Soundcheck Scene",
+    "Green Room Scene",
+    "Mid-performance Frame"
+  ],
+
+  rare: [
+    "Golden Spotlight Outfit",
+    "Encore Performance Shot",
+    "Signature Stage Pose"
+  ],
+
+  ultraRare: [
+    "Legendary Tour Look",
+    "Final Show Outfit",
+    "Iconic Stage Moment"
+  ]
+};
+
+// track pack odds
+let packCounter = 0;
+
+function getRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function openPack() {
+  packCounter++;
+
+  let pack = [];
+
+  // 4 commons minimum
+  for (let i = 0; i < 4; i++) {
+    pack.push({ name: getRandom(cardPool.common), rarity: "common" });
+  }
+
+  // 3 uncommons minimum
+  for (let i = 0; i < 3; i++) {
+    pack.push({ name: getRandom(cardPool.uncommon), rarity: "uncommon" });
+  }
+
+  // rare: 1 in every 4 packs
+  if (packCounter % 4 === 0) {
+    pack.push({ name: getRandom(cardPool.rare), rarity: "rare" });
+  }
+
+  // ultra rare: 1 in every 10 packs
+  if (packCounter % 10 === 0) {
+    pack.push({ name: getRandom(cardPool.ultraRare), rarity: "ultraRare" });
+  }
+
+  // fill remaining slots to make 10 cards total
+  while (pack.length < 10) {
+    pack.push({ name: getRandom(cardPool.common), rarity: "common" });
+  }
+
+  // shuffle pack
+  pack.sort(() => Math.random() - 0.5);
+
+  alert(
+    pack.map(c => `${c.name} (${c.rarity})`).join("\n")
+  );
+}
 </script>
 
 </body>
