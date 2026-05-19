@@ -1,18 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>TATT Cards</title>
-</head>
-<body>
-
-<h1>TATT Cards</h1>
-<h2>Next Concert In:</h2>
-
-<p id="timer">If you see this, HTML works</p>
-
 <script>
-document.getElementById("timer").textContent = "JS IS WORKING";
-</script>
+document.getElementById("timer").textContent = "Testing CSV...";
 
-</body>
-</html>
+fetch("./shows.csv")
+  .then(res => res.text())
+  .then(text => {
+    document.getElementById("timer").textContent =
+      "CSV LOADED: " + text.split("\n")[1];
+  })
+  .catch(err => {
+    document.getElementById("timer").textContent =
+      "CSV FAILED";
+    console.log(err);
+  });
+</script>
