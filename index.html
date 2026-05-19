@@ -1,28 +1,47 @@
-<!DOCTYPE html>
-<html>
-<head>
- <title>TATT Cards</title>
-</head>
-<body>
- <h1>TATT Cards</h1>
- <h2>Next Concert In:</h2>
- <p id="timer">Loading...</p>
- <script>
- const concertDate = new Date("2026-06-01T20:00:00Z");
- function updateTimer() {
- const diff = concertDate - new Date();
- if (diff <= 0) {
- document.getElementById("timer").textContent = "Concert started!";
- return;
- }
- const d = Math.floor(diff / 86400000);
- const h = Math.floor((diff % 86400000) / 3600000);
- const m = Math.floor((diff % 3600000) / 60000);
- const s = Math.floor((diff % 60000) / 1000);
- document.getElementById("timer").textContent = d + "d " + h + "h " + m + "m " + s + "s";
- }
- setInterval(updateTimer, 1000);
- updateTimer();
- </script>
-</body>
-</html>
+<script>
+async function loadConcerts() {
+  const response = await fetch("shows.csv");
+  const text = await response.text();
+
+  const rows = text.trim().split("\n").slice(1);
+
+  const concerts = rows.map(row => {
+    const [name, time] = row.split(",");
+    return {
+      name,
+      time: new Date(time)
+    };
+  });
+
+  const now = new Date();
+
+  const nextConcert = concerts.find(concert => concert.time > now);
+
+  if (!nextConcert) {
+    document.getElementById("timer").textContent = "No upcoming concerts";
+    return;
+  }
+
+  function updateTimer() {
+    const diff = nextConcert.time - new Date();
+
+    if (diff <= 0) {
+      document.getElementById("timer").textContent = "Concert started!";
+      return;
+    }
+
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+
+    document.getElementById("timer").textContent =
+      `${nextConcert.name}: ${d}d ${h}h ${m}m ${s}s`;
+  }
+
+  updateTimer();
+  setInterval(updateTimer, 1000);
+}
+
+loadConcerts();
+</script>
