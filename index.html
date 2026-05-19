@@ -1,26 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>TATT Cards</title>
-</head>
-<body>
-
-<h1>TATT Cards</h1>
-<h2>Next Concert In:</h2>
-
-<p id="timer">Loading...</p>
-
 <script>
-const concertDate = new Date("2026-06-01T20:00:00Z");
+let concerts = [];
+
+function parseCSV(text) {
+  const rows = text.trim().split("\n").slice(1);
+
+  return rows.map(row => {
+    const [name, time] = row.split(",");
+
+    return {
+      name: name.trim(),
+      time: new Date(time.trim())
+    };
+  });
+}
+
+function getNextConcert() {
+  const now = new Date();
+  return concerts
+    .filter(c => c.time > now)
+    .sort((a, b) => a.time - b.time)[0];
+}
 
 function updateTimer() {
-  const now = new Date();
-  const diff = concertDate - now;
+  const next = getNextConcert();
 
-  if (diff <= 0) {
-    document.getElementById("timer").textContent = "Concert started!";
+  if (!next) {
+    document.getElementById("timer").textContent = "No upcoming concerts";
     return;
   }
+
+  const diff = next.time - new Date();
 
   const d = Math.floor(diff / 86400000);
   const h = Math.floor((diff % 86400000) / 3600000);
@@ -28,12 +37,25 @@ function updateTimer() {
   const s = Math.floor((diff % 60000) / 1000);
 
   document.getElementById("timer").textContent =
-    `${d}d ${h}h ${m}m ${s}s`;
+    `${next.name}: ${d}d ${h}h ${m}m ${s}s`;
 }
 
-setInterval(updateTimer, 1000);
-updateTimer();
-</script>
+async function loadConcerts() {
+  try {
+    const res = await fetch("shows.csv");
+    const text = await res.text();
 
-</body>
-</html>
+    concerts = parseCSV(text);
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+
+  } catch (err) {
+    console.log(err);
+    document.getElementById("timer").textContent =
+      "Failed to load concerts";
+  }
+}
+
+loadConcerts();
+</script>
