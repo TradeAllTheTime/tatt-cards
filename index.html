@@ -225,37 +225,70 @@ function openPack() {
 
   let pack = [];
 
-  // 4 commons
   for (let i = 0; i < 4; i++) {
     pack.push({ name: getRandom(cardPool.common), rarity: "common" });
   }
 
-  // 3 uncommons
   for (let i = 0; i < 3; i++) {
     pack.push({ name: getRandom(cardPool.uncommon), rarity: "uncommon" });
   }
 
-  // rare: 1 in every 4 packs
   if (packCounter % 4 === 0) {
     pack.push({ name: getRandom(cardPool.rare), rarity: "rare" });
   }
 
-  // ultra rare: 1 in every 10 packs
   if (packCounter % 10 === 0) {
-    pack.push({ name: getRandom(cardPool.ultraRare), rarity: "ultraRare" });
+    pack.push({ name: getRandom(cardPool.ultraRare), rarity: "ultra rare" });
   }
 
-  // fill to 10 cards total
   while (pack.length < 10) {
     pack.push({ name: getRandom(cardPool.common), rarity: "common" });
   }
 
-  // shuffle
   pack.sort(() => Math.random() - 0.5);
 
-  alert(
-    pack.map(c => `${c.name} (${c.rarity})`).join("\n")
-  );
+  const container = document.getElementById("packReveal");
+
+  container.innerHTML = "<h3>Opening Pack...</h3>";
+
+  setTimeout(() => {
+  container.innerHTML = "<h3>Opening Pack...</h3>";
+
+setTimeout(() => {
+  container.innerHTML = "";
+  
+  let i = 0;
+
+  function showNextCard() {
+    if (i >= pack.length) return;
+
+    const card = document.createElement("div");
+
+    card.style.padding = "8px";
+    card.style.margin = "6px 0";
+    card.style.borderRadius = "8px";
+    card.style.background = "#222";
+    card.style.opacity = "0";
+    card.style.transform = "translateY(10px)";
+    card.style.transition = "all 0.3s ease";
+
+    card.textContent = `${pack[i].name} (${pack[i].rarity})`;
+
+    container.appendChild(card);
+
+    setTimeout(() => {
+      card.style.opacity = "1";
+      card.style.transform = "translateY(0)";
+    }, 50);
+
+    i++;
+    setTimeout(showNextCard, 250);
+  }
+
+  showNextCard();
+
+}, 800);
+  }, 800);
 }
 </script>
 
