@@ -1,47 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TATT Cards</title>
+</head>
+<body>
+
+<h1>TATT Cards</h1>
+<h2>Next Concert In:</h2>
+
+<p id="timer">If you see this, HTML works</p>
+
 <script>
-document.getElementById("timer").textContent = "Loading concerts...";
-
-async function loadConcerts() {
-  try {
-    const response = await fetch("shows.csv");
-    const text = await response.text();
-
-    const rows = text.trim().split("\n").slice(1);
-
-    const concerts = rows.map(row => {
-      const [name, time] = row.split(",");
-      return { name, time: new Date(time) };
-    });
-
-    const now = new Date();
-    const nextConcert = concerts.find(c => c.time > now);
-
-    if (!nextConcert) {
-      document.getElementById("timer").textContent = "No upcoming concerts";
-      return;
-    }
-
-    function updateTimer() {
-      const diff = nextConcert.time - new Date();
-
-      const d = Math.floor(diff / 86400000);
-      const h = Math.floor((diff % 86400000) / 3600000);
-      const m = Math.floor((diff % 3600000) / 60000);
-      const s = Math.floor((diff % 60000) / 1000);
-
-      document.getElementById("timer").textContent =
-        `${nextConcert.name}: ${d}d ${h}h ${m}m ${s}s`;
-    }
-
-    updateTimer();
-    setInterval(updateTimer, 1000);
-
-  } catch (err) {
-    console.log(err);
-    document.getElementById("timer").textContent =
-      "CSV failed to load";
-  }
-}
-
-loadConcerts();
+document.getElementById("timer").textContent = "JS IS WORKING";
 </script>
+
+</body>
+</html>
