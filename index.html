@@ -225,26 +225,38 @@ function openPack() {
 
   let pack = [];
 
-  for (let i = 0; i < 4; i++) {
-    pack.push({ name: getRandom(cardPool.common), rarity: "common" });
+  // 6 COMMONS
+  for (let i = 0; i < 6; i++) {
+    pack.push({
+      name: getRandom(cardPool.common),
+      rarity: "common"
+    });
   }
 
+  // 3 UNCOMMONS
   for (let i = 0; i < 3; i++) {
-    pack.push({ name: getRandom(cardPool.uncommon), rarity: "uncommon" });
+    pack.push({
+      name: getRandom(cardPool.uncommon),
+      rarity: "uncommon"
+    });
   }
 
-  if (packCounter % 4 === 0) {
-    pack.push({ name: getRandom(cardPool.rare), rarity: "rare" });
+  // 1 RARE SLOT (decides outcome)
+  const roll = Math.random();
+
+  if (roll < 0.75) {
+    pack.push({
+      name: getRandom(cardPool.rare),
+      rarity: "rare"
+    });
+  } else {
+    pack.push({
+      name: getRandom(cardPool.ultraRare),
+      rarity: "ultra rare"
+    });
   }
 
-  if (packCounter % 10 === 0) {
-    pack.push({ name: getRandom(cardPool.ultraRare), rarity: "ultra rare" });
-  }
-
-  while (pack.length < 10) {
-    pack.push({ name: getRandom(cardPool.common), rarity: "common" });
-  }
-
+  // shuffle pack
   pack.sort(() => Math.random() - 0.5);
 
   const container = document.getElementById("packReveal");
@@ -252,60 +264,58 @@ function openPack() {
   container.innerHTML = "<h3>Opening Pack...</h3>";
 
   setTimeout(() => {
-  container.innerHTML = "<h3>Opening Pack...</h3>";
+    container.innerHTML = "";
+    
+    let i = 0;
 
-setTimeout(() => {
-  container.innerHTML = "";
-  
-  let i = 0;
+    function showNextCard() {
+      if (i >= pack.length) return;
 
-  function showNextCard() {
-    if (i >= pack.length) return;
+      const card = document.createElement("div");
 
-    const card = document.createElement("div");
+      card.style.padding = "10px";
+      card.style.margin = "8px 0";
+      card.style.borderRadius = "10px";
+      card.style.background = "#222";
+      card.style.opacity = "0";
+      card.style.transform = "rotateY(90deg)";
+      card.style.transition = "all 0.4s ease";
+      card.style.fontFamily = "Arial";
 
-  card.style.padding = "10px";
-card.style.margin = "8px 0";
-card.style.borderRadius = "10px";
-card.style.background = "#222";
-card.style.opacity = "0";
-card.style.transform = "rotateY(90deg)";
-card.style.transition = "all 0.4s ease";
-card.style.fontFamily = "Arial";
+      card.textContent = `${pack[i].name} (${pack[i].rarity})`;
 
-    card.textContent = `${pack[i].name} (${pack[i].rarity})`;
-    const rarity = pack[i].rarity;
+      // 🌈 rarity glow
+      const rarity = pack[i].rarity;
 
-if (rarity === "common") {
-  card.style.boxShadow = "0 0 10px yellow";
-}
+      if (rarity === "common") {
+        card.style.boxShadow = "0 0 10px yellow";
+      }
 
-if (rarity === "uncommon") {
-  card.style.boxShadow = "0 0 10px dodgerblue";
-}
+      if (rarity === "uncommon") {
+        card.style.boxShadow = "0 0 10px dodgerblue";
+      }
 
-if (rarity === "rare") {
-  card.style.boxShadow = "0 0 12px purple";
-}
+      if (rarity === "rare") {
+        card.style.boxShadow = "0 0 12px purple";
+      }
 
-if (rarity === "ultra rare") {
-  card.style.boxShadow = "0 0 15px magenta, 0 0 25px gold";
-}
+      if (rarity === "ultra rare") {
+        card.style.boxShadow = "0 0 15px magenta, 0 0 25px gold";
+      }
 
-    container.appendChild(card);
+      container.appendChild(card);
 
-setTimeout(() => {
-  card.style.opacity = "1";
-  card.style.transform = "rotateY(0deg)";
-}, 50);
+      setTimeout(() => {
+        card.style.opacity = "1";
+        card.style.transform = "rotateY(0deg)";
+      }, 50);
 
-    i++;
-    setTimeout(showNextCard, 250);
-  }
+      i++;
+      setTimeout(showNextCard, 250);
+    }
 
-  showNextCard();
+    showNextCard();
 
-}, 800);
   }, 800);
 }
 </script>
