@@ -1,15 +1,36 @@
 <script>
-document.getElementById("timer").textContent = "Testing CSV...";
+async function load() {
+  const res = await fetch("shows.csv");
+  const text = await res.text();
 
-fetch("./shows.csv")
-  .then(res => res.text())
-  .then(text => {
-    document.getElementById("timer").textContent =
-      "CSV LOADED: " + text.split("\n")[1];
-  })
-  .catch(err => {
-    document.getElementById("timer").textContent =
-      "CSV FAILED";
-    console.log(err);
+  const rows = text.trim().split("\n").slice(1);
+
+  const concerts = rows.map(r => {
+    const [name, time] = r.split(",");
+    return { name, time: new Date(time) };
   });
+
+  const now = new Date();
+
+  const next = concerts.find(c => c.time > now);
+
+  if (!next) {
+    document.getElementById("timer").textContent = "No concerts";
+    return;
+  }
+
+  setInterval(() => {
+    const diff = next.time - new Date();
+
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+
+    document.getElementById("timer").textContent =
+      `${next.name}: ${d}d ${h}h ${m}m ${s}s`;
+  }, 1000);
+}
+
+load();
 </script>
