@@ -72,7 +72,9 @@
 </div>
 
 <script>
-window.DEV_MODE = true;
+window.DEV_MODE = true; 
+    let deckIndex = 0;
+let deck = [];
   
   const style = document.createElement("style");
 style.innerHTML = `
@@ -178,6 +180,7 @@ pileStyle.innerHTML = `
 }
 `;
 document.head.appendChild(pileStyle);
+ 
 
 /* ---------------- CONCERTS ---------------- */
 
@@ -350,95 +353,53 @@ function openPack() {
 
   let pack = [];
 
+  // 6 commons
   for (let i = 0; i < 6; i++) {
-    pack.push({ name: getRandom(cardPool.common), rarity: "common" });
+    pack.push({
+      name: getRandom(cardPool.common),
+      rarity: "common"
+    });
   }
 
+  // 3 uncommons
   for (let i = 0; i < 3; i++) {
-    pack.push({ name: getRandom(cardPool.uncommon), rarity: "uncommon" });
+    pack.push({
+      name: getRandom(cardPool.uncommon),
+      rarity: "uncommon"
+    });
   }
 
+  // 1 rare slot
   const roll = Math.random();
 
   if (roll < 0.75) {
-    pack.push({ name: getRandom(cardPool.rare), rarity: "rare" });
+    pack.push({
+      name: getRandom(cardPool.rare),
+      rarity: "rare"
+    });
   } else {
-    pack.push({ name: getRandom(cardPool.ultraRare), rarity: "ultra rare" });
+    pack.push({
+      name: getRandom(cardPool.ultraRare),
+      rarity: "ultra rare"
+    });
   }
 
+  // shuffle pack
   pack.sort(() => Math.random() - 0.5);
 
+  // UI loading state
   const container = document.getElementById("packReveal");
   container.innerHTML = "<h3>Opening Pack...</h3>";
 
+  // reveal deck after short delay
   setTimeout(() => {
     container.innerHTML = "";
 
-    let i = 0;
-
-    function showNextCard() {
-      if (i >= pack.length) return;
-
-const card = document.createElement("div");
-card.className = "card";
-
-const inner = document.createElement("div");
-inner.className = "card-inner";
-
-/* -------- BACK -------- */
-const back = document.createElement("div");
-back.className = "card-face card-back";
-back.textContent = "TATT CARD";
-
-/* -------- FRONT -------- */
-const front = document.createElement("div");
-front.className = "card-face card-front";
-
-const rarity = pack[i].rarity;
-
-front.textContent = pack[i].name + " (" + rarity + ")";
-
-/* NEW badge */
-const key = pack[i].name;
-if (!seenCards.has(key)) {
-  const badge = document.createElement("div");
-  badge.textContent = "NEW!";
-  badge.style.fontSize = "10px";
-  badge.style.background = "yellow";
-  badge.style.color = "black";
-  badge.style.display = "inline-block";
-  badge.style.padding = "2px 6px";
-  badge.style.borderRadius = "6px";
-  front.appendChild(badge);
-  seenCards.add(key);
-}
-
-/* rarity glow stays on FRONT */
-if (rarity === "common") front.style.boxShadow = "0 0 10px yellow";
-if (rarity === "uncommon") front.style.boxShadow = "0 0 10px dodgerblue";
-if (rarity === "rare") front.style.boxShadow = "0 0 12px purple";
-if (rarity === "ultra rare") {
-  front.style.animation = "rainbowBorder 2s linear infinite";
-}
-
-/* assemble */
-inner.appendChild(back);
-inner.appendChild(front);
-card.appendChild(inner);
-container.appendChild(card);
-      setTimeout(() => {
-  card.classList.add("flipped");
-}, 200);
-
-      i++;
-      setTimeout(showNextCard, 250);
-    }
-
-    showNextCard();
+    deck = pack;       // 🔥 send pack into deck system
+    buildDeck();       // 🔥 render deck UI
 
   }, 600);
 }
-
 </script>
 
 </body>
