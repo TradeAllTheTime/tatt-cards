@@ -89,6 +89,47 @@ style.innerHTML = `
 `;
 document.head.appendChild(style);
 
+  const flipStyle = document.createElement("style");
+flipStyle.innerHTML = `
+.card {
+  width: 100%;
+  perspective: 1000px;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+
+.card.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  width: 100%;
+  backface-visibility: hidden;
+  border-radius: 10px;
+  padding: 10px;
+  font-family: Arial;
+}
+
+.card-back {
+  background: #333;
+  color: white;
+  text-align: center;
+}
+
+.card-front {
+  background: #222;
+  color: white;
+  transform: rotateY(180deg);
+}
+`;
+document.head.appendChild(flipStyle);
+
 /* ---------------- CONCERTS ---------------- */
 
 const concerts = [
@@ -289,50 +330,56 @@ function openPack() {
     function showNextCard() {
       if (i >= pack.length) return;
 
-      const card = document.createElement("div");
+const card = document.createElement("div");
+card.className = "card";
 
-      const rarity = pack[i].rarity;
+const inner = document.createElement("div");
+inner.className = "card-inner";
 
-      card.style.padding = "10px";
-      card.style.margin = "8px 0";
-      card.style.borderRadius = "10px";
-      card.style.background = "#222";
-      card.style.opacity = "0";
-      card.style.transform = "rotateY(90deg)";
-      card.style.transition = "all 0.4s ease";
+/* -------- BACK -------- */
+const back = document.createElement("div");
+back.className = "card-face card-back";
+back.textContent = "TATT CARD";
 
-      card.textContent = `${pack[i].name} (${rarity})`;
+/* -------- FRONT -------- */
+const front = document.createElement("div");
+front.className = "card-face card-front";
 
-      if (rarity === "common") card.style.boxShadow = "0 0 10px yellow";
-      if (rarity === "uncommon") card.style.boxShadow = "0 0 10px dodgerblue";
-      if (rarity === "rare") card.style.boxShadow = "0 0 12px purple";
-     if (rarity === "ultra rare") {
-  card.style.boxShadow = "0 0 15px red";
+const rarity = pack[i].rarity;
 
-  card.style.animation = "rainbowBorder 2s linear infinite";
+front.textContent = pack[i].name + " (" + rarity + ")";
+
+/* NEW badge */
+const key = pack[i].name;
+if (!seenCards.has(key)) {
+  const badge = document.createElement("div");
+  badge.textContent = "NEW!";
+  badge.style.fontSize = "10px";
+  badge.style.background = "yellow";
+  badge.style.color = "black";
+  badge.style.display = "inline-block";
+  badge.style.padding = "2px 6px";
+  badge.style.borderRadius = "6px";
+  front.appendChild(badge);
+  seenCards.add(key);
 }
-      const key = pack[i].name;
 
-      if (!seenCards.has(key)) {
-        const badge = document.createElement("div");
-        badge.textContent = "NEW!";
-        badge.style.fontSize = "10px";
-        badge.style.background = "yellow";
-        badge.style.color = "black";
-        badge.style.display = "inline-block";
-        badge.style.padding = "2px 6px";
-        badge.style.borderRadius = "6px";
+/* rarity glow stays on FRONT */
+if (rarity === "common") front.style.boxShadow = "0 0 10px yellow";
+if (rarity === "uncommon") front.style.boxShadow = "0 0 10px dodgerblue";
+if (rarity === "rare") front.style.boxShadow = "0 0 12px purple";
+if (rarity === "ultra rare") {
+  front.style.animation = "rainbowBorder 2s linear infinite";
+}
 
-        card.appendChild(badge);
-        seenCards.add(key);
-      }
-
-      container.appendChild(card);
-
+/* assemble */
+inner.appendChild(back);
+inner.appendChild(front);
+card.appendChild(inner);
+container.appendChild(card);
       setTimeout(() => {
-        card.style.opacity = "1";
-        card.style.transform = "rotateY(0deg)";
-      }, 50);
+  card.classList.add("flipped");
+}, 200);
 
       i++;
       setTimeout(showNextCard, 250);
