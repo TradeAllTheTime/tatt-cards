@@ -243,15 +243,35 @@ function buildDeck() {
     front.className = "card-face card-front";
 
     // ❗ FRONT ONLY REVEALS AFTER FLIP
-    front.textContent = `${cardData.name} (${cardData.rarity})`;
-
+   if (cardData.rarity === "ultra rare") {
+  front.innerHTML = `<span style="filter: blur(0px)">???</span>`;
+} else {
+  front.textContent = `${cardData.name} (${cardData.rarity})`;
+}
     // 🔥 rarity styling ONLY shows when flipped
     const rarity = cardData.rarity;
 
-    if (rarity === "common") card.style.boxShadow = "0 0 10px yellow";
-    if (rarity === "uncommon") card.style.boxShadow = "0 0 10px dodgerblue";
-    if (rarity === "rare") card.style.boxShadow = "0 0 12px purple";
-    if (rarity === "ultra rare") card.style.boxShadow = "0 0 18px gold";
+    if (rarity === "common") {
+  card.style.boxShadow = "0 0 10px yellow";
+}
+
+if (rarity === "uncommon") {
+  card.style.boxShadow = "0 0 10px dodgerblue";
+}
+
+if (rarity === "rare") {
+  card.style.boxShadow = "0 0 12px purple";
+}
+
+if (rarity === "ultra rare") {
+  card.style.boxShadow = "0 0 18px rgba(255,255,255,0.6)";
+  card.style.border = "2px solid transparent";
+  card.style.backgroundImage =
+    "linear-gradient(#222, #222), linear-gradient(90deg, red, orange, yellow, lime, cyan, blue, violet)";
+  card.style.backgroundOrigin = "border-box";
+  card.style.backgroundClip = "padding-box, border-box";
+  card.style.animation = "rainbowShift 1.5s linear infinite";
+}
 
     inner.appendChild(back);
     inner.appendChild(front);
@@ -267,6 +287,22 @@ function buildDeck() {
   function openCard(index) {
   const cards = document.querySelectorAll(".deck-card");
   const card = cards[index];
+  const data = deck[index];
+
+  card.classList.add("flipped");
+
+  setTimeout(() => {
+    const front = card.querySelector(".card-front");
+
+    // reveal AFTER flip
+    front.textContent = `${data.name} (${data.rarity})`;
+
+    const removed = deck.splice(index, 1)[0];
+    deck.push(removed);
+
+    buildDeck();
+  }, 700);
+}
 
   // flip animation
   card.classList.add("flipped");
@@ -383,6 +419,10 @@ function buildDeck() {
 .card-front {
   background: #222;
   transform: rotateY(180deg);
+}
+  @keyframes rainbowShift {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
 }
 </style>
 
