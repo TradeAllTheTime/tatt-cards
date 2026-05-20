@@ -2,6 +2,87 @@
 <html>
 <head>
   <title>TATT Cards</title>
+  <style>
+#packReveal {
+  position: relative;
+  height: 300px;
+  margin-top: 20px;
+}
+
+/* MAIN STACK */
+.deck-card {
+  width: 160px;
+  height: 220px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transform-style: preserve-3d;
+  transition: transform 0.4s ease;
+  cursor: pointer;
+}
+
+/* FACE DOWN STYLE */
+.card-back,
+.card-front {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  border-radius: 12px;
+  backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial;
+}
+
+/* BACK */
+.card-back {
+  background: #333;
+  color: white;
+}
+
+/* FRONT */
+.card-front {
+  background: #222;
+  transform: rotateY(180deg);
+}
+
+/* FLIP */
+.card-inner {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+/* SECOND PILE (discard) */
+.discard-pile {
+  position: absolute;
+  right: 10px;
+  top: 20px;
+  width: 160px;
+}
+
+/* RARITY COLORS (ONLY VISIBLE AFTER FLIP) */
+.common { box-shadow: 0 0 10px yellow; }
+.uncommon { box-shadow: 0 0 10px dodgerblue; }
+.rare { box-shadow: 0 0 12px purple; }
+
+.ultra {
+  box-shadow: 0 0 18px white;
+  animation: rainbowBorder 1.5s linear infinite;
+}
+
+@keyframes rainbowBorder {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+</style>
 </head>
 
 <body>
@@ -207,45 +288,121 @@ function getRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function getPackData() {
-  return JSON.parse(localStorage.getItem("packData")) || {
-    date: null,
-    count: 0
-  };
-}
+let deck = [];
+let flipped = null;
 
-function savePackData(data) {
-  localStorage.setItem("packData", JSON.stringify(data));
-}
+/* ---------------- OPEN PACK ---------------- */
 
-function canOpenPack() {
-  const data = getPackData();
-  const today = new Date().toDateString();
+function openPack() {
+  deck = [];
 
-  if (data.date !== today) {
-    data.date = today;
-    data.count = 0;
-    savePackData(data);
+  for (let i = 0; i < 10; i++) {
+    let rarity =
+      i < 6 ? "common" :
+      i < 9 ? "uncommon" :
+      Math.random() < 0.75 ? "rare" : "ultra";
+
+    let pool =
+      rarity === "common" ? cardPool.common :
+      rarity === "uncommon" ? cardPool.uncommon :
+      rarity === "rare" ? cardPool.rare :
+      cardPool.ultraRare;
+
+    deck.push({
+      name: getRandom(pool),
+      rarity
+    });
   }
 
-  return data.count < 3 || window.DEV_MODE;
+  renderDeck();
 }
 
-function markPackUsed() {
-  const data = getPackData();
-  const today = new Date().toDateString();
+/* ---------------- RENDER STACK ---------------- */
 
-  if (data.date !== today) {
-    data.date = today;
-    data.count = 0;
+function renderDeck() {
+  const container = document.getElementById("packReveal");
+  container.innerHTML = "";
+
+  const discard = document.createElement("div");
+  discard.className = "discard-pile";
+  discard.id = "discardPile";
+  container.appendChild(discard);
+
+  deck.forEach((cardData, i) => {
+
+    const card = document.createElement("div");
+    card.className = "deck-card";
+
+    const inner = document.createElement("div");
+    inner.className = "card-inner";
+
+    const back = document.createElement("div");
+    back.className = "card-back";
+    back.textContent = "TATT CARD";
+
+    const front = document.createElement("div");
+    front.className = "card-front";
+
+    // ❗ ONLY SHOW DATA AFTER FLIP
+    front.textContent = cardData.name;
+
+    // rarity hidden until flip
+    card.dataset.rarity = cardData.rarity;
+
+    inner.appendChild(back);
+    inner.appendChild(front);
+    card.appendChild(inner);
+
+    // stack effect
+    card.style.zIndex = deck.length - i;
+    card.style.transform = `translate(-50%, -50%) translateY(${i * 4}px) scale(${1 - i * 0.02})`;
+
+    // only top clickable
+    card.style.pointerEvents = i === 0 ? "auto" : "none";
+
+    card.onclick = () => flipCard(card, cardData, i);
+
+    container.appendChild(card);
+  });
+}
+
+/* ---------------- FLIP + MOVE ---------------- */
+
+function flipCard(card, data, index) {
+  if (!card.classList.contains("flipped")) {
+
+    // FIRST CLICK → FLIP
+    card.classList.add("flipped");
+
+    const front = card.querySelector(".card-front");
+
+    // show rarity ONLY after flip
+    setTimeout(() => {
+      front.textContent = `${data.name} (${data.rarity})`;
+
+      if (data.rarity === "common") card.classList.add("common");
+      if (data.rarity === "uncommon") card.classList.add("uncommon");
+      if (data.rarity === "rare") card.classList.add("rare");
+      if (data.rarity === "ultra") card.classList.add("ultra");
+
+      flipped = card;
+    }, 300);
+
+  } else {
+
+    // SECOND CLICK → MOVE TO DISCARD PILE
+    const discard = document.getElementById("discardPile");
+
+    card.style.position = "relative";
+    card.style.transform = "none";
+    card.style.marginBottom = "10px";
+
+    discard.appendChild(card);
+
+    deck.splice(index, 1);
+    renderDeck();
   }
-
-  data.count++;
-  savePackData(data);
 }
-
-let seenCards = new Set();
-
 /* ---------------- OPEN PACK ---------------- */
 
 function openPack() {
