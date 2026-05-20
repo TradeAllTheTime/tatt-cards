@@ -3,7 +3,9 @@
 <head>
   <title>TATT Cards</title>
 </head>
+
 <body>
+
 <h1 style="text-align:center; font-family: Arial; margin-top: 30px;">
   TATT Cards
 </h1>
@@ -32,61 +34,48 @@
 
 <div style="display:flex; justify-content:center; gap:12px; margin-top:20px;">
 
-<div style="display:flex; flex-direction:column; align-items:center;">
-
-  <div style="display:flex; justify-content:center; gap:12px; margin-top:20px;">
-
-    <button onclick="openPack()" style="
-      padding: 10px 16px;
-      border-radius: 10px;
-      border: none;
-      background: #222;
-      color: white;
-      cursor: pointer;
-    ">
-      Open Pack
-    </button>
-
-    <button style="
-      padding: 10px 16px;
-      border-radius: 10px;
-      border: none;
-      background: #222;
-      color: white;
-      cursor: pointer;
-    ">
-      Binder
-    </button>
-
-  </div>
-
-  <div id="packReveal" style="
-    max-width: 420px;
-    width: 100%;
-    margin-top: 20px;
-    padding: 20px;
-    background: #0f0f0f;
-    border-radius: 12px;
+  <button onclick="openPack()" style="
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: none;
+    background: #222;
     color: white;
-    font-family: Arial;
-    text-align: center;
+    cursor: pointer;
   ">
-    <p style="opacity:0.6;">Your pack will appear here</p>
-  </div>
+    Open Pack
+  </button>
+
+  <button style="
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: none;
+    background: #222;
+    color: white;
+    cursor: pointer;
+  ">
+    Binder
+  </button>
 
 </div>
+
+<div id="packReveal" style="
+  max-width: 420px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #0f0f0f;
+  border-radius: 12px;
+  color: white;
+  font-family: Arial;
+  text-align: center;
+">
+  <p style="opacity:0.6;">Your pack will appear here</p>
 </div>
 
 <script>
-  window.DEV_MODE = true;
-    const style = document.createElement("style");
-style.innerHTML = `
-@keyframes rainbowGlow {
-  0% { filter: hue-rotate(0deg); }
-  100% { filter: hue-rotate(360deg); }
-}
-`;
-document.head.appendChild(style);
+window.DEV_MODE = true;
+
+/* ---------------- CONCERTS ---------------- */
+
 const concerts = [
   { name: "Amsterdam Night 3", time: new Date("2026-05-20T18:00:00Z") },
   { name: "Amsterdam Night 4", time: new Date("2026-05-22T18:00:00Z") },
@@ -162,9 +151,11 @@ const concerts = [
   { name: "Melbourne Night 5", time: new Date("2026-12-12T10:00:00Z") },
   { name: "Melbourne Night 6", time: new Date("2026-12-13T10:00:00Z") }
 ];
+
+/* ---------------- TIMER ---------------- */
+
 function getNextConcert() {
   const now = new Date();
-
   return concerts
     .filter(c => c.time > now)
     .sort((a, b) => a.time - b.time)[0];
@@ -173,10 +164,7 @@ function getNextConcert() {
 function updateTimer() {
   const next = getNextConcert();
 
-  if (!next) {
-    document.getElementById("timer").textContent = "No upcoming concerts";
-    return;
-  }
+  if (!next) return;
 
   const diff = next.time - new Date();
 
@@ -192,62 +180,19 @@ function updateTimer() {
 setInterval(updateTimer, 1000);
 updateTimer();
 
+/* ---------------- PACK SYSTEM ---------------- */
+
 const cardPool = {
-  common: [
-    "Common Outfit Sketch",
-    "Tour Hoodie Draft",
-    "Stage Light Study",
-    "Backstage Pass Sketch",
-    "Microphone Design",
-    "Crowd Shot Concept"
-  ],
-
-  uncommon: [
-    "Silver Stage Moment",
-    "Lighting Beam Concept",
-    "Soundcheck Scene",
-    "Green Room Scene",
-    "Mid-performance Frame"
-  ],
-
-  rare: [
-    "Golden Spotlight Outfit",
-    "Encore Performance Shot",
-    "Signature Stage Pose"
-  ],
-
-  ultraRare: [
-    "Legendary Tour Look",
-    "Final Show Outfit",
-    "Iconic Stage Moment"
-  ]
+  common: ["Common Sketch", "Tour Draft", "Stage Study"],
+  uncommon: ["Lighting Scene", "Green Room"],
+  rare: ["Golden Moment"],
+  ultraRare: ["Legendary Shot"]
 };
-
-  function canOpenPack() {
-  const last = localStorage.getItem("lastPackTime");
-  const now = new Date().toDateString();
-
-  return last !== now;
-}
-
-function markPackUsed() {
-  localStorage.setItem("lastPackTime", new Date().toDateString());
-}
-let packCounter = 0;
 
 function getRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
-  
-let seenCards = new Set();
-  
-function openPack() {
-  if (!canOpenPack()) {
-    alert("You’ve used all 3 packs today.");
-    return;
-  }
 
-  markPackUsed();
 function getPackData() {
   return JSON.parse(localStorage.getItem("packData")) || {
     date: null,
@@ -263,14 +208,13 @@ function canOpenPack() {
   const data = getPackData();
   const today = new Date().toDateString();
 
-  // reset if new day
   if (data.date !== today) {
     data.date = today;
     data.count = 0;
     savePackData(data);
   }
 
-  return data.count < 3 || window.DEV_MODE === true;
+  return data.count < 3 || window.DEV_MODE;
 }
 
 function markPackUsed() {
@@ -285,55 +229,54 @@ function markPackUsed() {
   data.count++;
   savePackData(data);
 }
+
+let seenCards = new Set();
+
+/* ---------------- OPEN PACK ---------------- */
+
+function openPack() {
+
+  if (!canOpenPack()) {
+    alert("No packs left today!");
+    return;
+  }
+
+  markPackUsed();
+
   let pack = [];
 
-  // 6 COMMONS
   for (let i = 0; i < 6; i++) {
-    pack.push({
-      name: getRandom(cardPool.common),
-      rarity: "common"
-    });
+    pack.push({ name: getRandom(cardPool.common), rarity: "common" });
   }
 
-  // 3 UNCOMMONS
   for (let i = 0; i < 3; i++) {
-    pack.push({
-      name: getRandom(cardPool.uncommon),
-      rarity: "uncommon"
-    });
+    pack.push({ name: getRandom(cardPool.uncommon), rarity: "uncommon" });
   }
 
-  // 1 RARE SLOT (decides outcome)
   const roll = Math.random();
 
   if (roll < 0.75) {
-    pack.push({
-      name: getRandom(cardPool.rare),
-      rarity: "rare"
-    });
+    pack.push({ name: getRandom(cardPool.rare), rarity: "rare" });
   } else {
-    pack.push({
-      name: getRandom(cardPool.ultraRare),
-      rarity: "ultra rare"
-    });
+    pack.push({ name: getRandom(cardPool.ultraRare), rarity: "ultra rare" });
   }
 
-  // shuffle pack
   pack.sort(() => Math.random() - 0.5);
 
   const container = document.getElementById("packReveal");
-
   container.innerHTML = "<h3>Opening Pack...</h3>";
 
   setTimeout(() => {
     container.innerHTML = "";
-    
+
     let i = 0;
 
     function showNextCard() {
       if (i >= pack.length) return;
 
       const card = document.createElement("div");
+
+      const rarity = pack[i].rarity;
 
       card.style.padding = "10px";
       card.style.margin = "8px 0";
@@ -342,49 +285,30 @@ function markPackUsed() {
       card.style.opacity = "0";
       card.style.transform = "rotateY(90deg)";
       card.style.transition = "all 0.4s ease";
-      card.style.fontFamily = "Arial";
 
-      card.textContent = `${pack[i].name} (${pack[i].rarity})`
-        const cardKey = pack[i].name;
+      card.textContent = pack[i].name;
 
-if (!seenCards.has(cardKey)) {
-  const badge = document.createElement("div");
-  badge.textContent = "NEW!";
-  badge.style.fontSize = "10px";
-  badge.style.color = "black";
-  badge.style.background = "yellow";
-  badge.style.display = "inline-block";
-  badge.style.padding = "2px 6px";
-  badge.style.borderRadius = "6px";
-  badge.style.marginLeft = "6px";
+      if (rarity === "common") card.style.boxShadow = "0 0 10px yellow";
+      if (rarity === "uncommon") card.style.boxShadow = "0 0 10px dodgerblue";
+      if (rarity === "rare") card.style.boxShadow = "0 0 12px purple";
+      if (rarity === "ultra rare") card.style.boxShadow = "0 0 20px magenta, 0 0 40px gold";
 
-  card.appendChild(badge);
-  seenCards.add(cardKey);
-};
+      const key = pack[i].name;
 
-      // 🌈 rarity glow
-      const rarity = pack[i].rarity;
+      if (!seenCards.has(key)) {
+        const badge = document.createElement("div");
+        badge.textContent = "NEW!";
+        badge.style.fontSize = "10px";
+        badge.style.background = "yellow";
+        badge.style.color = "black";
+        badge.style.display = "inline-block";
+        badge.style.padding = "2px 6px";
+        badge.style.borderRadius = "6px";
 
-      if (rarity === "common") {
-        card.style.boxShadow = "0 0 10px yellow";
+        card.appendChild(badge);
+        seenCards.add(key);
       }
 
-      if (rarity === "uncommon") {
-        card.style.boxShadow = "0 0 10px dodgerblue";
-      }
-
-      if (rarity === "rare") {
-        card.style.boxShadow = "0 0 12px purple";
-      }
-
-   if (rarity === "ultra rare") {
-  card.style.border = "2px solid transparent";
-  card.style.backgroundImage = "linear-gradient(#222, #222), linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)";
-  card.style.backgroundOrigin = "border-box";
-  card.style.backgroundClip = "padding-box, border-box";
-  card.style.animation = "rainbowGlow 2s linear infinite";
-}
-}
       container.appendChild(card);
 
       setTimeout(() => {
@@ -398,8 +322,9 @@ if (!seenCards.has(cardKey)) {
 
     showNextCard();
 
-  }, 800);
+  }, 600);
 }
+
 </script>
 
 </body>
