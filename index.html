@@ -1,54 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>TATT Cards</title>
+ <title>TATT Cards</title>
 
-  <style>
+ <style>
 #packReveal {
-  position: relative;
-  height: 340px;
-  margin-top: 20px;
+ position: relative;
+ height: 340px;
+ margin-top: 20px;
 }
 
 /* STACK */
 .deck-card {
-  width: 220px;
-  height: 140px;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform-style: preserve-3d;
-  transition: transform 0.35s ease;
-  cursor: pointer;
+ width: 220px;
+ height: 140px;
+ position: absolute;
+ left: 50%;
+ top: 50%;
+ transform-style: preserve-3d;
+ transition: transform 0.35s ease;
+ cursor: pointer;
 }
 
 .card-inner {
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
+ width: 100%;
+ height: 100%;
+ transition: transform 0.6s;
+ transform-style: preserve-3d;
 }
 
-.deck-card.flipped .card-inner {
-  transform: rotateY(180deg);
+.deck-card.flipped.card-inner {
+ transform: rotateY(180deg);
 }
 
 /* FACES */
 .card-face {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border-radius: 12px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-family: Arial;
+ position: absolute;
+ width: 100%;
+ height: 100%;
+ backface-visibility: hidden;
+ border-radius: 12px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-family: Arial;
 }
 
 .card-back {
-  background:#333;
-  color:white;
+ background:#333;
+ color:white;
 }
 
 .card-front {
@@ -59,28 +59,27 @@
  border-radius: 12px;
 }
 
-
 /* DISCARD */
 #discardPile {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  width: 220px;
-  display:flex;
-  flex-direction: column;
-  gap: 8px;
+ position: absolute;
+ right: 10px;
+ top: 10px;
+ width: 220px;
+ display:flex;
+ flex-direction: column;
+ gap: 8px;
 }
 
 .discardCard {
-  width: 220px;
-  height: 140px;
-  background:#222;
-  color:white;
-  border-radius: 10px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-family: Arial;
+ width: 220px;
+ height: 140px;
+ background:#222;
+ color:white;
+ border-radius: 10px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-family: Arial;
 }
 
 /* RARITY GLOWS (ONLY AFTER FLIP) */
@@ -91,6 +90,7 @@
 .ultraGlow {
  box-shadow: 0 0 20px 6px white;
  border: 3px solid transparent;
+ background: transparent;
  background-image:
  linear-gradient(#222, #222),
  linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet);
@@ -100,69 +100,67 @@
 }
 
 @keyframes rainbow {
-  0% { filter: hue-rotate(0deg); }
-  100% { filter: hue-rotate(360deg); }
+ 0% { filter: hue-rotate(0deg); }
+ 100% { filter: hue-rotate(360deg); }
 }
-
 
 /* GRID END VIEW */
 #gridView {
-  display:none;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-top: 20px;
+ display:none;
+ grid-template-columns: repeat(3, 1fr);
+ gap: 10px;
+ margin-top: 20px;
 }
 
 .grid-card {
-  background:#222;
-  color:white;
-  padding: 10px;
-  border-radius: 10px;
-  font-family: Arial;
-  text-align:center;
+ background:#222;
+ color:white;
+ padding: 10px;
+ border-radius: 10px;
+ font-family: Arial;
+ text-align:center;
 }
-    button {
-  padding: 10px 16px;
-  border-radius: 10px;
-  border: none;
-  background: #222;
-  color: white;
-  cursor: pointer;
-  margin: 5px;
+ button {
+ padding: 10px 16px;
+ border-radius: 10px;
+ border: none;
+ background: #222;
+ color: white;
+ cursor: pointer;
+ margin: 5px;
 }
 
 /* ensures pack never overlaps UI */
 #packReveal {
-  margin-top: 20px;
-  position: relative;
-  min-height: 300px;
-  overflow: visible;
+ margin-top: 20px;
+ position: relative;
+ min-height: 300px;
+ overflow: visible;
 }
-  </style>
+ </style>
 </head>
 
 <body>
 
 <h1 style="text-align:center; font-family: Arial;">TATT Cards</h1>
 
-<!-- TIMER (UNCHANGED LOGIC) -->
 <div style="
-  max-width: 420px;
-  margin: 30px auto;
-  padding: 24px;
-  border-radius: 16px;
-  background: #111;
-  color: white;
-  text-align: center;
-  font-family: Arial;
+ max-width: 420px;
+ margin: 30px auto;
+ padding: 24px;
+ border-radius: 16px;
+ background: #111;
+ color: white;
+ text-align: center;
+ font-family: Arial;
 ">
-  <div style="font-size: 12px; opacity: 0.7;">NEXT SHOW</div>
-  <h2 id="timer">Loading...</h2>
+ <div style="font-size: 12px; opacity: 0.7;">NEXT SHOW</div>
+ <h2 id="timer">Loading...</h2>
 </div>
 
 <div style="text-align:center;">
-  <button onclick="openPack()">Open Pack</button>
-  <button onclick="showBinder()">Binder</button>
+ <button onclick="openPack()">Open Pack</button>
+ <button onclick="showBinder()">Binder</button>
 </div>
 
 <div id="packReveal"></div>
@@ -173,8 +171,7 @@ window.DEV_MODE = true;
 
 /* ---------------- TIMER (YOUR ORIGINAL LOGIC KEPT) ---------------- */
 
-const concerts = [
- // Amsterdam (8)
+const concerts = // Amsterdam (8)
  { name: "Amsterdam Night 3", time: new Date("2026-05-20T18:00:00Z") },
  { name: "Amsterdam Night 4", time: new Date("2026-05-22T18:00:00Z") },
  { name: "Amsterdam Night 5", time: new Date("2026-05-23T18:00:00Z") },
@@ -254,21 +251,21 @@ const concerts = [
  { name: "Melbourne Night 4", time: new Date("2026-12-04T10:00:00Z") },
  { name: "Melbourne Night 5", time: new Date("2026-12-12T10:00:00Z") },
  { name: "Melbourne Night 6", time: new Date("2026-12-13T10:00:00Z") },
-  ];
+;
 
 function updateTimer() {
-  const next = concerts.filter(c => c.time > new Date())[0];
-  if (!next) return;
+ const next = concerts.filter(c => c.time > new Date());
+ if (!next) return;
 
-  const diff = next.time - new Date();
+ const diff = next.time - new Date();
 
-  const d = Math.floor(diff / 86400000);
-  const h = Math.floor((diff % 86400000) / 3600000);
-  const m = Math.floor((diff % 3600000) / 60000);
-  const s = Math.floor((diff % 60000) / 1000);
+ const d = Math.floor(diff / 86400000);
+ const h = Math.floor((diff % 86400000) / 3600000);
+ const m = Math.floor((diff % 3600000) / 60000);
+ const s = Math.floor((diff % 60000) / 1000);
 
-  document.getElementById("timer").textContent =
-    `${next.name}: ${d}d ${h}h ${m}m ${s}s`;
+ document.getElementById("timer").textContent =
+ `${next.name}: ${d}d ${h}h ${m}m ${s}s`;
 }
 
 setInterval(updateTimer, 1000);
@@ -277,14 +274,14 @@ updateTimer();
 /* ---------------- PACK SYSTEM ---------------- */
 
 const cardPool = {
-  common: ["Common Sketch", "Tour Draft", "Stage Study"],
-  uncommon: ["Lighting Scene", "Green Room"],
-  rare: ["Golden Moment"],
-  ultraRare: ["Legendary Shot"]
+ common: "Common Sketch", "Tour Draft", "Stage Study",
+ uncommon: "Lighting Scene", "Green Room",
+ rare: "Golden Moment",
+ ultraRare: "Legendary Shot"
 };
 
 function getRandom(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+ return arr Math.floor(Math.random() * arr.length);
 }
 
 let deck = [];
@@ -294,26 +291,30 @@ let openedCards = [];
 /* ---------------- OPEN PACK ---------------- */
 
 function openPack() {
-  deck = [];
-  openedCards = [];
-  flippedIndex = null;
+ // Reset view to show the pack
+ document.getElementById("gridView").style.display = "none";
+ document.getElementById("packReveal").style.display = "block";
 
-  for (let i = 0; i < 10; i++) {
-    let rarity =
-      i < 6 ? "common" :
-      i < 9 ? "uncommon" :
-      Math.random() < 0.75 ? "rare" : "ultra";
+ deck = [];
+ openedCards = [];
+ flippedIndex = null;
 
-    let pool =
-      rarity === "common" ? cardPool.common :
-      rarity === "uncommon" ? cardPool.uncommon :
-      rarity === "rare" ? cardPool.rare :
-      cardPool.ultraRare;
+ for (let i = 0; i < 10; i++) {
+ let rarity =
+ i < 6? "common":
+ i < 9? "uncommon":
+ Math.random() < 0.75? "rare": "ultra";
 
-    deck.push({ name: getRandom(pool), rarity });
-  }
+ let pool =
+ rarity === "common"? cardPool.common:
+ rarity === "uncommon"? cardPool.uncommon:
+ rarity === "rare"? cardPool.rare:
+ cardPool.ultraRare;
 
-  renderDeck();
+ deck.push({ name: getRandom(pool), rarity });
+ }
+
+ renderDeck();
 }
 function saveCard(cardName, rarity) {
  let collected = JSON.parse(localStorage.getItem("collectedCards")) || [];
@@ -322,31 +323,24 @@ function saveCard(cardName, rarity) {
  localStorage.setItem("collectedCards", JSON.stringify(collected));
  }
 }
-  /**
- * Render an array of card objects into #gridView.
- * Each object must have: { name: string, rarity: "common"|"uncommon"|"rare"|"ultra" }
- * The function adds the appropriate glow class (commonGlow, uncommonGlow, …)
- * and optionally a “NEW” badge for cards that have never been seen before.
- */
+
+/* ---------------- RENDER GRID ---------------- */
+
 function renderGrid(cards, markNew = false) {
  const grid = document.getElementById("gridView");
- grid.innerHTML = ""; // clear previous content
+ grid.innerHTML = "";
  grid.style.display = "grid";
 
- // Hide the pack‑reveal area while we show the grid
  document.getElementById("packReveal").style.display = "none";
 
- // Pull the list of cards we have already collected (for the NEW badge)
  const collected = JSON.parse(localStorage.getItem("collectedCards")) || [];
 
  cards.forEach(card => {
  const el = document.createElement("div");
  el.classList.add("grid-card", `${card.rarity}Glow`);
- el.style.position = "relative"; // needed for the badge overlay
- el.textContent = card.name; // you can add the rarity text if you want:
- // el.textContent = `${card.name} (${card.rarity})`;
+ el.style.position = "relative";
+ el.textContent = card.name;
 
- // ---- OPTIONAL “NEW” badge -------------------------------------------------
  if (markNew &&!collected.some(c => c.name === card.name)) {
  const badge = document.createElement("span");
  badge.textContent = "NEW";
@@ -363,126 +357,109 @@ function renderGrid(cards, markNew = false) {
  `;
  el.appendChild(badge);
  }
- // -------------------------------------------------------------------------
 
  grid.appendChild(el);
  });
 }
+
 /* ---------------- RENDER ---------------- */
 
 function renderDeck() {
-  const container = document.getElementById("packReveal");
-  container.innerHTML = "";
+ const container = document.getElementById("packReveal");
+ container.innerHTML = "";
 
-  const discard = document.createElement("div");
-  discard.id = "discardPile";
-  container.appendChild(discard);
+ const discard = document.createElement("div");
+ discard.id = "discardPile";
+ container.appendChild(discard);
 
-  deck.forEach((card, i) => {
-    const el = document.createElement("div");
-    el.className = "deck-card";
+ deck.forEach((card, i) => {
+ const el = document.createElement("div");
+ el.className = "deck-card";
 
-    const inner = document.createElement("div");
-    inner.className = "card-inner";
+ const inner = document.createElement("div");
+ inner.className = "card-inner";
 
-    const back = document.createElement("div");
-    back.className = "card-face card-back";
-    back.textContent = "TATT CARD";
+ const back = document.createElement("div");
+ back.className = "card-face card-back";
+ back.textContent = "TATT CARD";
 
-    const front = document.createElement("div");
-    front.className = "card-face card-front";
-    front.textContent = card.name;
+ const front = document.createElement("div");
+ front.className = "card-face card-front";
+ front.textContent = card.name;
 
-    inner.appendChild(back);
-    inner.appendChild(front);
-    el.appendChild(inner);
+ inner.appendChild(back);
+ inner.appendChild(front);
+ el.appendChild(inner);
 
-    el.dataset.index = i; // 🔥 IMPORTANT FIX
+ el.dataset.index = i;
 
-    const offset = i * 5;
+ const offset = i * 5;
 
-    el.style.zIndex = deck.length - i;
-    el.style.transform =
-      `translate(-50%, -50%) translateY(${offset}px) scale(${1 - i * 0.02})`;
+ el.style.zIndex = deck.length - i;
+ el.style.transform =
+ `translate(-50%, -50%) translateY(${offset}px) scale(${1 - i * 0.02})`;
 
-    el.style.position = "absolute";
-    el.style.left = "50%";
-    el.style.top = "50%";
+ el.style.position = "absolute";
+ el.style.left = "50%";
+ el.style.top = "50%";
 
-    el.onclick = () => handleCard(i);
+ el.onclick = () => handleCard(i);
 
-    container.appendChild(el);
-  });
+ container.appendChild(el);
+ });
 }
 
 /* ---------------- CLICK LOGIC ---------------- */
 
 function handleCard(index) {
-  const cardEl = document.querySelectorAll(".deck-card")[index];
-  const data = deck[index];
+ const cardEl = document.querySelectorAll(".deck-card")index;
+ const data = deckindex;
 
-  if (!cardEl.classList.contains("flipped")) {
-    cardEl.classList.add("flipped");
+ if (!cardEl.classList.contains("flipped")) {
+ cardEl.classList.add("flipped");
 
-    const front = cardEl.querySelector(".card-front");
+ const front = cardEl.querySelector(".card-front");
 
-    setTimeout(() => {
+ setTimeout(() => {
  front.textContent = `${data.name} (${data.rarity})`;
- saveCard(data.name, data.rarity); 
-      if (data.rarity === "common") cardEl.classList.add("commonGlow");
-      if (data.rarity === "uncommon") cardEl.classList.add("uncommonGlow");
-      if (data.rarity === "rare") cardEl.classList.add("rareGlow");
-      if (data.rarity === "ultra") cardEl.classList.add("ultraGlow");
-    }, 250);
+ saveCard(data.name, data.rarity);
+ if (data.rarity === "common") cardEl.classList.add("commonGlow");
+ if (data.rarity === "uncommon") cardEl.classList.add("uncommonGlow");
+ if (data.rarity === "rare") cardEl.classList.add("rareGlow");
+ if (data.rarity === "ultra") cardEl.classList.add("ultraGlow");
+ }, 250);
 
-    return;
-  }
+ return;
+ }
 
-  const discard = document.getElementById("discardPile");
+ const discard = document.getElementById("discardPile");
 
  const final = document.createElement("div");
-final.className = "discardCard";
-final.textContent = `${data.name} (${data.rarity})`;
+ final.className = "discardCard";
+ final.textContent = `${data.name} (${data.rarity})`;
+ discard.appendChild(final);
 
-discard.appendChild(final);
+ openedCards.push(data);
 
-openedCards.push(data);
+ deck.splice(index, 1);
 
-  deck.splice(index, 1);
-
-  if (deck.length === 0) {
-    showGrid();
-  } else {
-    renderDeck();
-  }
+ if (deck.length === 0) {
+ showGrid();
+ } else {
+ renderDeck();
+ }
 }
-  
+
 /* ---------------- GRID ---------------- */
 
 function showGrid() {
-  const container = document.getElementById("packReveal");
-  container.innerHTML = "";
-
-  const grid = document.createElement("div");
-  grid.style.display = "grid";
-  grid.style.gridTemplateColumns = "repeat(3, 1fr)";
-  grid.style.gap = "10px";
-
-  openedCards.forEach(card => {
-    const el = document.createElement("div");
-    el.className = "grid-card";
-    el.textContent = `${card.name} (${card.rarity})`;
-    grid.appendChild(el);
-  });
-
-  container.appendChild(grid);
+ renderGrid(openedCards, false);
 }
+
 function showBinder() {
- // Grab all cards we have ever collected
  const collected = JSON.parse(localStorage.getItem("collectedCards")) || [];
 
  if (collected.length === 0) {
- // Nothing collected yet – show a friendly message
  const grid = document.getElementById("gridView");
  grid.innerHTML = `<div style="grid-column:1/-1;color:white;font-family:Arial;">
  No cards collected yet. Open a pack!
@@ -492,8 +469,18 @@ function showBinder() {
  return;
  }
 
- // Render them – we don’t need the “NEW” badge here because they’re already saved
+ // Add back button
  renderGrid(collected, false);
+ const grid = document.getElementById("gridView");
+ const backBtn = document.createElement("button");
+ backBtn.textContent = "← Back to Packs";
+ backBtn.style.marginBottom = "12px";
+ backBtn.style.gridColumn = "1 / -1";
+ backBtn.onclick = () => {
+ document.getElementById("gridView").style.display = "none";
+ document.getElementById("packReveal").style.display = "block";
+ };
+ grid.prepend(backBtn);
 }
 </script>
 
