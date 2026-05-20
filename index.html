@@ -3,49 +3,45 @@
 <head>
   <title>TATT Cards</title>
   <style>
-#packReveal {
-  position: relative;
-  height: 300px;
+#packArea {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
   margin-top: 20px;
 }
 
-/* MAIN STACK */
-.deck-card {
-  width: 160px;
-  height: 220px;
+/* MAIN DECK */
+#mainPile {
+  position: relative;
+  width: 220px;
+  height: 140px;
+  perspective: 1200px;
+}
+
+/* DISCARD PILE */
+#discardPile {
+  width: 220px;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+/* CARD BASE */
+.card {
+  width: 220px;
+  height: 140px;
   position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  left: 0;
+  top: 0;
   transform-style: preserve-3d;
-  transition: transform 0.4s ease;
   cursor: pointer;
 }
 
-/* FACE DOWN STYLE */
-.card-back,
-.card-front {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  border-radius: 12px;
-  backface-visibility: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: Arial;
-}
-
-/* BACK */
-.card-back {
-  background: #333;
-  color: white;
-}
-
-/* FRONT */
-.card-front {
-  background: #222;
-  transform: rotateY(180deg);
+/* STACK EFFECT */
+.card.stack {
+  transition: transform 0.3s ease;
 }
 
 /* FLIP */
@@ -54,33 +50,69 @@
   height: 100%;
   transition: transform 0.6s;
   transform-style: preserve-3d;
+  position: relative;
 }
 
-.flipped .card-inner {
+.card.flipped .card-inner {
   transform: rotateY(180deg);
 }
 
-/* SECOND PILE (discard) */
-.discard-pile {
+/* FACES */
+.card-face {
   position: absolute;
-  right: 10px;
-  top: 20px;
-  width: 160px;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial;
 }
 
-/* RARITY COLORS (ONLY VISIBLE AFTER FLIP) */
-.common { box-shadow: 0 0 10px yellow; }
-.uncommon { box-shadow: 0 0 10px dodgerblue; }
-.rare { box-shadow: 0 0 12px purple; }
-
-.ultra {
-  box-shadow: 0 0 18px white;
-  animation: rainbowBorder 1.5s linear infinite;
+.card-back {
+  background: #333;
 }
 
-@keyframes rainbowBorder {
+.card-front {
+  background: #222;
+  transform: rotateY(180deg);
+}
+
+/* RARITY GLOWS (ONLY AFTER FLIP) */
+.commonGlow { box-shadow: 0 0 10px yellow; }
+.uncommonGlow { box-shadow: 0 0 10px dodgerblue; }
+.rareGlow { box-shadow: 0 0 12px purple; }
+
+/* ULTRA RARE RAINBOW */
+.ultraRareGlow {
+  box-shadow: 0 0 18px rgba(255,255,255,0.6);
+  border: 2px solid transparent;
+  background-image:
+    linear-gradient(#222, #222),
+    linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  animation: rainbowShift 1.5s linear infinite;
+}
+
+@keyframes rainbowShift {
   0% { filter: hue-rotate(0deg); }
   100% { filter: hue-rotate(360deg); }
+}
+
+/* DISCARD CARD STYLE */
+.discardCard {
+  width: 220px;
+  height: 140px;
+  background: #222;
+  border-radius: 12px;
+  padding: 10px;
+  font-family: Arial;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
 </head>
@@ -276,7 +308,333 @@ setInterval(updateTimer, 1000);
 updateTimer();
 
 /* ---------------- PACK SYSTEM ---------------- */
+const cardPool = {
+  common: ["Common Sketch", "Tour Draft", "Stage Study"],
+  uncommon: ["Lighting Scene", "Green Room"],
+  rare: ["Golden Moment"],
+  ultraRare: ["Legendary Shot"]
+};
 
+function getRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+let deck = [];
+let flipped = null;
+
+/* ---------------- OPEN PACK ---------------- */
+
+function openPack() {
+  deck = [];
+
+  for (let i = 0; i < 10; i++) {
+    let rarity =
+      i < 6 ? "common" :
+      i < 9 ? "uncommon" :
+      Math.random() < 0.75 ? "rare" : "ultra";
+
+    let pool =
+      rarity === "common" ? cardPool.common :
+      rarity === "uncommon" ? cardPool.uncommon :
+      rarity === "rare" ? cardPool.rare :
+      cardPool.ultraRare;
+
+    deck.push({
+      name: getRandom(pool),
+      rarity
+    });
+  }
+
+  renderDeck();
+}
+
+/* ---------------- RENDER STACK ---------------- */
+
+function renderDeck() {
+  const container = document.getElementById("packReveal");
+  container.innerHTML = "";
+
+  const discard = document.createElement("div");
+  discard.className = "discard-pile";
+  discard.id = "discardPile";
+  container.appendChild(discard);
+
+  deck.forEach((cardData, i) => {
+
+    const card = document.createElement("div");
+    card.className = "deck-card";
+
+    const inner = document.createElement("div");
+    inner.className = "card-inner";
+
+    const back = document.createElement("div");
+    back.className = "card-back";
+    back.textContent = "TATT CARD";
+
+    const front = document.createElement("div");
+    front.className = "card-front";
+
+    // ❗ ONLY SHOW DATA AFTER FLIP
+    front.textContent = cardData.name;
+
+    // rarity hidden until flip
+    card.dataset.rarity = cardData.rarity;
+
+    inner.appendChild(back);
+    inner.appendChild(front);
+    card.appendChild(inner);
+
+    // stack effect
+    card.style.zIndex = deck.length - i;
+    card.style.transform = `translate(-50%, -50%) translateY(${i * 4}px) scale(${1 - i * 0.02})`;
+
+    // only top clickable
+    card.style.pointerEvents = i === 0 ? "auto" : "none";
+
+    card.onclick = () => flipCard(card, cardData, i);
+
+    container.appendChild(card);
+  });
+}
+
+/* ---------------- FLIP + MOVE ---------------- */
+
+function flipCard(card, data, index) {
+  if (!card.classList.contains("flipped")) {
+
+    // FIRST CLICK → FLIP
+    card.classList.add("flipped");
+
+    const front = card.querySelector(".card-front");
+
+    // show rarity ONLY after flip
+    setTimeout(() => {
+      front.textContent = `${data.name} (${data.rarity})`;
+
+      if (data.rarity === "common") card.classList.add("common");
+      if (data.rarity === "uncommon") card.classList.add("uncommon");
+      if (data.rarity === "rare") card.classList.add("rare");
+      if (data.rarity === "ultra") card.classList.add("ultra");
+
+      flipped = card;
+    }, 300);
+
+  } else {
+
+    // SECOND CLICK → MOVE TO DISCARD PILE
+    const discard = document.getElementById("discardPile");
+
+    card.style.position = "relative";
+    card.style.transform = "none";
+    card.style.marginBottom = "10px";
+
+    discard.appendChild(card);
+
+    deck.splice(index, 1);
+    renderDeck();
+  }
+}
+
+</script>
+
+</body>
+</html><!DOCTYPE html>
+<html>
+<head>
+  <title>TATT Cards</title>
+</head>
+
+<body>
+
+<h1 style="text-align:center; font-family: Arial; margin-top: 30px;">
+  TATT Cards
+</h1>
+
+<div style="
+  max-width: 420px;
+  margin: 30px auto;
+  padding: 24px;
+  border-radius: 16px;
+  background: #111;
+  color: white;
+  text-align: center;
+  font-family: Arial;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+">
+
+  <div style="font-size: 12px; opacity: 0.7; letter-spacing: 2px;">
+    NEXT SHOW
+  </div>
+
+  <h2 id="timer" style="margin: 16px 0; font-size: 20px;">
+    Loading...
+  </h2>
+
+</div>
+
+<div style="display:flex; justify-content:center; gap:12px; margin-top:20px;">
+
+  <button onclick="openPack()" style="
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: none;
+    background: #222;
+    color: white;
+    cursor: pointer;
+  ">
+    Open Pack
+  </button>
+
+  <button style="
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: none;
+    background: #222;
+    color: white;
+    cursor: pointer;
+  ">
+    Binder
+  </button>
+
+</div>
+
+<div id="packReveal" style="
+  max-width: 420px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #0f0f0f;
+  border-radius: 12px;
+  color: white;
+  font-family: Arial;
+  text-align: center;
+">
+  <p style="opacity:0.6;">Your pack will appear here</p>
+</div>
+
+<script>
+window.DEV_MODE = true;
+  const style = document.createElement("style");
+style.innerHTML = `
+@keyframes rainbowBorder {
+  0%   { box-shadow: 0 0 12px red; }
+  14%  { box-shadow: 0 0 12px orange; }
+  28%  { box-shadow: 0 0 12px yellow; }
+  42%  { box-shadow: 0 0 12px lime; }
+  57%  { box-shadow: 0 0 12px cyan; }
+  71%  { box-shadow: 0 0 12px blue; }
+  85%  { box-shadow: 0 0 12px violet; }
+  100% { box-shadow: 0 0 12px red; }
+}
+`;
+document.head.appendChild(style);
+
+/* ---------------- CONCERTS ---------------- */
+
+const concerts = [
+  { name: "Amsterdam Night 3", time: new Date("2026-05-20T18:00:00Z") },
+  { name: "Amsterdam Night 4", time: new Date("2026-05-22T18:00:00Z") },
+  { name: "Amsterdam Night 5", time: new Date("2026-05-23T18:00:00Z") },
+  { name: "Amsterdam Night 6", time: new Date("2026-05-26T18:00:00Z") },
+  { name: "Amsterdam Night 7", time: new Date("2026-05-29T18:00:00Z") },
+  { name: "Amsterdam Night 8", time: new Date("2026-05-30T18:00:00Z") },
+  { name: "Amsterdam Night 9", time: new Date("2026-06-04T18:00:00Z") },
+  { name: "Amsterdam Night 10", time: new Date("2026-06-05T18:00:00Z") },
+
+  { name: "Wembley Night 1", time: new Date("2026-06-12T19:00:00Z") },
+  { name: "Wembley Night 2", time: new Date("2026-06-13T19:00:00Z") },
+  { name: "Meltdown Music Festival", time: new Date("2026-06-16T19:00:00Z") },
+  { name: "Wembley Night 3", time: new Date("2026-06-17T19:00:00Z") },
+  { name: "Wembley Night 4", time: new Date("2026-06-19T19:00:00Z") },
+  { name: "Wembley Night 5", time: new Date("2026-06-20T19:00:00Z") },
+  { name: "Wembley Night 6", time: new Date("2026-06-23T19:00:00Z") },
+  { name: "Wembley Night 7", time: new Date("2026-06-26T19:00:00Z") },
+  { name: "Wembley Night 8", time: new Date("2026-06-27T19:00:00Z") },
+  { name: "Wembley Night 9", time: new Date("2026-06-29T19:00:00Z") },
+  { name: "Wembley Night 10", time: new Date("2026-07-01T19:00:00Z") },
+  { name: "Wembley Night 11", time: new Date("2026-07-03T19:00:00Z") },
+  { name: "Wembley Night 12", time: new Date("2026-07-04T19:00:00Z") },
+
+  { name: "São Paulo Night 1", time: new Date("2026-07-17T23:00:00Z") },
+  { name: "São Paulo Night 2", time: new Date("2026-07-23T23:00:00Z") },
+  { name: "São Paulo Night 3", time: new Date("2026-07-21T23:00:00Z") },
+  { name: "São Paulo Night 4", time: new Date("2026-07-24T23:00:00Z") },
+
+  { name: "Mexico City Night 1", time: new Date("2026-07-31T02:00:00Z") },
+  { name: "Mexico City Night 2", time: new Date("2026-08-01T02:00:00Z") },
+  { name: "Mexico City Night 3", time: new Date("2026-08-04T02:00:00Z") },
+  { name: "Mexico City Night 4", time: new Date("2026-08-07T02:00:00Z") },
+  { name: "Mexico City Night 5", time: new Date("2026-08-08T02:00:00Z") },
+  { name: "Mexico City Night 6", time: new Date("2026-08-10T02:00:00Z") },
+
+  { name: "MSG Night 1", time: new Date("2026-07-17T00:00:00Z") },
+  { name: "MSG Night 2", time: new Date("2026-08-28T00:00:00Z") },
+  { name: "MSG Night 3", time: new Date("2026-08-29T00:00:00Z") },
+  { name: "MSG Night 4", time: new Date("2026-09-02T00:00:00Z") },
+  { name: "MSG Night 5", time: new Date("2026-09-04T00:00:00Z") },
+  { name: "MSG Night 6", time: new Date("2026-09-05T00:00:00Z") },
+  { name: "MSG Night 7", time: new Date("2026-09-09T00:00:00Z") },
+  { name: "MSG Night 8", time: new Date("2026-09-11T00:00:00Z") },
+  { name: "MSG Night 9", time: new Date("2026-09-12T00:00:00Z") },
+  { name: "MSG Night 10", time: new Date("2026-09-16T00:00:00Z") },
+  { name: "MSG Night 11", time: new Date("2026-09-18T00:00:00Z") },
+  { name: "MSG Night 13", time: new Date("2026-09-19T00:00:00Z") },
+  { name: "MSG Night 14", time: new Date("2026-09-23T00:00:00Z") },
+  { name: "MSG Night 15", time: new Date("2026-09-25T00:00:00Z") },
+  { name: "MSG Night 16", time: new Date("2026-09-26T00:00:00Z") },
+  { name: "MSG Night 17", time: new Date("2026-09-30T00:00:00Z") },
+  { name: "MSG Night 18", time: new Date("2026-10-02T00:00:00Z") },
+  { name: "MSG Night 19", time: new Date("2026-10-03T00:00:00Z") },
+  { name: "MSG Night 20", time: new Date("2026-10-07T00:00:00Z") },
+  { name: "MSG Night 21", time: new Date("2026-10-09T00:00:00Z") },
+  { name: "MSG Night 22", time: new Date("2026-10-10T00:00:00Z") },
+  { name: "MSG Night 23", time: new Date("2026-10-14T00:00:00Z") },
+  { name: "MSG Night 24", time: new Date("2026-10-16T00:00:00Z") },
+  { name: "MSG Night 25", time: new Date("2026-10-17T00:00:00Z") },
+  { name: "MSG Night 26", time: new Date("2026-10-21T00:00:00Z") },
+  { name: "MSG Night 27", time: new Date("2026-10-23T00:00:00Z") },
+  { name: "MSG Night 28", time: new Date("2026-10-24T00:00:00Z") },
+  { name: "MSG Night 29", time: new Date("2026-10-28T00:00:00Z") },
+
+  { name: "HARRYWEEN Night 1", time: new Date("2026-10-30T00:00:00Z") },
+  { name: "HARRYWEEN Night 2", time: new Date("2026-10-31T00:00:00Z") },
+
+  { name: "Melbourne Night 1", time: new Date("2026-11-27T10:00:00Z") },
+  { name: "Melbourne Night 2", time: new Date("2026-11-28T10:00:00Z") },
+  { name: "Melbourne Night 3", time: new Date("2026-12-02T10:00:00Z") },
+  { name: "Melbourne Night 4", time: new Date("2026-12-04T10:00:00Z") },
+  { name: "Melbourne Night 5", time: new Date("2026-12-12T10:00:00Z") },
+  { name: "Melbourne Night 6", time: new Date("2026-12-13T10:00:00Z") }
+];
+
+/* ---------------- TIMER ---------------- */
+
+function getNextConcert() {
+  const now = new Date();
+  return concerts
+    .filter(c => c.time > now)
+    .sort((a, b) => a.time - b.time)[0];
+}
+
+function updateTimer() {
+  const next = getNextConcert();
+
+  if (!next) return;
+
+  const diff = next.time - new Date();
+
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+
+  document.getElementById("timer").textContent =
+    `${next.name}: ${d}d ${h}h ${m}m ${s}s`;
+}
+
+setInterval(updateTimer, 1000);
+updateTimer();
+
+/* ---------------- PACK SYSTEM ---------------- */
 let deck = [];
 let flippedCard = null;
 
@@ -391,18 +749,18 @@ function handleCardClick(card, data, index) {
     return;
   }
 
-// SECOND CLICK → MOVE TO DISCARD PILE
-const discard = document.getElementById("discardPile");
+  // SECOND CLICK → MOVE TO DISCARD
+  const discard = document.getElementById("discardPile");
 
-card.style.position = "relative";
-card.style.transform = "none";
-card.style.marginBottom = "10px";
+  card.style.position = "relative";
+  card.style.transform = "none";
+  card.style.marginBottom = "10px";
 
-discard.appendChild(card);
+  discard.appendChild(card);
 
-deck.splice(index, 1);
-renderDeck();
-  
+  deck.splice(index, 1);
+  renderDeck();
+}
 </script>
 
 </body>
