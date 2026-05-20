@@ -72,119 +72,19 @@
 </div>
 
 <script>
-window.DEV_MODE = true; 
-    let deckIndex = 0;
+
+window.DEV_MODE = true;
+
 let deck = [];
-  
-  const style = document.createElement("style");
-style.innerHTML = `
-@keyframes rainbowBorder {
-  0%   { box-shadow: 0 0 12px red; }
-  14%  { box-shadow: 0 0 12px orange; }
-  28%  { box-shadow: 0 0 12px yellow; }
-  42%  { box-shadow: 0 0 12px lime; }
-  57%  { box-shadow: 0 0 12px cyan; }
-  71%  { box-shadow: 0 0 12px blue; }
-  85%  { box-shadow: 0 0 12px violet; }
-  100% { box-shadow: 0 0 12px red; }
-}
-`;
-document.head.appendChild(style);
+let seenCards = new Set();
 
-  const flipStyle = document.createElement("style");
-flipStyle.innerHTML = `
-.card {
-  width: 100%;
-  perspective: 1000px;
-}
-
-.card-inner {
-  position: relative;
-  width: 100%;
-  transform-style: preserve-3d;
-  transition: transform 0.6s;
-}
-
-.card.flipped .card-inner {
-  transform: rotateY(180deg);
-}
-.card.flipped {
-  transform: translateY(-6px);
-}
-
-.card-face {
-  position: absolute;
-  width: 100%;
-  backface-visibility: hidden;
-  border-radius: 10px;
-  padding: 10px;
-  font-family: Arial;
-}
-
-.card-back {
-  background: #333;
-  color: white;
-  text-align: center;
-}
-
-.card-front {
-  background: #222;
-  color: white;
-  transform: rotateY(180deg);
-}
-`;
-document.head.appendChild(flipStyle);
-
-const pileStyle = document.createElement("style");
-pileStyle.innerHTML = `
-#packReveal {
-  perspective: 1200px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 260px;
-}
-
-/* main card container */
-.card {
-  width: 220px;
-  height: 140px;
-  position: relative;
-}
-
-/* tight deck layers (NOT spread) */
-.card::before,
-.card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 12px;
-  background: #1a1a1a;
-  z-index: -1;
-}
-
-/* subtle stack depth (tight, not wide) */
-.card::before {
-  transform: translate(4px, 4px);
-  opacity: 0.45;
-}
-
-.card::after {
-  transform: translate(8px, 8px);
-  opacity: 0.25;
-}
-
-/* ensure clean clipping so shadows don't bleed */
-#packReveal {
-  overflow: visible;
-}
-`;
-document.head.appendChild(pileStyle);
- 
-
-/* ---------------- CONCERTS ---------------- */
+/* =========================
+   TIMER (UNCHANGED LOGIC)
+========================= */
 
 const concerts = [
+
+  /* -------- AMSTERDAM -------- */
   { name: "Amsterdam Night 3", time: new Date("2026-05-20T18:00:00Z") },
   { name: "Amsterdam Night 4", time: new Date("2026-05-22T18:00:00Z") },
   { name: "Amsterdam Night 5", time: new Date("2026-05-23T18:00:00Z") },
@@ -194,6 +94,7 @@ const concerts = [
   { name: "Amsterdam Night 9", time: new Date("2026-06-04T18:00:00Z") },
   { name: "Amsterdam Night 10", time: new Date("2026-06-05T18:00:00Z") },
 
+  /* -------- WEMBLEY -------- */
   { name: "Wembley Night 1", time: new Date("2026-06-12T19:00:00Z") },
   { name: "Wembley Night 2", time: new Date("2026-06-13T19:00:00Z") },
   { name: "Meltdown Music Festival", time: new Date("2026-06-16T19:00:00Z") },
@@ -208,11 +109,13 @@ const concerts = [
   { name: "Wembley Night 11", time: new Date("2026-07-03T19:00:00Z") },
   { name: "Wembley Night 12", time: new Date("2026-07-04T19:00:00Z") },
 
+  /* -------- SÃO PAULO -------- */
   { name: "São Paulo Night 1", time: new Date("2026-07-17T23:00:00Z") },
   { name: "São Paulo Night 2", time: new Date("2026-07-23T23:00:00Z") },
   { name: "São Paulo Night 3", time: new Date("2026-07-21T23:00:00Z") },
   { name: "São Paulo Night 4", time: new Date("2026-07-24T23:00:00Z") },
 
+  /* -------- MEXICO CITY -------- */
   { name: "Mexico City Night 1", time: new Date("2026-07-31T02:00:00Z") },
   { name: "Mexico City Night 2", time: new Date("2026-08-01T02:00:00Z") },
   { name: "Mexico City Night 3", time: new Date("2026-08-04T02:00:00Z") },
@@ -220,6 +123,7 @@ const concerts = [
   { name: "Mexico City Night 5", time: new Date("2026-08-08T02:00:00Z") },
   { name: "Mexico City Night 6", time: new Date("2026-08-10T02:00:00Z") },
 
+  /* -------- MSG -------- */
   { name: "MSG Night 1", time: new Date("2026-07-17T00:00:00Z") },
   { name: "MSG Night 2", time: new Date("2026-08-28T00:00:00Z") },
   { name: "MSG Night 3", time: new Date("2026-08-29T00:00:00Z") },
@@ -249,50 +153,46 @@ const concerts = [
   { name: "MSG Night 28", time: new Date("2026-10-24T00:00:00Z") },
   { name: "MSG Night 29", time: new Date("2026-10-28T00:00:00Z") },
 
+  /* -------- HARRYWEEN -------- */
   { name: "HARRYWEEN Night 1", time: new Date("2026-10-30T00:00:00Z") },
   { name: "HARRYWEEN Night 2", time: new Date("2026-10-31T00:00:00Z") },
 
+  /* -------- MELBOURNE -------- */
   { name: "Melbourne Night 1", time: new Date("2026-11-27T10:00:00Z") },
   { name: "Melbourne Night 2", time: new Date("2026-11-28T10:00:00Z") },
   { name: "Melbourne Night 3", time: new Date("2026-12-02T10:00:00Z") },
   { name: "Melbourne Night 4", time: new Date("2026-12-04T10:00:00Z") },
   { name: "Melbourne Night 5", time: new Date("2026-12-12T10:00:00Z") },
   { name: "Melbourne Night 6", time: new Date("2026-12-13T10:00:00Z") }
+
 ];
 
-/* ---------------- TIMER ---------------- */
+/* =========================
+   TIMER
+========================= */
 
 function getNextConcert() {
   const now = new Date();
-  return concerts
-    .filter(c => c.time > now)
-    .sort((a, b) => a.time - b.time)[0];
+  return concerts.filter(c => c.time > now).sort((a,b)=>a.time-b.time)[0];
 }
 
 function updateTimer() {
   const next = getNextConcert();
-
   if (!next) return;
 
-  const diff = next.time - new Date();
-
-  const d = Math.floor(diff / 86400000);
-  const h = Math.floor((diff % 86400000) / 3600000);
-  const m = Math.floor((diff % 3600000) / 60000);
-  const s = Math.floor((diff % 60000) / 1000);
-
-  document.getElementById("timer").textContent =
-    `${next.name}: ${d}d ${h}h ${m}m ${s}s`;
+  document.getElementById("timer").textContent = next.name;
 }
 
 setInterval(updateTimer, 1000);
 updateTimer();
 
-/* ---------------- PACK SYSTEM ---------------- */
+/* =========================
+   PACK SYSTEM
+========================= */
 
 const cardPool = {
-  common: ["Common Sketch", "Tour Draft", "Stage Study"],
-  uncommon: ["Lighting Scene", "Green Room"],
+  common: ["Common Sketch"],
+  uncommon: ["Lighting Scene"],
   rare: ["Golden Moment"],
   ultraRare: ["Legendary Shot"]
 };
@@ -301,105 +201,72 @@ function getRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function getPackData() {
-  return JSON.parse(localStorage.getItem("packData")) || {
-    date: null,
-    count: 0
-  };
-}
-
-function savePackData(data) {
-  localStorage.setItem("packData", JSON.stringify(data));
-}
-
-function canOpenPack() {
-  const data = getPackData();
-  const today = new Date().toDateString();
-
-  if (data.date !== today) {
-    data.date = today;
-    data.count = 0;
-    savePackData(data);
-  }
-
-  return data.count < 3 || window.DEV_MODE;
-}
-
-function markPackUsed() {
-  const data = getPackData();
-  const today = new Date().toDateString();
-
-  if (data.date !== today) {
-    data.date = today;
-    data.count = 0;
-  }
-
-  data.count++;
-  savePackData(data);
-}
-
-let seenCards = new Set();
-
-/* ---------------- OPEN PACK ---------------- */
-
 function openPack() {
-
-  if (!canOpenPack()) {
-    alert("No packs left today!");
-    return;
-  }
-
-  markPackUsed();
 
   let pack = [];
 
-  // 6 commons
-  for (let i = 0; i < 6; i++) {
-    pack.push({
-      name: getRandom(cardPool.common),
-      rarity: "common"
-    });
-  }
+  for (let i = 0; i < 6; i++) pack.push({ name: getRandom(cardPool.common), rarity: "common" });
+  for (let i = 0; i < 3; i++) pack.push({ name: getRandom(cardPool.uncommon), rarity: "uncommon" });
 
-  // 3 uncommons
-  for (let i = 0; i < 3; i++) {
-    pack.push({
-      name: getRandom(cardPool.uncommon),
-      rarity: "uncommon"
-    });
-  }
-
-  // 1 rare slot
   const roll = Math.random();
+  pack.push({
+    name: roll < 0.75 ? getRandom(cardPool.rare) : getRandom(cardPool.ultraRare),
+    rarity: roll < 0.75 ? "rare" : "ultra rare"
+  });
 
-  if (roll < 0.75) {
-    pack.push({
-      name: getRandom(cardPool.rare),
-      rarity: "rare"
-    });
-  } else {
-    pack.push({
-      name: getRandom(cardPool.ultraRare),
-      rarity: "ultra rare"
-    });
-  }
-
-  // shuffle pack
-  pack.sort(() => Math.random() - 0.5);
-
-  // UI loading state
   const container = document.getElementById("packReveal");
   container.innerHTML = "<h3>Opening Pack...</h3>";
 
-  // reveal deck after short delay
   setTimeout(() => {
     container.innerHTML = "";
-
-    deck = pack;       // 🔥 send pack into deck system
-    buildDeck();       // 🔥 render deck UI
-
+    deck = pack;
+    buildDeck();
   }, 600);
 }
+
+function buildDeck() {
+  const container = document.getElementById("packReveal");
+  container.innerHTML = "";
+
+  deck.forEach((cardData, index) => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const inner = document.createElement("div");
+    inner.className = "card-inner";
+
+    const back = document.createElement("div");
+    back.className = "card-face card-back";
+    back.textContent = "TATT CARD";
+
+    const front = document.createElement("div");
+    front.className = "card-face card-front";
+    front.textContent = `${cardData.name} (${cardData.rarity})`;
+
+    inner.appendChild(back);
+    inner.appendChild(front);
+    card.appendChild(inner);
+    container.appendChild(card);
+
+    card.onclick = () => revealCard(index);
+  });
+}
+
+function revealCard(index) {
+  const cards = document.querySelectorAll(".card");
+  cards[index].classList.add("flipped");
+
+  setTimeout(() => {
+    moveToBack(index);
+  }, 600);
+}
+
+function moveToBack(index) {
+  const card = deck.splice(index, 1)[0];
+  deck.push(card);
+  buildDeck();
+}
+
 </script>
 
 </body>
