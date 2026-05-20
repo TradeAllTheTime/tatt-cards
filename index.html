@@ -2,58 +2,35 @@
 <html>
 <head>
   <title>TATT Cards</title>
+
   <style>
-#packArea {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
+#packReveal {
+  position: relative;
+  height: 320px;
   margin-top: 20px;
 }
 
-/* MAIN DECK */
-#mainPile {
-  position: relative;
-  width: 220px;
-  height: 140px;
-  perspective: 1200px;
-}
-
-/* DISCARD PILE */
-#discardPile {
-  width: 220px;
-  min-height: 140px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-}
-
-/* CARD BASE */
-.card {
+/* STACK AREA */
+.deck-card {
   width: 220px;
   height: 140px;
   position: absolute;
-  left: 0;
-  top: 0;
+  left: 50%;
+  top: 50%;
   transform-style: preserve-3d;
+  transition: transform 0.35s ease;
   cursor: pointer;
 }
 
-/* STACK EFFECT */
-.card.stack {
-  transition: transform 0.3s ease;
-}
-
-/* FLIP */
+/* CARD FLIP CORE */
 .card-inner {
   width: 100%;
   height: 100%;
   transition: transform 0.6s;
   transform-style: preserve-3d;
-  position: relative;
 }
 
-.card.flipped .card-inner {
+.deck-card.flipped .card-inner {
   transform: rotateY(180deg);
 }
 
@@ -64,267 +41,93 @@
   height: 100%;
   backface-visibility: hidden;
   border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   font-family: Arial;
 }
 
 .card-back {
-  background: #333;
+  background:#333;
+  color:white;
 }
 
 .card-front {
-  background: #222;
+  background:#222;
   transform: rotateY(180deg);
+  color:white;
 }
 
-/* RARITY GLOWS (ONLY AFTER FLIP) */
+/* DISCARD PILE */
+#discardPile {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 220px;
+  display:flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* RARITY (ONLY AFTER FLIP) */
 .commonGlow { box-shadow: 0 0 10px yellow; }
 .uncommonGlow { box-shadow: 0 0 10px dodgerblue; }
 .rareGlow { box-shadow: 0 0 12px purple; }
 
-/* ULTRA RARE RAINBOW */
-.ultraRareGlow {
-  box-shadow: 0 0 18px rgba(255,255,255,0.6);
-  border: 2px solid transparent;
-  background-image:
-    linear-gradient(#222, #222),
-    linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet);
-  background-origin: border-box;
-  background-clip: padding-box, border-box;
-  animation: rainbowShift 1.5s linear infinite;
+.ultraGlow {
+  box-shadow: 0 0 18px white;
+  animation: rainbow 1.5s linear infinite;
 }
 
-@keyframes rainbowShift {
-  0% { filter: hue-rotate(0deg); }
-  100% { filter: hue-rotate(360deg); }
+@keyframes rainbow {
+  0% { filter:hue-rotate(0deg); }
+  100% { filter:hue-rotate(360deg); }
 }
 
-/* DISCARD CARD STYLE */
-.discardCard {
-  width: 220px;
-  height: 140px;
-  background: #222;
-  border-radius: 12px;
-  padding: 10px;
+/* FINAL GRID VIEW */
+#gridView {
+  display:none;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.grid-card {
+  width: 100%;
+  height: 120px;
+  background:#222;
+  color:white;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   font-family: Arial;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
-    .deck-card {
-  width: 220px;
-  height: 140px;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform-style: preserve-3d;
-  transition: transform 0.35s ease;
-  cursor: pointer;
-}
-</style>
+  </style>
 </head>
 
 <body>
 
-<h1 style="text-align:center; font-family: Arial; margin-top: 30px;">
-  TATT Cards
-</h1>
+<h1 style="text-align:center;">TATT Cards</h1>
 
-<div style="
-  max-width: 420px;
-  margin: 30px auto;
-  padding: 24px;
-  border-radius: 16px;
-  background: #111;
-  color: white;
-  text-align: center;
-  font-family: Arial;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-">
-
-  <div style="font-size: 12px; opacity: 0.7; letter-spacing: 2px;">
-    NEXT SHOW
-  </div>
-
-  <h2 id="timer" style="margin: 16px 0; font-size: 20px;">
-    Loading...
-  </h2>
-
+<div style="text-align:center;">
+  <button onclick="openPack()">Open Pack</button>
 </div>
 
-<div style="display:flex; justify-content:center; gap:12px; margin-top:20px;">
-
-  <button onclick="openPack()" style="
-    padding: 10px 16px;
-    border-radius: 10px;
-    border: none;
-    background: #222;
-    color: white;
-    cursor: pointer;
-  ">
-    Open Pack
-  </button>
-
-  <button style="
-    padding: 10px 16px;
-    border-radius: 10px;
-    border: none;
-    background: #222;
-    color: white;
-    cursor: pointer;
-  ">
-    Binder
-  </button>
-
-</div>
-
-<div id="packReveal" style="
-  max-width: 420px;
-  margin: 20px auto;
-  padding: 20px;
-  background: #0f0f0f;
-  border-radius: 12px;
-  color: white;
-  font-family: Arial;
-  text-align: center;
-">
-  <p style="opacity:0.6;">Your pack will appear here</p>
-</div>
+<div id="packReveal"></div>
+<div id="gridView"></div>
 
 <script>
-window.DEV_MODE = true;
-  const style = document.createElement("style");
-style.innerHTML = `
-@keyframes rainbowBorder {
-  0%   { box-shadow: 0 0 12px red; }
-  14%  { box-shadow: 0 0 12px orange; }
-  28%  { box-shadow: 0 0 12px yellow; }
-  42%  { box-shadow: 0 0 12px lime; }
-  57%  { box-shadow: 0 0 12px cyan; }
-  71%  { box-shadow: 0 0 12px blue; }
-  85%  { box-shadow: 0 0 12px violet; }
-  100% { box-shadow: 0 0 12px red; }
-}
-`;
-document.head.appendChild(style);
 
-/* ---------------- CONCERTS ---------------- */
-
-const concerts = [
-  { name: "Amsterdam Night 3", time: new Date("2026-05-20T18:00:00Z") },
-  { name: "Amsterdam Night 4", time: new Date("2026-05-22T18:00:00Z") },
-  { name: "Amsterdam Night 5", time: new Date("2026-05-23T18:00:00Z") },
-  { name: "Amsterdam Night 6", time: new Date("2026-05-26T18:00:00Z") },
-  { name: "Amsterdam Night 7", time: new Date("2026-05-29T18:00:00Z") },
-  { name: "Amsterdam Night 8", time: new Date("2026-05-30T18:00:00Z") },
-  { name: "Amsterdam Night 9", time: new Date("2026-06-04T18:00:00Z") },
-  { name: "Amsterdam Night 10", time: new Date("2026-06-05T18:00:00Z") },
-
-  { name: "Wembley Night 1", time: new Date("2026-06-12T19:00:00Z") },
-  { name: "Wembley Night 2", time: new Date("2026-06-13T19:00:00Z") },
-  { name: "Meltdown Music Festival", time: new Date("2026-06-16T19:00:00Z") },
-  { name: "Wembley Night 3", time: new Date("2026-06-17T19:00:00Z") },
-  { name: "Wembley Night 4", time: new Date("2026-06-19T19:00:00Z") },
-  { name: "Wembley Night 5", time: new Date("2026-06-20T19:00:00Z") },
-  { name: "Wembley Night 6", time: new Date("2026-06-23T19:00:00Z") },
-  { name: "Wembley Night 7", time: new Date("2026-06-26T19:00:00Z") },
-  { name: "Wembley Night 8", time: new Date("2026-06-27T19:00:00Z") },
-  { name: "Wembley Night 9", time: new Date("2026-06-29T19:00:00Z") },
-  { name: "Wembley Night 10", time: new Date("2026-07-01T19:00:00Z") },
-  { name: "Wembley Night 11", time: new Date("2026-07-03T19:00:00Z") },
-  { name: "Wembley Night 12", time: new Date("2026-07-04T19:00:00Z") },
-
-  { name: "São Paulo Night 1", time: new Date("2026-07-17T23:00:00Z") },
-  { name: "São Paulo Night 2", time: new Date("2026-07-23T23:00:00Z") },
-  { name: "São Paulo Night 3", time: new Date("2026-07-21T23:00:00Z") },
-  { name: "São Paulo Night 4", time: new Date("2026-07-24T23:00:00Z") },
-
-  { name: "Mexico City Night 1", time: new Date("2026-07-31T02:00:00Z") },
-  { name: "Mexico City Night 2", time: new Date("2026-08-01T02:00:00Z") },
-  { name: "Mexico City Night 3", time: new Date("2026-08-04T02:00:00Z") },
-  { name: "Mexico City Night 4", time: new Date("2026-08-07T02:00:00Z") },
-  { name: "Mexico City Night 5", time: new Date("2026-08-08T02:00:00Z") },
-  { name: "Mexico City Night 6", time: new Date("2026-08-10T02:00:00Z") },
-
-  { name: "MSG Night 1", time: new Date("2026-07-17T00:00:00Z") },
-  { name: "MSG Night 2", time: new Date("2026-08-28T00:00:00Z") },
-  { name: "MSG Night 3", time: new Date("2026-08-29T00:00:00Z") },
-  { name: "MSG Night 4", time: new Date("2026-09-02T00:00:00Z") },
-  { name: "MSG Night 5", time: new Date("2026-09-04T00:00:00Z") },
-  { name: "MSG Night 6", time: new Date("2026-09-05T00:00:00Z") },
-  { name: "MSG Night 7", time: new Date("2026-09-09T00:00:00Z") },
-  { name: "MSG Night 8", time: new Date("2026-09-11T00:00:00Z") },
-  { name: "MSG Night 9", time: new Date("2026-09-12T00:00:00Z") },
-  { name: "MSG Night 10", time: new Date("2026-09-16T00:00:00Z") },
-  { name: "MSG Night 11", time: new Date("2026-09-18T00:00:00Z") },
-  { name: "MSG Night 13", time: new Date("2026-09-19T00:00:00Z") },
-  { name: "MSG Night 14", time: new Date("2026-09-23T00:00:00Z") },
-  { name: "MSG Night 15", time: new Date("2026-09-25T00:00:00Z") },
-  { name: "MSG Night 16", time: new Date("2026-09-26T00:00:00Z") },
-  { name: "MSG Night 17", time: new Date("2026-09-30T00:00:00Z") },
-  { name: "MSG Night 18", time: new Date("2026-10-02T00:00:00Z") },
-  { name: "MSG Night 19", time: new Date("2026-10-03T00:00:00Z") },
-  { name: "MSG Night 20", time: new Date("2026-10-07T00:00:00Z") },
-  { name: "MSG Night 21", time: new Date("2026-10-09T00:00:00Z") },
-  { name: "MSG Night 22", time: new Date("2026-10-10T00:00:00Z") },
-  { name: "MSG Night 23", time: new Date("2026-10-14T00:00:00Z") },
-  { name: "MSG Night 24", time: new Date("2026-10-16T00:00:00Z") },
-  { name: "MSG Night 25", time: new Date("2026-10-17T00:00:00Z") },
-  { name: "MSG Night 26", time: new Date("2026-10-21T00:00:00Z") },
-  { name: "MSG Night 27", time: new Date("2026-10-23T00:00:00Z") },
-  { name: "MSG Night 28", time: new Date("2026-10-24T00:00:00Z") },
-  { name: "MSG Night 29", time: new Date("2026-10-28T00:00:00Z") },
-
-  { name: "HARRYWEEN Night 1", time: new Date("2026-10-30T00:00:00Z") },
-  { name: "HARRYWEEN Night 2", time: new Date("2026-10-31T00:00:00Z") },
-
-  { name: "Melbourne Night 1", time: new Date("2026-11-27T10:00:00Z") },
-  { name: "Melbourne Night 2", time: new Date("2026-11-28T10:00:00Z") },
-  { name: "Melbourne Night 3", time: new Date("2026-12-02T10:00:00Z") },
-  { name: "Melbourne Night 4", time: new Date("2026-12-04T10:00:00Z") },
-  { name: "Melbourne Night 5", time: new Date("2026-12-12T10:00:00Z") },
-  { name: "Melbourne Night 6", time: new Date("2026-12-13T10:00:00Z") }
-];
-
-/* ---------------- TIMER ---------------- */
-
-function getNextConcert() {
-  const now = new Date();
-  return concerts
-    .filter(c => c.time > now)
-    .sort((a, b) => a.time - b.time)[0];
-}
-
-function updateTimer() {
-  const next = getNextConcert();
-
-  if (!next) return;
-
-  const diff = next.time - new Date();
-
-  const d = Math.floor(diff / 86400000);
-  const h = Math.floor((diff % 86400000) / 3600000);
-  const m = Math.floor((diff % 3600000) / 60000);
-  const s = Math.floor((diff % 60000) / 1000);
-
-  document.getElementById("timer").textContent =
-    `${next.name}: ${d}d ${h}h ${m}m ${s}s`;
-}
-
-setInterval(updateTimer, 1000);
-updateTimer();
-
-/* ---------------- PACK SYSTEM ---------------- */
 let deck = [];
 let flippedIndex = null;
+let openedCards = [];
 
 /* ---------------- OPEN PACK ---------------- */
 
 function openPack() {
   deck = [];
+  openedCards = [];
 
   for (let i = 0; i < 10; i++) {
     let rarity =
@@ -332,116 +135,131 @@ function openPack() {
       i < 9 ? "uncommon" :
       Math.random() < 0.75 ? "rare" : "ultra";
 
-    let pool =
-      rarity === "common" ? cardPool.common :
-      rarity === "uncommon" ? cardPool.uncommon :
-      rarity === "rare" ? cardPool.rare :
-      cardPool.ultraRare;
-
-    deck.push({ name: getRandom(pool), rarity });
+    deck.push({
+      name: `Card ${i+1}`,
+      rarity
+    });
   }
 
   renderDeck();
 }
 
-/* ---------------- RENDER ---------------- */
+/* ---------------- RENDER STACK ---------------- */
 
 function renderDeck() {
   const container = document.getElementById("packReveal");
+  container.innerHTML = "";
 
-  // preserve discard pile
   const discard = document.createElement("div");
   discard.id = "discardPile";
-  discard.style.position = "absolute";
-  discard.style.right = "10px";
-  discard.style.top = "10px";
-  discard.style.width = "220px";
-  discard.style.display = "flex";
-  discard.style.flexDirection = "column";
-  discard.style.gap = "10px";
-
-  container.innerHTML = "";
   container.appendChild(discard);
 
-  deck.forEach((cardData, i) => {
-    const card = document.createElement("div");
-    card.className = "deck-card";
+  deck.forEach((card, i) => {
+
+    const el = document.createElement("div");
+    el.className = "deck-card";
 
     const inner = document.createElement("div");
     inner.className = "card-inner";
 
     const back = document.createElement("div");
-    back.className = "card-back";
+    back.className = "card-face card-back";
     back.textContent = "TATT CARD";
 
     const front = document.createElement("div");
-    front.className = "card-front";
-    front.textContent = cardData.name;
+    front.className = "card-face card-front";
+
+    front.textContent = card.name;
 
     inner.appendChild(back);
     inner.appendChild(front);
-    card.appendChild(inner);
+    el.appendChild(inner);
 
-    // STACK POSITION
     const offset = i * 5;
-    card.style.zIndex = deck.length - i;
-    card.style.transform =
-      `translate(-50%, -50%) translateY(${offset}px) scale(${1 - i * 0.02})`;
 
-    // ONLY TOP CARD CLICKABLE
-    card.style.pointerEvents = i === 0 ? "auto" : "none";
+    el.style.zIndex = deck.length - i;
+    el.style.transform =
+      `translate(-50%, -50%) translateY(${offset}px) scale(${1 - i*0.02})`;
 
-    card.onclick = () => handleCardClick(i);
+    el.style.pointerEvents = i === 0 ? "auto" : "none";
 
-    container.appendChild(card);
+    el.onclick = () => handleClick(i);
+
+    container.appendChild(el);
   });
 }
 
 /* ---------------- CLICK LOGIC ---------------- */
 
-function handleCardClick(index) {
-  const cards = document.querySelectorAll(".deck-card");
-  const card = cards[index];
+function handleClick(index) {
 
+  const cards = document.querySelectorAll(".deck-card");
+  const cardEl = cards[index];
   const data = deck[index];
 
   // FIRST CLICK → FLIP
   if (flippedIndex !== index) {
     flippedIndex = index;
 
-    card.classList.add("flipped");
+    cardEl.classList.add("flipped");
 
-    const front = card.querySelector(".card-front");
+    const front = cardEl.querySelector(".card-front");
 
     setTimeout(() => {
+
       front.textContent = `${data.name} (${data.rarity})`;
 
-      if (data.rarity === "common") card.classList.add("commonGlow");
-      if (data.rarity === "uncommon") card.classList.add("uncommonGlow");
-      if (data.rarity === "rare") card.classList.add("rareGlow");
-      if (data.rarity === "ultra") card.classList.add("ultraRareGlow");
+      if (data.rarity === "common") cardEl.classList.add("commonGlow");
+      if (data.rarity === "uncommon") cardEl.classList.add("uncommonGlow");
+      if (data.rarity === "rare") cardEl.classList.add("rareGlow");
+      if (data.rarity === "ultra") cardEl.classList.add("ultraGlow");
+
     }, 250);
 
     return;
   }
 
-  // SECOND CLICK → MOVE TO DISCARD PILE
+  // SECOND CLICK → DISCARD
   const discard = document.getElementById("discardPile");
 
-  const finalCard = document.createElement("div");
-  finalCard.className = "discardCard";
-  finalCard.textContent = `${data.name} (${data.rarity})`;
+  const final = document.createElement("div");
+  final.className = "grid-card";
+  final.textContent = `${data.name} (${data.rarity})`;
 
-  discard.appendChild(finalCard);
+  discard.appendChild(final);
 
-  // REMOVE FROM DECK
+  openedCards.push(data);
+
   deck.splice(index, 1);
 
   flippedIndex = null;
 
-  renderDeck();
+  // LAST CARD → SHOW GRID VIEW
+  if (deck.length === 0) {
+    showGrid();
+  } else {
+    renderDeck();
+  }
+}
+
+/* ---------------- GRID VIEW ---------------- */
+
+function showGrid() {
+  document.getElementById("packReveal").style.display = "none";
+
+  const grid = document.getElementById("gridView");
+  grid.style.display = "grid";
+  grid.innerHTML = "";
+
+  openedCards.forEach(card => {
+    const el = document.createElement("div");
+    el.className = "grid-card";
+    el.textContent = `${card.name} (${card.rarity})`;
+    grid.appendChild(el);
+  });
 }
 
 </script>
 
 </body>
+</html>
