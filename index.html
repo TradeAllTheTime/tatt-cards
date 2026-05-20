@@ -21,7 +21,6 @@
   font-family: Arial;
   box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 ">
-
   <div style="font-size: 12px; opacity: 0.7; letter-spacing: 2px;">
     NEXT SHOW
   </div>
@@ -29,7 +28,6 @@
   <h2 id="timer" style="margin: 16px 0; font-size: 20px;">
     Loading...
   </h2>
-
 </div>
 
 <div style="display:flex; justify-content:center; gap:12px; margin-top:20px;">
@@ -67,24 +65,20 @@
   color: white;
   font-family: Arial;
   text-align: center;
+  min-height: 220px;
 ">
   <p style="opacity:0.6;">Your pack will appear here</p>
 </div>
 
 <script>
-
 window.DEV_MODE = true;
 
 let deck = [];
 let seenCards = new Set();
 
-/* =========================
-   TIMER (UNCHANGED LOGIC)
-========================= */
+/* ---------------- TIMER ---------------- */
 
 const concerts = [
-
-  /* -------- AMSTERDAM -------- */
   { name: "Amsterdam Night 3", time: new Date("2026-05-20T18:00:00Z") },
   { name: "Amsterdam Night 4", time: new Date("2026-05-22T18:00:00Z") },
   { name: "Amsterdam Night 5", time: new Date("2026-05-23T18:00:00Z") },
@@ -94,7 +88,6 @@ const concerts = [
   { name: "Amsterdam Night 9", time: new Date("2026-06-04T18:00:00Z") },
   { name: "Amsterdam Night 10", time: new Date("2026-06-05T18:00:00Z") },
 
-  /* -------- WEMBLEY -------- */
   { name: "Wembley Night 1", time: new Date("2026-06-12T19:00:00Z") },
   { name: "Wembley Night 2", time: new Date("2026-06-13T19:00:00Z") },
   { name: "Meltdown Music Festival", time: new Date("2026-06-16T19:00:00Z") },
@@ -109,13 +102,11 @@ const concerts = [
   { name: "Wembley Night 11", time: new Date("2026-07-03T19:00:00Z") },
   { name: "Wembley Night 12", time: new Date("2026-07-04T19:00:00Z") },
 
-  /* -------- SÃO PAULO -------- */
   { name: "São Paulo Night 1", time: new Date("2026-07-17T23:00:00Z") },
   { name: "São Paulo Night 2", time: new Date("2026-07-23T23:00:00Z") },
   { name: "São Paulo Night 3", time: new Date("2026-07-21T23:00:00Z") },
   { name: "São Paulo Night 4", time: new Date("2026-07-24T23:00:00Z") },
 
-  /* -------- MEXICO CITY -------- */
   { name: "Mexico City Night 1", time: new Date("2026-07-31T02:00:00Z") },
   { name: "Mexico City Night 2", time: new Date("2026-08-01T02:00:00Z") },
   { name: "Mexico City Night 3", time: new Date("2026-08-04T02:00:00Z") },
@@ -123,7 +114,6 @@ const concerts = [
   { name: "Mexico City Night 5", time: new Date("2026-08-08T02:00:00Z") },
   { name: "Mexico City Night 6", time: new Date("2026-08-10T02:00:00Z") },
 
-  /* -------- MSG -------- */
   { name: "MSG Night 1", time: new Date("2026-07-17T00:00:00Z") },
   { name: "MSG Night 2", time: new Date("2026-08-28T00:00:00Z") },
   { name: "MSG Night 3", time: new Date("2026-08-29T00:00:00Z") },
@@ -153,23 +143,16 @@ const concerts = [
   { name: "MSG Night 28", time: new Date("2026-10-24T00:00:00Z") },
   { name: "MSG Night 29", time: new Date("2026-10-28T00:00:00Z") },
 
-  /* -------- HARRYWEEN -------- */
   { name: "HARRYWEEN Night 1", time: new Date("2026-10-30T00:00:00Z") },
   { name: "HARRYWEEN Night 2", time: new Date("2026-10-31T00:00:00Z") },
 
-  /* -------- MELBOURNE -------- */
   { name: "Melbourne Night 1", time: new Date("2026-11-27T10:00:00Z") },
   { name: "Melbourne Night 2", time: new Date("2026-11-28T10:00:00Z") },
   { name: "Melbourne Night 3", time: new Date("2026-12-02T10:00:00Z") },
   { name: "Melbourne Night 4", time: new Date("2026-12-04T10:00:00Z") },
   { name: "Melbourne Night 5", time: new Date("2026-12-12T10:00:00Z") },
   { name: "Melbourne Night 6", time: new Date("2026-12-13T10:00:00Z") }
-
 ];
-
-/* =========================
-   TIMER
-========================= */
 
 function getNextConcert() {
   const now = new Date();
@@ -180,48 +163,58 @@ function updateTimer() {
   const next = getNextConcert();
   if (!next) return;
 
-  document.getElementById("timer").textContent = next.name;
+  const diff = next.time - new Date();
+
+  document.getElementById("timer").textContent =
+    `${next.name}`;
 }
 
 setInterval(updateTimer, 1000);
 updateTimer();
 
-/* =========================
-   PACK SYSTEM
-========================= */
+/* ---------------- PACK ---------------- */
 
 const cardPool = {
-  common: ["Common Sketch"],
-  uncommon: ["Lighting Scene"],
+  common: ["Common Sketch","Tour Draft","Stage Study"],
+  uncommon: ["Lighting Scene","Green Room"],
   rare: ["Golden Moment"],
   ultraRare: ["Legendary Shot"]
 };
 
 function getRandom(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+  return arr[Math.floor(Math.random()*arr.length)];
 }
+
+/* ---------------- OPEN PACK ---------------- */
 
 function openPack() {
 
   let pack = [];
 
-  for (let i = 0; i < 6; i++) pack.push({ name: getRandom(cardPool.common), rarity: "common" });
-  for (let i = 0; i < 3; i++) pack.push({ name: getRandom(cardPool.uncommon), rarity: "uncommon" });
+  for (let i = 0; i < 10; i++) {
+    let rarity =
+      i < 6 ? "common" :
+      i < 9 ? "uncommon" :
+      Math.random() < 0.75 ? "rare" : "ultra rare";
 
-  const roll = Math.random();
-  pack.push({
-    name: roll < 0.75 ? getRandom(cardPool.rare) : getRandom(cardPool.ultraRare),
-    rarity: roll < 0.75 ? "rare" : "ultra rare"
-  });
+    let pool =
+      rarity === "common" ? cardPool.common :
+      rarity === "uncommon" ? cardPool.uncommon :
+      rarity === "rare" ? cardPool.rare :
+      cardPool.ultraRare;
+
+    pack.push({
+      name: getRandom(pool),
+      rarity
+    });
+  }
 
   const container = document.getElementById("packReveal");
-  container.innerHTML = "<h3>Opening Pack...</h3>";
+  container.innerHTML = "";
 
-  setTimeout(() => {
-    container.innerHTML = "";
-    deck = pack;
-    buildDeck();
-  }, 600);
+  deck = pack;
+
+  buildDeck();
 }
 
 function buildDeck() {
@@ -229,8 +222,11 @@ function buildDeck() {
   container.innerHTML = "";
 
   deck.forEach((cardData, index) => {
+
     const card = document.createElement("div");
-    card.className = "card";
+    card.className = "card deck-card";
+
+    card.style.margin = "10px auto";
 
     const inner = document.createElement("div");
     inner.className = "card-inner";
@@ -248,26 +244,53 @@ function buildDeck() {
     card.appendChild(inner);
     container.appendChild(card);
 
-    card.onclick = () => revealCard(index);
+    card.onclick = () => {
+      card.classList.toggle("flipped");
+    };
   });
 }
 
-function revealCard(index) {
-  const cards = document.querySelectorAll(".card");
-  cards[index].classList.add("flipped");
-
-  setTimeout(() => {
-    moveToBack(index);
-  }, 600);
-}
-
-function moveToBack(index) {
-  const card = deck.splice(index, 1)[0];
-  deck.push(card);
-  buildDeck();
-}
-
 </script>
+
+<style>
+.card {
+  width: 220px;
+  height: 140px;
+  perspective: 1000px;
+  position: relative;
+}
+
+.card-inner {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.card.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.card-back {
+  background:#333;
+}
+
+.card-front {
+  background:#222;
+  transform: rotateY(180deg);
+}
+</style>
 
 </body>
 </html>
