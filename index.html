@@ -315,7 +315,14 @@ function openPack() {
 
   renderDeck();
 }
-
+function saveCard(cardName, rarity) {
+ let collected = JSON.parse(localStorage.getItem("collectedCards")) || [];
+ // Only save if not already collected
+ if (!collected.some(c => c.name === cardName)) {
+ collected.push({ name: cardName, rarity: rarity });
+ localStorage.setItem("collectedCards", JSON.stringify(collected));
+ }
+}
 /* ---------------- RENDER ---------------- */
 
 function renderDeck() {
@@ -404,6 +411,7 @@ openedCards.push(data);
     renderDeck();
   }
 }
+  
 /* ---------------- GRID ---------------- */
 
 function showGrid() {
@@ -441,6 +449,31 @@ function showBinder() {
   });
 
   container.appendChild(grid);
+}
+  function showBinder() {
+ const grid = document.getElementById("gridView");
+ grid.innerHTML = "";
+ grid.style.display = "grid";
+
+ // Hide pack reveal
+ document.getElementById("packReveal").innerHTML = "";
+ document.getElementById("packReveal").style.display = "none";
+
+ // Get all collected cards from localStorage
+ let collected = JSON.parse(localStorage.getItem("collectedCards")) || [];
+
+ if (collected.length === 0) {
+ grid.innerHTML = '<div style="grid-column: 1/-1; color: white; font-family: Arial;">No cards collected yet. Open a pack!</div>';
+ return;
+ }
+
+ collected.forEach(card => {
+ let cardDiv = document.createElement("div");
+ cardDiv.classList.add("grid-card", card.rarity + "Glow");
+ cardDiv.style.position = "relative"; // For future badge
+ cardDiv.textContent = card.name;
+ grid.appendChild(cardDiv);
+ });
 }
 </script>
 
