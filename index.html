@@ -135,31 +135,6 @@
   min-height: 300px;
   overflow: visible;
 }
-    /* GRID RARITY COLORS */
-.grid-card.common { border: 2px solid yellow; }
-.grid-card.uncommon { border: 2px solid dodgerblue; }
-.grid-card.rare { border: 2px solid purple; }
-.grid-card.ultra { 
-  border: 2px solid transparent;
-  background-image:
-    linear-gradient(#222, #222),
-    linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet);
-  background-origin: border-box;
-  background-clip: padding-box, border-box;
-}
-
-/* NEW BADGE */
-.newBadge {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  background: red;
-  color: white;
-  font-size: 10px;
-  padding: 3px 6px;
-  border-radius: 6px;
-  font-family: Arial;
-}
   </style>
 </head>
 
@@ -325,11 +300,7 @@ function openPack() {
       rarity === "rare" ? cardPool.rare :
       cardPool.ultraRare;
 
-   deck.push({ 
-  id: crypto.randomUUID(),
-  name: getRandom(pool), 
-  rarity 
-});
+    deck.push({ name: getRandom(pool), rarity });
   }
 
   renderDeck();
@@ -364,8 +335,7 @@ function renderDeck() {
     inner.appendChild(front);
     el.appendChild(inner);
 
-    el.dataset.index = i;
-    el.dataset.id = card.id;
+    el.dataset.index = i; // 🔥 IMPORTANT FIX
 
     const offset = i * 5;
 
@@ -405,9 +375,7 @@ function handleCard(index) {
 
     return;
   }
-if (!openedCards.find(c => c.id === data.id)) {
-  openedCards.push({ ...data, isNew: true });
-}
+
   const discard = document.getElementById("discardPile");
 
  const final = document.createElement("div");
@@ -418,12 +386,13 @@ discard.appendChild(final);
 
 openedCards.push(data);
 
-deck = deck.filter(c => c.id !== data.id);
+  deck.splice(index, 1);
 
-if (deck.length === 0) {
-  showGrid();
-} else {
-  renderDeck();
+  if (deck.length === 0) {
+    showGrid();
+  } else {
+    renderDeck();
+  }
 }
 /* ---------------- GRID ---------------- */
 
@@ -438,19 +407,8 @@ function showGrid() {
 
   openedCards.forEach(card => {
     const el = document.createElement("div");
-    el.className = `grid-card ${card.rarity}`;
-
-    el.style.position = "relative";
-
+    el.className = "grid-card";
     el.textContent = `${card.name} (${card.rarity})`;
-
-    if (card.isNew) {
-      const badge = document.createElement("div");
-      badge.className = "newBadge";
-      badge.textContent = "NEW";
-      el.appendChild(badge);
-    }
-
     grid.appendChild(el);
   });
 
