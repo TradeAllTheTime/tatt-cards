@@ -4,71 +4,29 @@
   <title>TATT Cards</title>
 
   <style>
-#packArea {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
+#packReveal {
+  position: relative;
+  height: 340px;
   margin-top: 20px;
 }
 
-/* TIMER CARD */
-.timerBox {
-  max-width: 420px;
-  margin: 30px auto;
-  padding: 24px;
-  border-radius: 16px;
-  background: #111;
-  color: white;
-  text-align: center;
-  font-family: Arial;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-}
-
-/* PACK AREA */
-#packReveal {
-  position: relative;
-  width: 260px;
-  height: 220px;
-  margin: 20px auto;
-}
-
-/* GRID VIEW (FINAL REVEAL) */
-#gridView {
-  display: none;
-  max-width: 900px;
-  margin: 20px auto;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
-}
-
-.gridCard {
-  background: #222;
-  color: white;
-  font-family: Arial;
-  padding: 10px;
-  border-radius: 10px;
-  text-align: center;
-}
-
-/* STACK CARD */
+/* STACK */
 .deck-card {
-  width: 160px;
-  height: 220px;
+  width: 220px;
+  height: 140px;
   position: absolute;
   left: 50%;
   top: 50%;
   transform-style: preserve-3d;
-  cursor: pointer;
   transition: transform 0.35s ease;
+  cursor: pointer;
 }
 
-/* FLIP */
 .card-inner {
   width: 100%;
   height: 100%;
   transition: transform 0.6s;
   transform-style: preserve-3d;
-  position: relative;
 }
 
 .deck-card.flipped .card-inner {
@@ -80,86 +38,112 @@
   position: absolute;
   width: 100%;
   height: 100%;
-  border-radius: 12px;
   backface-visibility: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   font-family: Arial;
 }
 
 .card-back {
-  background: #333;
-  color: white;
+  background:#333;
+  color:white;
 }
 
 .card-front {
-  background: #222;
+  background:#222;
   transform: rotateY(180deg);
-  color: white;
+  color:white;
 }
 
-/* RARITY */
-.common { box-shadow: 0 0 10px yellow; }
-.uncommon { box-shadow: 0 0 10px dodgerblue; }
-.rare { box-shadow: 0 0 12px purple; }
+/* DISCARD */
+#discardPile {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 220px;
+  display:flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
-.ultra {
+.discardCard {
+  width: 220px;
+  height: 140px;
+  background:#222;
+  color:white;
+  border-radius: 10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family: Arial;
+}
+
+/* RARITY GLOWS (ONLY AFTER FLIP) */
+.commonGlow { box-shadow: 0 0 10px yellow; }
+.uncommonGlow { box-shadow: 0 0 10px dodgerblue; }
+.rareGlow { box-shadow: 0 0 12px purple; }
+
+.ultraGlow {
   box-shadow: 0 0 18px white;
   animation: rainbow 1.5s linear infinite;
 }
 
 @keyframes rainbow {
-  0% { filter: hue-rotate(0deg); }
-  100% { filter: hue-rotate(360deg); }
+  0% { filter:hue-rotate(0deg); }
+  100% { filter:hue-rotate(360deg); }
 }
 
-/* DISCARD */
-#discardPile {
-  width: 220px;
-  min-height: 140px;
-  margin: 20px auto;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: center;
+/* GRID END VIEW */
+#gridView {
+  display:none;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.grid-card {
+  background:#222;
+  color:white;
+  padding: 10px;
+  border-radius: 10px;
+  font-family: Arial;
+  text-align:center;
 }
   </style>
 </head>
 
 <body>
 
-<h1 style="text-align:center;font-family:Arial;margin-top:30px;">
-  TATT Cards
-</h1>
+<h1 style="text-align:center; font-family: Arial;">TATT Cards</h1>
 
-<!-- TIMER (UNCHANGED STRUCTURE) -->
-<div class="timerBox">
-  <div style="font-size:12px;opacity:0.7;letter-spacing:2px;">
-    NEXT SHOW
-  </div>
+<!-- TIMER (UNCHANGED LOGIC) -->
+<div style="
+  max-width: 420px;
+  margin: 30px auto;
+  padding: 24px;
+  border-radius: 16px;
+  background: #111;
+  color: white;
+  text-align: center;
+  font-family: Arial;
+">
+  <div style="font-size: 12px; opacity: 0.7;">NEXT SHOW</div>
   <h2 id="timer">Loading...</h2>
 </div>
 
-<!-- BUTTON -->
-<div style="display:flex;justify-content:center;gap:12px;">
-  <button onclick="openPack()" style="padding:10px 16px;border:none;border-radius:10px;background:#222;color:white;cursor:pointer;">
-    Open Pack
-  </button>
+<div style="text-align:center;">
+  <button onclick="openPack()">Open Pack</button>
 </div>
 
-<!-- PACK -->
 <div id="packReveal"></div>
-
-<!-- DISCARD -->
-<div id="discardPile"></div>
-
-<!-- GRID VIEW -->
 <div id="gridView"></div>
 
 <script>
+window.DEV_MODE = true;
 
-/* ================= TIMER (YOUR FULL DATA, UNCHANGED) ================= */
+/* ---------------- TIMER (YOUR ORIGINAL LOGIC KEPT) ---------------- */
 
 const concerts = [
   { name: "Amsterdam Night 3", time: new Date("2026-05-20T18:00:00Z") },
@@ -255,11 +239,11 @@ function updateTimer() {
 setInterval(updateTimer, 1000);
 updateTimer();
 
-/* ================= PACK ================= */
+/* ---------------- PACK SYSTEM ---------------- */
 
 const cardPool = {
-  common: ["Common Sketch","Tour Draft","Stage Study"],
-  uncommon: ["Lighting Scene","Green Room"],
+  common: ["Common Sketch", "Tour Draft", "Stage Study"],
+  uncommon: ["Lighting Scene", "Green Room"],
   rare: ["Golden Moment"],
   ultraRare: ["Legendary Shot"]
 };
@@ -269,12 +253,15 @@ function getRandom(arr) {
 }
 
 let deck = [];
+let flippedIndex = null;
+let openedCards = [];
 
-let flippedCards = 0;
+/* ---------------- OPEN PACK ---------------- */
 
 function openPack() {
   deck = [];
-  flippedCards = 0;
+  openedCards = [];
+  flippedIndex = null;
 
   for (let i = 0; i < 10; i++) {
     let rarity =
@@ -294,92 +281,116 @@ function openPack() {
   renderDeck();
 }
 
+/* ---------------- RENDER ---------------- */
+
 function renderDeck() {
   const container = document.getElementById("packReveal");
   container.innerHTML = "";
 
-  deck.forEach((cardData, i) => {
+  const discard = document.createElement("div");
+  discard.id = "discardPile";
+  container.appendChild(discard);
 
-    const card = document.createElement("div");
-    card.className = "deck-card";
+  deck.forEach((card, i) => {
+    const el = document.createElement("div");
+    el.className = "deck-card";
 
     const inner = document.createElement("div");
     inner.className = "card-inner";
 
     const back = document.createElement("div");
-    back.className = "card-back";
+    back.className = "card-face card-back";
     back.textContent = "TATT CARD";
 
     const front = document.createElement("div");
-    front.className = "card-front";
-    front.textContent = cardData.name;
-
-    card.dataset.rarity = cardData.rarity;
+    front.className = "card-face card-front";
+    front.textContent = card.name;
 
     inner.appendChild(back);
     inner.appendChild(front);
-    card.appendChild(inner);
+    el.appendChild(inner);
 
-    card.style.zIndex = deck.length - i;
-    card.style.transform = `translate(-50%, -50%) translateY(${i * 4}px)`;
+    const offset = i * 5;
 
-    card.onclick = () => flipCard(card, cardData);
+    el.style.zIndex = deck.length - i;
+    el.style.transform =
+      `translate(-50%, -50%) translateY(${offset}px) scale(${1 - i * 0.02})`;
 
-    container.appendChild(card);
+    el.style.pointerEvents = i === 0 ? "auto" : "none";
+
+    el.onclick = () => handleCard(i);
+
+    container.appendChild(el);
   });
 }
 
-function flipCard(card, data) {
+/* ---------------- CLICK LOGIC ---------------- */
 
-  if (!card.classList.contains("flipped")) {
+function handleCard(index) {
+  const cards = document.querySelectorAll(".deck-card");
+  const cardEl = cards[index];
+  const data = deck[index];
 
-    card.classList.add("flipped");
+  // FLIP
+  if (flippedIndex !== index) {
+    flippedIndex = index;
+
+    cardEl.classList.add("flipped");
+
+    const front = cardEl.querySelector(".card-front");
 
     setTimeout(() => {
-
-      const front = card.querySelector(".card-front");
-
       front.textContent = `${data.name} (${data.rarity})`;
 
-      if (data.rarity === "common") card.classList.add("common");
-      if (data.rarity === "uncommon") card.classList.add("uncommon");
-      if (data.rarity === "rare") card.classList.add("rare");
-      if (data.rarity === "ultra") card.classList.add("ultra");
-
+      if (data.rarity === "common") cardEl.classList.add("commonGlow");
+      if (data.rarity === "uncommon") cardEl.classList.add("uncommonGlow");
+      if (data.rarity === "rare") cardEl.classList.add("rareGlow");
+      if (data.rarity === "ultra") cardEl.classList.add("ultraGlow");
     }, 250);
 
-    flippedCards++;
+    return;
+  }
 
+  // DISCARD
+  const discard = document.getElementById("discardPile");
+
+  const final = document.createElement("div");
+  final.className = "discardCard";
+  final.textContent = `${data.name} (${data.rarity})`;
+
+  discard.appendChild(final);
+
+  openedCards.push(data);
+  deck.splice(index, 1);
+
+  flippedIndex = null;
+
+  if (deck.length === 0) {
+    showGrid();
   } else {
-
-    const discard = document.getElementById("discardPile");
-
-    const clone = card.cloneNode(true);
-    clone.style.position = "relative";
-    clone.style.margin = "6px 0";
-
-    discard.appendChild(clone);
-
-    card.remove();
-    flippedCards++;
-
-    if (flippedCards === 10) {
-      showGrid();
-    }
+    renderDeck();
   }
 }
 
-function showGrid() {
-  const grid = document.getElementById("gridView");
-  grid.innerHTML = "";
-  grid.style.display = "grid";
+/* ---------------- GRID ---------------- */
 
-  deck.forEach(c => {
-    const div = document.createElement("div");
-    div.className = "gridCard";
-    div.textContent = `${c.name} (${c.rarity})`;
-    grid.appendChild(div);
+function showGrid() {
+  const container = document.getElementById("packReveal");
+  container.innerHTML = "";
+
+  const grid = document.createElement("div");
+  grid.style.display = "grid";
+  grid.style.gridTemplateColumns = "repeat(3, 1fr)";
+  grid.style.gap = "10px";
+
+  openedCards.forEach(card => {
+    const el = document.createElement("div");
+    el.className = "grid-card";
+    el.textContent = `${card.name} (${card.rarity})`;
+    grid.appendChild(el);
   });
+
+  container.appendChild(grid);
 }
 
 </script>
