@@ -159,6 +159,7 @@
 
 <div style="text-align:center;">
   <button onclick="openPack()">Open Pack</button>
+  <button onclick="showBinder()">Binder</button>
 </div>
 
 <div id="packReveal"></div>
@@ -377,11 +378,13 @@ function handleCard(index) {
 
   const discard = document.getElementById("discardPile");
 
-  const final = document.createElement("div");
-  final.className = "discardCard";
-  final.textContent = `${data.name} (${data.rarity})`;
+ const final = document.createElement("div");
+final.className = "discardCard";
+final.textContent = `${data.name} (${data.rarity})`;
 
-  discard.appendChild(final);
+discard.appendChild(final);
+
+openedCards.push(data);
 
   deck.splice(index, 1);
 
@@ -411,7 +414,24 @@ function showGrid() {
 
   container.appendChild(grid);
 }
+function showBinder() {
+  const container = document.getElementById("packReveal");
+  container.innerHTML = "";
 
+  const grid = document.createElement("div");
+  grid.style.display = "grid";
+  grid.style.gridTemplateColumns = "repeat(3, 1fr)";
+  grid.style.gap = "10px";
+
+  openedCards.forEach(card => {
+    const el = document.createElement("div");
+    el.className = "grid-card";
+    el.textContent = `${card.name} (${card.rarity})`;
+    grid.appendChild(el);
+  });
+
+  container.appendChild(grid);
+}
 </script>
 
 </body>
