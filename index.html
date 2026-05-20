@@ -65,16 +65,15 @@
   color: white;
   font-family: Arial;
   text-align: center;
-  min-height: 220px;
+  min-height: 260px;
+  position: relative;
 ">
   <p style="opacity:0.6;">Your pack will appear here</p>
 </div>
 
 <script>
-window.DEV_MODE = true;
-
 let deck = [];
-let seenCards = new Set();
+let currentIndex = 0;
 
 /* ---------------- TIMER ---------------- */
 
@@ -154,19 +153,10 @@ const concerts = [
   { name: "Melbourne Night 6", time: new Date("2026-12-13T10:00:00Z") }
 ];
 
-function getNextConcert() {
-  const now = new Date();
-  return concerts.filter(c => c.time > now).sort((a,b)=>a.time-b.time)[0];
-}
-
 function updateTimer() {
-  const next = getNextConcert();
+  const next = concerts.find(c => c.time > new Date());
   if (!next) return;
-
-  const diff = next.time - new Date();
-
-  document.getElementById("timer").textContent =
-    `${next.name}`;
+  document.getElementById("timer").textContent = next.name;
 }
 
 setInterval(updateTimer, 1000);
@@ -182,14 +172,11 @@ const cardPool = {
 };
 
 function getRandom(arr) {
-  return arr[Math.floor(Math.random()*arr.length)];
+  return arr[Math.floor(Math.random() * arr.length)];
 }
 
-/* ---------------- OPEN PACK ---------------- */
-
 function openPack() {
-
-  let pack = [];
+  deck = [];
 
   for (let i = 0; i < 10; i++) {
     let rarity =
@@ -203,17 +190,10 @@ function openPack() {
       rarity === "rare" ? cardPool.rare :
       cardPool.ultraRare;
 
-    pack.push({
-      name: getRandom(pool),
-      rarity
-    });
+    deck.push({ name: getRandom(pool), rarity });
   }
 
-  const container = document.getElementById("packReveal");
-  container.innerHTML = "";
-
-  deck = pack;
-
+  currentIndex = 0;
   buildDeck();
 }
 
@@ -221,16 +201,12 @@ function buildDeck() {
   const container = document.getElementById("packReveal");
   container.innerHTML = "";
 
-  deck.forEach((cardData, index) => {
+  deck.forEach((cardData, i) => {
 
     const card = document.createElement("div");
-    card.className = "card deck-card";
-
-    // 🔥 stack depth (true pile look)
-    const offset = index * 4;
-
-    card.style.zIndex = deck.length - index;
-    card.style.transform = `translate(-50%, -50%) translateY(${offset}px) scale(${1 - index * 0.02})`;
+    card.className = "card";
+    card.style.zIndex = deck.length - i;
+    card.style.transform = `translateY(${i * 3}px)`;
 
     const inner = document.createElement("div");
     inner.className = "card-inner";
@@ -242,87 +218,55 @@ function buildDeck() {
     const front = document.createElement("div");
     front.className = "card-face card-front";
 
-    // ❗ FRONT ONLY REVEALS AFTER FLIP
-   if (cardData.rarity === "ultra rare") {
-  front.innerHTML = `<span style="filter: blur(0px)">???</span>`;
-} else {
-  front.textContent = `${cardData.name} (${cardData.rarity})`;
-}
-    // 🔥 rarity styling ONLY shows when flipped
-    const rarity = cardData.rarity;
-
-    if (rarity === "common") {
-  card.style.boxShadow = "0 0 10px yellow";
-}
-
-if (rarity === "uncommon") {
-  card.style.boxShadow = "0 0 10px dodgerblue";
-}
-
-if (rarity === "rare") {
-  card.style.boxShadow = "0 0 12px purple";
-}
-
-if (rarity === "ultra rare") {
-  card.style.boxShadow = "0 0 18px rgba(255,255,255,0.6)";
-  card.style.border = "2px solid transparent";
-  card.style.backgroundImage =
-    "linear-gradient(#222, #222), linear-gradient(90deg, red, orange, yellow, lime, cyan, blue, violet)";
-  card.style.backgroundOrigin = "border-box";
-  card.style.backgroundClip = "padding-box, border-box";
-  card.style.animation = "rainbowShift 1.5s linear infinite";
-}
+    // hide before flip
+    front.textContent = "???";
 
     inner.appendChild(back);
     inner.appendChild(front);
     card.appendChild(inner);
     container.appendChild(card);
 
-    // 🔥 ONLY TOP CARD IS CLICKABLE
-    card.style.pointerEvents = index === 0 ? "auto" : "none";
-
-    card.onclick = () => openCard(index);
+    if (i === 0) {
+      card.onclick = () => openCard(i);
+    }
   });
 }
-  function openCard(index) {
-  const cards = document.querySelectorAll(".deck-card");
-  const card = cards[index];
-  const data = deck[index];
+
+function openCard(i) {
+  const cards = document.querySelectorAll(".card");
+
+  const card = cards[i];
+  const data = deck[i];
 
   card.classList.add("flipped");
 
   setTimeout(() => {
     const front = card.querySelector(".card-front");
-
-    // reveal AFTER flip
     front.textContent = `${data.name} (${data.rarity})`;
 
-    const removed = deck.splice(index, 1)[0];
+    const removed = deck.shift();
     deck.push(removed);
 
     buildDeck();
-  }, 700);
-}
-
-  // flip animation
-  card.classList.add("flipped");
-
-  // after flip → move to back
-  setTimeout(() => {
-    const removed = deck.splice(index, 1)[0];
-    deck.push(removed);
-
-    buildDeck(); // rebuild stack
-  }, 700);
+  }, 600);
 }
 </script>
 
 <style>
+#packReveal {
+  position: relative;
+  height: 260px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .card {
   width: 220px;
   height: 140px;
+  position: absolute;
   perspective: 1000px;
-  position: relative;
+  cursor: pointer;
 }
 
 .card-inner {
@@ -345,82 +289,22 @@ if (rarity === "ultra rare") {
   display:flex;
   align-items:center;
   justify-content:center;
+  font-family: Arial;
 }
 
-.card-back {
-  background:#333;
-}
+.card-back { background:#333; color:white; }
 
 .card-front {
   background:#222;
   transform: rotateY(180deg);
 }
-  .card {
-  width: 220px;
-  height: 140px;
-  perspective: 1000px;
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  cursor: pointer;
+
+/* rainbow ultra rare */
+.card.flipped .card-front {
+  animation: rainbowShift 1.5s linear infinite;
 }
 
-#packReveal {
-  position: relative;
-  height: 260px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  perspective: 1200px;
-  overflow: visible;
-}
-
-.card {
-  width: 220px;
-  height: 140px;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  transform-style: preserve-3d;
-  cursor: pointer;
-  transition: transform 0.5s ease, opacity 0.4s ease;
-}
-
-.card-inner {
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-}
-
-.card.flipped .card-inner {
-  transform: rotateY(180deg);
-}
-
-.card-face {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: Arial;
-}
-
-.card-back {
-  background: #333;
-  color: white;
-}
-
-.card-front {
-  background: #222;
-  transform: rotateY(180deg);
-}
-  @keyframes rainbowShift {
+@keyframes rainbowShift {
   0% { filter: hue-rotate(0deg); }
   100% { filter: hue-rotate(360deg); }
 }
