@@ -21,6 +21,7 @@
   font-family: Arial;
   box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 ">
+
   <div style="font-size: 12px; opacity: 0.7; letter-spacing: 2px;">
     NEXT SHOW
   </div>
@@ -28,6 +29,7 @@
   <h2 id="timer" style="margin: 16px 0; font-size: 20px;">
     Loading...
   </h2>
+
 </div>
 
 <div style="display:flex; justify-content:center; gap:12px; margin-top:20px;">
@@ -73,7 +75,6 @@
 
 <script>
 let deck = [];
-let currentIndex = 0;
 
 /* ---------------- TIMER ---------------- */
 
@@ -155,8 +156,18 @@ const concerts = [
 
 function updateTimer() {
   const next = concerts.find(c => c.time > new Date());
+
   if (!next) return;
-  document.getElementById("timer").textContent = next.name;
+
+  const diff = next.time - new Date();
+
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+
+  document.getElementById("timer").textContent =
+    `${next.name}: ${d}d ${h}h ${m}m ${s}s`;
 }
 
 setInterval(updateTimer, 1000);
@@ -176,6 +187,7 @@ function getRandom(arr) {
 }
 
 function openPack() {
+
   deck = [];
 
   for (let i = 0; i < 10; i++) {
@@ -193,7 +205,6 @@ function openPack() {
     deck.push({ name: getRandom(pool), rarity });
   }
 
-  currentIndex = 0;
   buildDeck();
 }
 
@@ -217,8 +228,6 @@ function buildDeck() {
 
     const front = document.createElement("div");
     front.className = "card-face card-front";
-
-    // hide before flip
     front.textContent = "???";
 
     inner.appendChild(back);
@@ -234,7 +243,6 @@ function buildDeck() {
 
 function openCard(i) {
   const cards = document.querySelectorAll(".card");
-
   const card = cards[i];
   const data = deck[i];
 
@@ -244,11 +252,11 @@ function openCard(i) {
     const front = card.querySelector(".card-front");
     front.textContent = `${data.name} (${data.rarity})`;
 
-    const removed = deck.shift();
+    const removed = deck.splice(i, 1)[0];
     deck.push(removed);
 
     buildDeck();
-  }, 600);
+  }, 650);
 }
 </script>
 
@@ -265,6 +273,9 @@ function openCard(i) {
   width: 220px;
   height: 140px;
   position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   perspective: 1000px;
   cursor: pointer;
 }
@@ -292,14 +303,22 @@ function openCard(i) {
   font-family: Arial;
 }
 
-.card-back { background:#333; color:white; }
+.card-back {
+  background:#333;
+  color:white;
+}
 
 .card-front {
   background:#222;
   transform: rotateY(180deg);
 }
 
-/* rainbow ultra rare */
+/* rarity colors */
+.card[data-rarity="common"] { box-shadow: 0 0 10px yellow; }
+.card[data-rarity="uncommon"] { box-shadow: 0 0 10px dodgerblue; }
+.card[data-rarity="rare"] { box-shadow: 0 0 12px purple; }
+
+/* ultra rare rainbow */
 .card.flipped .card-front {
   animation: rainbowShift 1.5s linear infinite;
 }
