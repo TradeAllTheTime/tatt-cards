@@ -106,6 +106,9 @@ flipStyle.innerHTML = `
 .card.flipped .card-inner {
   transform: rotateY(180deg);
 }
+.card.flipped {
+  transform: translateY(-6px);
+}
 
 .card-face {
   position: absolute;
@@ -129,6 +132,51 @@ flipStyle.innerHTML = `
 }
 `;
 document.head.appendChild(flipStyle);
+
+  const pileStyle = document.createElement("style");
+pileStyle.innerHTML = `
+#packReveal {
+  perspective: 1200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 260px;
+}
+
+/* main card */
+.card {
+  width: 220px;
+  height: 140px;
+  position: relative;
+}
+
+/* fake stack behind card */
+.card::before,
+.card::after {
+  content: "";
+  position: absolute;
+  width: 220px;
+  height: 140px;
+  border-radius: 12px;
+  background: #1a1a1a;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+/* back layer */
+.card::before {
+  transform: rotate(-5deg) translate(-6px, 6px);
+  opacity: 0.6;
+}
+
+/* back-back layer */
+.card::after {
+  transform: rotate(5deg) translate(6px, 10px);
+  opacity: 0.35;
+}
+`;
+document.head.appendChild(pileStyle);
 
 /* ---------------- CONCERTS ---------------- */
 
