@@ -391,17 +391,61 @@ function handleCardClick(card, data, index) {
     return;
   }
 
-  // SECOND CLICK → MOVE TO DISCARD
-  const discard = document.getElementById("discardPile");
+// SECOND CLICK → MOVE TO DISCARD PILE
+const discard = document.getElementById("discardPile");
 
-  card.style.position = "relative";
-  card.style.transform = "none";
-  card.style.marginBottom = "10px";
+card.style.position = "relative";
+card.style.transform = "none";
+card.style.marginBottom = "10px";
 
-  discard.appendChild(card);
+discard.appendChild(card);
 
-  deck.splice(index, 1);
+deck.splice(index, 1);
+
+// if no cards left → show grid view
+if (deck.length === 0) {
+  renderGridView();
+} else {
   renderDeck();
+}
+  function renderGridView() {
+  const container = document.getElementById("packReveal");
+
+  container.innerHTML = `
+    <div id="grid" style="
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap:10px;
+      padding:10px;
+    "></div>
+  `;
+
+  const grid = document.getElementById("grid");
+
+  deck.forEach(cardData => {
+    const card = document.createElement("div");
+
+    card.style.padding = "10px";
+    card.style.borderRadius = "10px";
+    card.style.background = "#222";
+    card.style.fontFamily = "Arial";
+    card.style.fontSize = "12px";
+    card.style.textAlign = "center";
+
+    card.textContent = `${cardData.name} (${cardData.rarity})`;
+
+    // KEEP YOUR RARITY COLORS
+    if (cardData.rarity === "common") card.style.boxShadow = "0 0 10px yellow";
+    if (cardData.rarity === "uncommon") card.style.boxShadow = "0 0 10px dodgerblue";
+    if (cardData.rarity === "rare") card.style.boxShadow = "0 0 12px purple";
+
+    if (cardData.rarity === "ultra") {
+      card.style.boxShadow = "0 0 18px red";
+      card.style.animation = "rainbowBorder 2s linear infinite";
+    }
+
+    grid.appendChild(card);
+  });
 }
 </script>
 
