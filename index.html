@@ -317,11 +317,56 @@ function openPack() {
 }
 function saveCard(cardName, rarity) {
  let collected = JSON.parse(localStorage.getItem("collectedCards")) || [];
- // Only save if not already collected
  if (!collected.some(c => c.name === cardName)) {
  collected.push({ name: cardName, rarity: rarity });
  localStorage.setItem("collectedCards", JSON.stringify(collected));
  }
+}
+  /**
+ * Render an array of card objects into #gridView.
+ * Each object must have: { name: string, rarity: "common"|"uncommon"|"rare"|"ultra" }
+ * The function adds the appropriate glow class (commonGlow, uncommonGlow, …)
+ * and optionally a “NEW” badge for cards that have never been seen before.
+ */
+function renderGrid(cards, markNew = false) {
+ const grid = document.getElementById("gridView");
+ grid.innerHTML = ""; // clear previous content
+ grid.style.display = "grid";
+
+ // Hide the pack‑reveal area while we show the grid
+ document.getElementById("packReveal").style.display = "none";
+
+ // Pull the list of cards we have already collected (for the NEW badge)
+ const collected = JSON.parse(localStorage.getItem("collectedCards")) || [];
+
+ cards.forEach(card => {
+ const el = document.createElement("div");
+ el.classList.add("grid-card", `${card.rarity}Glow`);
+ el.style.position = "relative"; // needed for the badge overlay
+ el.textContent = card.name; // you can add the rarity text if you want:
+ // el.textContent = `${card.name} (${card.rarity})`;
+
+ // ---- OPTIONAL “NEW” badge -------------------------------------------------
+ if (markNew &&!collected.some(c => c.name === card.name)) {
+ const badge = document.createElement("span");
+ badge.textContent = "NEW";
+ badge.style.cssText = `
+ position:absolute;
+ top:-6px; right:-6px;
+ background:#ff4444;
+ color:white;
+ padding:2px 8px;
+ border-radius:10px;
+ font-size:11px;
+ font-weight:bold;
+ z-index:2;
+ `;
+ el.appendChild(badge);
+ }
+ // -------------------------------------------------------------------------
+
+ grid.appendChild(el);
+ });
 }
 /* ---------------- RENDER ---------------- */
 
@@ -432,30 +477,23 @@ function showGrid() {
 
   container.appendChild(grid);
 }
-  function showBinder() {
- const grid = document.getElementById("gridView");
- grid.innerHTML = "";
- grid.style.display = "grid";
-
- // Hide pack reveal
- document.getElementById("packReveal").innerHTML = "";
- document.getElementById("packReveal").style.display = "none";
-
- // Get all collected cards from localStorage
- let collected = JSON.parse(localStorage.getItem("collectedCards")) || [];
+function showBinder() {
+ // Grab all cards we have ever collected
+ const collected = JSON.parse(localStorage.getItem("collectedCards")) || [];
 
  if (collected.length === 0) {
- grid.innerHTML = '<div style="grid-column: 1/-1; color: white; font-family: Arial;">No cards collected yet. Open a pack!</div>';
+ // Nothing collected yet – show a friendly message
+ const grid = document.getElementById("gridView");
+ grid.innerHTML = `<div style="grid-column:1/-1;color:white;font-family:Arial;">
+ No cards collected yet. Open a pack!
+ </div>`;
+ grid.style.display = "grid";
+ document.getElementById("packReveal").style.display = "none";
  return;
  }
 
- collected.forEach(card => {
- let cardDiv = document.createElement("div");
- cardDiv.classList.add("grid-card", card.rarity + "Glow");
- cardDiv.style.position = "relative"; // For future badge
- cardDiv.textContent = card.name;
- grid.appendChild(cardDiv);
- });
+ // Render them – we don’t need the “NEW” badge here because they’re already saved
+ renderGrid(collected, false);
 }
 </script>
 
