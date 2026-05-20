@@ -260,38 +260,43 @@ function buildDeck() {
   function flipCard(index) {
   const cards = document.querySelectorAll(".card");
   const card = cards[index];
+  const data = deck[index];
 
   card.classList.add("flipped");
 
   setTimeout(() => {
+
+    // move card to back
     const removed = deck.splice(index, 1)[0];
     deck.push(removed);
-    buildDeck();
-    // ---------------- RARITY STYLING ----------------
 
-if (cardData.rarity === "common") {
+    buildDeck();
+
+  }, 600);
+}
+const rarity = cardData.rarity;
+
+// ---------------- RARITY STYLING ----------------
+
+if (rarity === "common") {
   front.style.boxShadow = "0 0 10px yellow";
 }
 
-if (cardData.rarity === "uncommon") {
+if (rarity === "uncommon") {
   front.style.boxShadow = "0 0 10px dodgerblue";
 }
 
-if (cardData.rarity === "rare") {
+if (rarity === "rare") {
   front.style.boxShadow = "0 0 12px purple";
 }
 
-if (cardData.rarity === "ultra rare") {
+if (rarity === "ultra rare") {
   front.style.boxShadow = "0 0 18px rgba(255,255,255,0.6)";
-  front.style.background = "#222";
   front.style.backgroundImage =
     "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)";
   front.style.color = "white";
   front.style.animation = "rainbowShift 2s linear infinite";
 }
-  }, 600);
-}
-
 </script>
 
 <style>
