@@ -286,7 +286,7 @@ function openPack() {
       card.style.transform = "rotateY(90deg)";
       card.style.transition = "all 0.4s ease";
 
-      card.textContent = pack[i].name;
+      card.textContent = `${pack[i].name} (${rarity})`;
 
       if (rarity === "common") card.style.boxShadow = "0 0 10px yellow";
       if (rarity === "uncommon") card.style.boxShadow = "0 0 10px dodgerblue";
