@@ -180,7 +180,6 @@ setInterval(updateTimer, 1000);
 updateTimer();
 
 /* ---------------- PACK ---------------- */
-
 const cardPool = {
   common: ["Common Sketch","Tour Draft","Stage Study"],
   uncommon: ["Lighting Scene","Green Room"],
@@ -189,8 +188,10 @@ const cardPool = {
 };
 
 function getRandom(arr) {
-  return arr[Math.floor(Math.random()*arr.length)];
+  return arr[Math.floor(Math.random() * arr.length)];
 }
+
+let deck = []; // IMPORTANT GLOBAL
 
 /* ---------------- OPEN PACK ---------------- */
 
@@ -216,11 +217,13 @@ function openPack() {
   container.innerHTML = "<h3>Opening Pack...</h3>";
 
   setTimeout(() => {
-    container.innerHTML = "";
     deck = pack;
     buildDeck();
   }, 800);
 }
+
+/* ---------------- BUILD DECK ---------------- */
+
 function buildDeck() {
   const container = document.getElementById("packReveal");
   container.innerHTML = "";
@@ -239,63 +242,65 @@ function buildDeck() {
 
     const front = document.createElement("div");
     front.className = "card-face card-front";
+
+    // FRONT TEXT (only revealed AFTER flip visually)
     front.textContent = `${cardData.name} (${cardData.rarity})`;
+
+    /* ---------------- RARITY COLORS (FIXED) ---------------- */
+    if (cardData.rarity === "common") {
+      card.style.boxShadow = "0 0 10px yellow";
+    }
+
+    if (cardData.rarity === "uncommon") {
+      card.style.boxShadow = "0 0 10px dodgerblue";
+    }
+
+    if (cardData.rarity === "rare") {
+      card.style.boxShadow = "0 0 12px purple";
+    }
+
+    if (cardData.rarity === "ultra rare") {
+      card.style.boxShadow = "0 0 18px rgba(255,255,255,0.6)";
+      card.style.border = "2px solid transparent";
+      card.style.backgroundImage =
+        "linear-gradient(#222,#222), linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)";
+      card.style.backgroundOrigin = "border-box";
+      card.style.backgroundClip = "padding-box, border-box";
+      card.style.animation = "rainbowShift 2s linear infinite";
+    }
 
     inner.appendChild(back);
     inner.appendChild(front);
     card.appendChild(inner);
     container.appendChild(card);
 
-    // STACK EFFECT
+    /* ---------------- STACK EFFECT ---------------- */
     const offset = index * 4;
     card.style.zIndex = deck.length - index;
-    card.style.transform = `translate(-50%, -50%) translateY(${offset}px) scale(${1 - index * 0.02})`;
+    card.style.transform =
+      `translate(-50%, -50%) translateY(${offset}px) scale(${1 - index * 0.02})`;
 
-    // ONLY TOP CARD CLICKABLE
+    /* ---------------- ONLY TOP CLICKABLE ---------------- */
     card.style.pointerEvents = index === 0 ? "auto" : "none";
 
     card.onclick = () => flipCard(index);
   });
 }
-  function flipCard(index) {
+
+/* ---------------- FLIP CARD ---------------- */
+
+function flipCard(index) {
   const cards = document.querySelectorAll(".card");
   const card = cards[index];
-  const data = deck[index];
 
   card.classList.add("flipped");
 
   setTimeout(() => {
-
-    // move card to back
     const removed = deck.splice(index, 1)[0];
     deck.push(removed);
 
     buildDeck();
-
   }, 600);
-}
-const rarity = cardData.rarity;
-
-// ---------------- RARITY STYLING ----------------
-
-if (rarity === "common") {
-  front.style.boxShadow = "0 0 10px yellow";
-}
-
-if (rarity === "uncommon") {
-  front.style.boxShadow = "0 0 10px dodgerblue";
-}
-
-if (rarity === "rare") {
-  front.style.boxShadow = "0 0 12px purple";
-}
-
-if (rarity === "ultra rare") {
-  front.style.boxShadow = "0 0 18px rgba(255,255,255,0.6)";
-  front.style.backgroundImage =
-    "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)";
-  front.style.color = "white";
-  front.style.animation = "rainbowShift 2s linear infinite";
 }
 </script>
 
@@ -308,14 +313,20 @@ if (rarity === "ultra rare") {
 #packReveal {
   position: relative;
   height: 260px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 1200px;
 }
-  .card {
+
+.card {
   width: 220px;
   height: 140px;
-  perspective: 1000px;
   position: absolute;
   left: 50%;
   top: 50%;
+  transform-style: preserve-3d;
+  cursor: pointer;
 }
 
 .card-inner {
@@ -335,19 +346,21 @@ if (rarity === "ultra rare") {
   height: 100%;
   backface-visibility: hidden;
   border-radius: 10px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: Arial;
 }
 
 .card-back {
-  background:#333;
+  background: #333;
+  color: white;
 }
 
 .card-front {
-  background:#222;
+  background: #222;
   transform: rotateY(180deg);
+  color: white;
 }
 </style>
 
