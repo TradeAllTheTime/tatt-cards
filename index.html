@@ -382,8 +382,8 @@ function handleCard(index) {
     const front = cardEl.querySelector(".card-front");
 
     setTimeout(() => {
-      front.textContent = `${data.name} (${data.rarity})`;
-
+ front.textContent = `${data.name} (${data.rarity})`;
+ saveCard(data.name, data.rarity); 
       if (data.rarity === "common") cardEl.classList.add("commonGlow");
       if (data.rarity === "uncommon") cardEl.classList.add("uncommonGlow");
       if (data.rarity === "rare") cardEl.classList.add("rareGlow");
@@ -415,24 +415,6 @@ openedCards.push(data);
 /* ---------------- GRID ---------------- */
 
 function showGrid() {
-  const container = document.getElementById("packReveal");
-  container.innerHTML = "";
-
-  const grid = document.createElement("div");
-  grid.style.display = "grid";
-  grid.style.gridTemplateColumns = "repeat(3, 1fr)";
-  grid.style.gap = "10px";
-
-  openedCards.forEach(card => {
-    const el = document.createElement("div");
-    el.className = "grid-card";
-    el.textContent = `${card.name} (${card.rarity})`;
-    grid.appendChild(el);
-  });
-
-  container.appendChild(grid);
-}
-function showBinder() {
   const container = document.getElementById("packReveal");
   container.innerHTML = "";
 
