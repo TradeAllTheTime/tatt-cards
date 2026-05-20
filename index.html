@@ -226,7 +226,9 @@ function buildDeck() {
     const card = document.createElement("div");
     card.className = "card deck-card";
 
-    card.style.margin = "10px auto";
+    // 🔥 STACK effect
+    card.style.zIndex = deck.length - index;
+    card.style.transform = `translateX(-50%) translateY(${index * 3}px) scale(${1 - index * 0.02})`;
 
     const inner = document.createElement("div");
     inner.className = "card-inner";
@@ -237,7 +239,26 @@ function buildDeck() {
 
     const front = document.createElement("div");
     front.className = "card-face card-front";
-    front.textContent = `${cardData.name} (${cardData.rarity})`;
+
+    // 🔥 COLOR FIX (rarity styling)
+    const rarity = cardData.rarity;
+
+    let color = "#fff";
+    if (rarity === "common") color = "yellow";
+    if (rarity === "uncommon") color = "dodgerblue";
+    if (rarity === "rare") color = "purple";
+    if (rarity === "ultra rare") color = "transparent";
+
+    front.style.color = "white";
+
+    front.innerHTML = `${cardData.name} <br> (${rarity})`;
+
+    // rarity glow
+    card.style.boxShadow =
+      rarity === "common" ? "0 0 10px yellow" :
+      rarity === "uncommon" ? "0 0 10px dodgerblue" :
+      rarity === "rare" ? "0 0 12px purple" :
+      "0 0 18px gold";
 
     inner.appendChild(back);
     inner.appendChild(front);
@@ -249,7 +270,6 @@ function buildDeck() {
     };
   });
 }
-
 </script>
 
 <style>
@@ -289,6 +309,24 @@ function buildDeck() {
 .card-front {
   background:#222;
   transform: rotateY(180deg);
+}
+  .card {
+  width: 220px;
+  height: 140px;
+  perspective: 1000px;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+}
+
+#packReveal {
+  position: relative;
+  min-height: 260px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
 
