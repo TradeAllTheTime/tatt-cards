@@ -3,9 +3,7 @@
 <head>
   <title>TATT Cards</title>
 </head>
-
 <body>
-
 <h1 style="text-align:center; font-family: Arial; margin-top: 30px;">
   TATT Cards
 </h1>
@@ -34,50 +32,91 @@
 
 <div style="display:flex; justify-content:center; gap:12px; margin-top:20px;">
 
-  <button onclick="openPack()" style="
-    padding: 10px 16px;
-    border-radius: 10px;
-    border: none;
-    background: #222;
-    color: white;
-    cursor: pointer;
-  ">
-    Open Pack
-  </button>
+<div style="display:flex; flex-direction:column; align-items:center;">
 
-  <button style="
-    padding: 10px 16px;
-    border-radius: 10px;
-    border: none;
-    background: #222;
+  <div style="display:flex; justify-content:center; gap:12px; margin-top:20px;">
+
+    <button onclick="openPack()" style="
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      background: #222;
+      color: white;
+      cursor: pointer;
+    ">
+      Open Pack
+    </button>
+
+    <button style="
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      background: #222;
+      color: white;
+      cursor: pointer;
+    ">
+      Binder
+    </button>
+
+  </div>
+
+  <div id="packReveal" style="
+    max-width: 420px;
+    width: 100%;
+    margin-top: 20px;
+    padding: 20px;
+    background: #0f0f0f;
+    border-radius: 12px;
     color: white;
-    cursor: pointer;
+    font-family: Arial;
+    text-align: center;
   ">
-    Binder
-  </button>
+    <p style="opacity:0.6;">Your pack will appear here</p>
+  </div>
 
 </div>
-
-<div id="packReveal" style="
-  max-width: 420px;
-  margin: 20px auto;
-  padding: 20px;
-  background: #0f0f0f;
-  border-radius: 12px;
-  color: white;
-  font-family: Arial;
-  text-align: center;
-  min-height: 260px;
-  position: relative;
-">
-  <p style="opacity:0.6;">Your pack will appear here</p>
 </div>
 
 <script>
-let deck = [];
+window.DEV_MODE = true;
 
-/* ---------------- TIMER ---------------- */
+function getPackData() {
+  return JSON.parse(localStorage.getItem("packData")) || {
+    date: null,
+    count: 0
+  };
+}
 
+function savePackData(data) {
+  localStorage.setItem("packData", JSON.stringify(data));
+}
+
+function canOpenPack() {
+  const data = getPackData();
+  const today = new Date().toDateString();
+
+  if (data.date !== today) {
+    data.date = today;
+    data.count = 0;
+    savePackData(data);
+  }
+
+  return data.count < 3 || window.DEV_MODE === true;
+}
+
+function markPackUsed() {
+  const data = getPackData();
+  const today = new Date().toDateString();
+
+  if (data.date !== today) {
+    data.date = today;
+    data.count = 0;
+  }
+
+  data.count++;
+  savePackData(data);
+}
+document.head.appendChild(style);
 const concerts = [
   { name: "Amsterdam Night 3", time: new Date("2026-05-20T18:00:00Z") },
   { name: "Amsterdam Night 4", time: new Date("2026-05-22T18:00:00Z") },
@@ -153,11 +192,21 @@ const concerts = [
   { name: "Melbourne Night 5", time: new Date("2026-12-12T10:00:00Z") },
   { name: "Melbourne Night 6", time: new Date("2026-12-13T10:00:00Z") }
 ];
+function getNextConcert() {
+  const now = new Date();
+
+  return concerts
+    .filter(c => c.time > now)
+    .sort((a, b) => a.time - b.time)[0];
+}
 
 function updateTimer() {
-  const next = concerts.find(c => c.time > new Date());
+  const next = getNextConcert();
 
-  if (!next) return;
+  if (!next) {
+    document.getElementById("timer").textContent = "No upcoming concerts";
+    return;
+  }
 
   const diff = next.time - new Date();
 
@@ -173,161 +222,182 @@ function updateTimer() {
 setInterval(updateTimer, 1000);
 updateTimer();
 
-/* ---------------- PACK ---------------- */
-
 const cardPool = {
-  common: ["Common Sketch","Tour Draft","Stage Study"],
-  uncommon: ["Lighting Scene","Green Room"],
-  rare: ["Golden Moment"],
-  ultraRare: ["Legendary Shot"]
+  common: [
+    "Common Outfit Sketch",
+    "Tour Hoodie Draft",
+    "Stage Light Study",
+    "Backstage Pass Sketch",
+    "Microphone Design",
+    "Crowd Shot Concept"
+  ],
+
+  uncommon: [
+    "Silver Stage Moment",
+    "Lighting Beam Concept",
+    "Soundcheck Scene",
+    "Green Room Scene",
+    "Mid-performance Frame"
+  ],
+
+  rare: [
+    "Golden Spotlight Outfit",
+    "Encore Performance Shot",
+    "Signature Stage Pose"
+  ],
+
+  ultraRare: [
+    "Legendary Tour Look",
+    "Final Show Outfit",
+    "Iconic Stage Moment"
+  ]
 };
+
+  function canOpenPack() {
+  const last = localStorage.getItem("lastPackTime");
+  const now = new Date().toDateString();
+
+  return last !== now;
+}
+
+function markPackUsed() {
+  localStorage.setItem("lastPackTime", new Date().toDateString());
+}
+let packCounter = 0;
 
 function getRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
-
+  
+let seenCards = new Set();
+  
 function openPack() {
+  if (!canOpenPack()) {
+    alert("You’ve used all 3 packs today.");
+    return;
+  }
+  
+  markPackUsed();
 
-  deck = [];
+  data.count++;
+  savePackData(data);
+}
+  let pack = [];
 
-  for (let i = 0; i < 10; i++) {
-    let rarity =
-      i < 6 ? "common" :
-      i < 9 ? "uncommon" :
-      Math.random() < 0.75 ? "rare" : "ultra rare";
-
-    let pool =
-      rarity === "common" ? cardPool.common :
-      rarity === "uncommon" ? cardPool.uncommon :
-      rarity === "rare" ? cardPool.rare :
-      cardPool.ultraRare;
-
-    deck.push({ name: getRandom(pool), rarity });
+  // 6 COMMONS
+  for (let i = 0; i < 6; i++) {
+    pack.push({
+      name: getRandom(cardPool.common),
+      rarity: "common"
+    });
   }
 
-  buildDeck();
-}
+  // 3 UNCOMMONS
+  for (let i = 0; i < 3; i++) {
+    pack.push({
+      name: getRandom(cardPool.uncommon),
+      rarity: "uncommon"
+    });
+  }
 
-function buildDeck() {
+  // 1 RARE SLOT (decides outcome)
+  const roll = Math.random();
+
+  if (roll < 0.75) {
+    pack.push({
+      name: getRandom(cardPool.rare),
+      rarity: "rare"
+    });
+  } else {
+    pack.push({
+      name: getRandom(cardPool.ultraRare),
+      rarity: "ultra rare"
+    });
+  }
+
+  // shuffle pack
+  pack.sort(() => Math.random() - 0.5);
+
   const container = document.getElementById("packReveal");
-  container.innerHTML = "";
 
-  deck.forEach((cardData, i) => {
-
-    const card = document.createElement("div");
-    card.className = "card";
-    card.style.zIndex = deck.length - i;
-    card.style.transform = `translateY(${i * 3}px)`;
-
-    const inner = document.createElement("div");
-    inner.className = "card-inner";
-
-    const back = document.createElement("div");
-    back.className = "card-face card-back";
-    back.textContent = "TATT CARD";
-
-    const front = document.createElement("div");
-    front.className = "card-face card-front";
-    front.textContent = "???";
-
-    inner.appendChild(back);
-    inner.appendChild(front);
-    card.appendChild(inner);
-    container.appendChild(card);
-
-    if (i === 0) {
-      card.onclick = () => openCard(i);
-    }
-  });
-}
-
-function openCard(i) {
-  const cards = document.querySelectorAll(".card");
-  const card = cards[i];
-  const data = deck[i];
-
-  card.classList.add("flipped");
+  container.innerHTML = "<h3>Opening Pack...</h3>";
 
   setTimeout(() => {
-    const front = card.querySelector(".card-front");
-    front.textContent = `${data.name} (${data.rarity})`;
+    container.innerHTML = "";
+    
+    let i = 0;
 
-    const removed = deck.splice(i, 1)[0];
-    deck.push(removed);
+    function showNextCard() {
+      if (i >= pack.length) return;
 
-    buildDeck();
-  }, 650);
+      const card = document.createElement("div");
+
+      card.style.padding = "10px";
+      card.style.margin = "8px 0";
+      card.style.borderRadius = "10px";
+      card.style.background = "#222";
+      card.style.opacity = "0";
+      card.style.transform = "rotateY(90deg)";
+      card.style.transition = "all 0.4s ease";
+      card.style.fontFamily = "Arial";
+
+      card.textContent = `${pack[i].name} (${pack[i].rarity})`
+        const cardKey = pack[i].name;
+
+if (!seenCards.has(cardKey)) {
+  const badge = document.createElement("div");
+  badge.textContent = "NEW!";
+  badge.style.fontSize = "10px";
+  badge.style.color = "black";
+  badge.style.background = "yellow";
+  badge.style.display = "inline-block";
+  badge.style.padding = "2px 6px";
+  badge.style.borderRadius = "6px";
+  badge.style.marginLeft = "6px";
+
+  card.appendChild(badge);
+  seenCards.add(cardKey);
+};
+
+      // 🌈 rarity glow
+      const rarity = pack[i].rarity;
+
+      if (rarity === "common") {
+        card.style.boxShadow = "0 0 10px yellow";
+      }
+
+      if (rarity === "uncommon") {
+        card.style.boxShadow = "0 0 10px dodgerblue";
+      }
+
+      if (rarity === "rare") {
+        card.style.boxShadow = "0 0 12px purple";
+      }
+
+   if (rarity === "ultra rare") {
+  card.style.border = "2px solid transparent";
+  card.style.backgroundImage = "linear-gradient(#222, #222), linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)";
+  card.style.backgroundOrigin = "border-box";
+  card.style.backgroundClip = "padding-box, border-box";
+  card.style.animation = "rainbowGlow 2s linear infinite";
+}
+}
+      container.appendChild(card);
+
+      setTimeout(() => {
+        card.style.opacity = "1";
+        card.style.transform = "rotateY(0deg)";
+      }, 50);
+
+      i++;
+      setTimeout(showNextCard, 250);
+    }
+
+    showNextCard();
+
+  }, 800);
 }
 </script>
-
-<style>
-#packReveal {
-  position: relative;
-  height: 260px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.card {
-  width: 220px;
-  height: 140px;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  perspective: 1000px;
-  cursor: pointer;
-}
-
-.card-inner {
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-}
-
-.card.flipped .card-inner {
-  transform: rotateY(180deg);
-}
-
-.card-face {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border-radius: 12px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-family: Arial;
-}
-
-.card-back {
-  background:#333;
-  color:white;
-}
-
-.card-front {
-  background:#222;
-  transform: rotateY(180deg);
-}
-
-/* rarity colors */
-.card[data-rarity="common"] { box-shadow: 0 0 10px yellow; }
-.card[data-rarity="uncommon"] { box-shadow: 0 0 10px dodgerblue; }
-.card[data-rarity="rare"] { box-shadow: 0 0 12px purple; }
-
-/* ultra rare rainbow */
-.card.flipped .card-front {
-  animation: rainbowShift 1.5s linear infinite;
-}
-
-@keyframes rainbowShift {
-  0% { filter: hue-rotate(0deg); }
-  100% { filter: hue-rotate(360deg); }
-}
-</style>
 
 </body>
 </html>
