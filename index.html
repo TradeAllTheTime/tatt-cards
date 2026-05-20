@@ -401,13 +401,7 @@ card.style.marginBottom = "10px";
 discard.appendChild(card);
 
 deck.splice(index, 1);
-
-// if no cards left → show grid view
-if (deck.length === 0) {
-  renderGridView();
-} else {
-  renderDeck();
-}
+renderDeck();
   function renderGridView() {
   const container = document.getElementById("packReveal");
 
