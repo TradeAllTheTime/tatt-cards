@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
- <title>TATT Cards</title>
+<title>TATT Cards</title>
 
- <style>
+<style>
 #packReveal {
  position: relative;
  height: 340px;
@@ -29,7 +29,7 @@
  transform-style: preserve-3d;
 }
 
-.deck-card.flipped.card-inner {
+.deck-card.flipped .card-inner {
  transform: rotateY(180deg);
 }
 
@@ -82,7 +82,7 @@
  font-family: Arial;
 }
 
-/* RARITY GLOWS (ONLY AFTER FLIP) */
+/* RARITY GLOWS */
 .commonGlow { box-shadow: 0 0 15px 4px yellow; }
 .uncommonGlow { box-shadow: 0 0 15px 4px dodgerblue; }
 .rareGlow { box-shadow: 0 0 18px 6px purple; }
@@ -104,7 +104,7 @@
  100% { filter: hue-rotate(360deg); }
 }
 
-/* GRID END VIEW */
+/* GRID */
 #gridView {
  display:none;
  grid-template-columns: repeat(3, 1fr);
@@ -120,7 +120,8 @@
  font-family: Arial;
  text-align:center;
 }
- button {
+
+button {
  padding: 10px 16px;
  border-radius: 10px;
  border: none;
@@ -130,14 +131,13 @@
  margin: 5px;
 }
 
-/* ensures pack never overlaps UI */
 #packReveal {
  margin-top: 20px;
  position: relative;
  min-height: 300px;
  overflow: visible;
 }
- </style>
+</style>
 </head>
 
 <body>
@@ -169,9 +169,11 @@
 <script>
 window.DEV_MODE = true;
 
-/* ---------------- TIMER (YOUR ORIGINAL LOGIC KEPT) ---------------- */
+/* ---------------- TIMER ---------------- */
 
-const concerts = // Amsterdam (8)
+const concerts = [
+
+ // Amsterdam (8)
  { name: "Amsterdam Night 3", time: new Date("2026-05-20T18:00:00Z") },
  { name: "Amsterdam Night 4", time: new Date("2026-05-22T18:00:00Z") },
  { name: "Amsterdam Night 5", time: new Date("2026-05-23T18:00:00Z") },
@@ -250,11 +252,14 @@ const concerts = // Amsterdam (8)
  { name: "Melbourne Night 3", time: new Date("2026-12-02T10:00:00Z") },
  { name: "Melbourne Night 4", time: new Date("2026-12-04T10:00:00Z") },
  { name: "Melbourne Night 5", time: new Date("2026-12-12T10:00:00Z") },
- { name: "Melbourne Night 6", time: new Date("2026-12-13T10:00:00Z") },
-;
+ { name: "Melbourne Night 6", time: new Date("2026-12-13T10:00:00Z") }
+
+];
 
 function updateTimer() {
- const next = concerts.filter(c => c.time > new Date());
+
+ const next = concerts.find(c => c.time > new Date());
+
  if (!next) return;
 
  const diff = next.time - new Date();
@@ -274,79 +279,117 @@ updateTimer();
 /* ---------------- PACK SYSTEM ---------------- */
 
 const cardPool = {
- common: "Common Sketch", "Tour Draft", "Stage Study",
- uncommon: "Lighting Scene", "Green Room",
- rare: "Golden Moment",
- ultraRare: "Legendary Shot"
+ common: ["Common Sketch", "Tour Draft", "Stage Study"],
+ uncommon: ["Lighting Scene", "Green Room"],
+ rare: ["Golden Moment"],
+ ultraRare: ["Legendary Shot"]
 };
 
 function getRandom(arr) {
- return arr Math.floor(Math.random() * arr.length);
+ return arr[Math.floor(Math.random() * arr.length)];
 }
 
 let deck = [];
 let flippedIndex = null;
 let openedCards = [];
+let newCards = [];
 
 /* ---------------- OPEN PACK ---------------- */
 
 function openPack() {
- // Reset view to show the pack
+
  document.getElementById("gridView").style.display = "none";
  document.getElementById("packReveal").style.display = "block";
 
  deck = [];
  openedCards = [];
  flippedIndex = null;
+ newCards = [];
 
  for (let i = 0; i < 10; i++) {
+
  let rarity =
- i < 6? "common":
- i < 9? "uncommon":
- Math.random() < 0.75? "rare": "ultra";
+ i < 6 ? "common" :
+ i < 9 ? "uncommon" :
+ Math.random() < 0.75 ? "rare" : "ultra";
 
  let pool =
- rarity === "common"? cardPool.common:
- rarity === "uncommon"? cardPool.uncommon:
- rarity === "rare"? cardPool.rare:
+ rarity === "common" ? cardPool.common :
+ rarity === "uncommon" ? cardPool.uncommon :
+ rarity === "rare" ? cardPool.rare :
  cardPool.ultraRare;
 
- deck.push({ name: getRandom(pool), rarity });
+ deck.push({
+ name: getRandom(pool),
+ rarity
+ });
+
  }
 
  renderDeck();
 }
+
 function saveCard(cardName, rarity) {
- let collected = JSON.parse(localStorage.getItem("collectedCards")) || [];
- if (!collected.some(c => c.name === cardName)) {
- collected.push({ name: cardName, rarity: rarity });
- localStorage.setItem("collectedCards", JSON.stringify(collected));
+
+ let collected =
+ JSON.parse(localStorage.getItem("collectedCards")) || [];
+
+ const alreadyOwned =
+ collected.some(c => c.name === cardName);
+
+ if (!alreadyOwned) {
+
+ collected.push({
+ name: cardName,
+ rarity: rarity
+ });
+
+ localStorage.setItem(
+ "collectedCards",
+ JSON.stringify(collected)
+ );
+
+ newCards.push(cardName);
  }
 }
 
-/* ---------------- RENDER GRID ---------------- */
+/* ---------------- GRID ---------------- */
 
 function renderGrid(cards, markNew = false) {
+
  const grid = document.getElementById("gridView");
+
  grid.innerHTML = "";
  grid.style.display = "grid";
 
  document.getElementById("packReveal").style.display = "none";
 
- const collected = JSON.parse(localStorage.getItem("collectedCards")) || [];
-
  cards.forEach(card => {
+
  const el = document.createElement("div");
- el.classList.add("grid-card", `${card.rarity}Glow`);
+
+ el.classList.add(
+ "grid-card",
+ `${card.rarity}Glow`
+ );
+
  el.style.position = "relative";
+
  el.textContent = card.name;
 
- if (markNew &&!collected.some(c => c.name === card.name)) {
+ if (
+ markNew &&
+ newCards.includes(card.name)
+ ) {
+
  const badge = document.createElement("span");
+
  badge.textContent = "NEW";
+
  badge.style.cssText = `
  position:absolute;
- top:-6px; right:-6px;
+ top:-6px;
+ right:-6px;
  background:#ff4444;
  color:white;
  padding:2px 8px;
@@ -355,40 +398,55 @@ function renderGrid(cards, markNew = false) {
  font-weight:bold;
  z-index:2;
  `;
+
  el.appendChild(badge);
  }
 
  grid.appendChild(el);
+
  });
 }
 
 /* ---------------- RENDER ---------------- */
 
 function renderDeck() {
- const container = document.getElementById("packReveal");
+
+ const container =
+ document.getElementById("packReveal");
+
  container.innerHTML = "";
 
  const discard = document.createElement("div");
+
  discard.id = "discardPile";
+
  container.appendChild(discard);
 
  deck.forEach((card, i) => {
+
  const el = document.createElement("div");
+
  el.className = "deck-card";
 
  const inner = document.createElement("div");
+
  inner.className = "card-inner";
 
  const back = document.createElement("div");
+
  back.className = "card-face card-back";
+
  back.textContent = "TATT CARD";
 
  const front = document.createElement("div");
+
  front.className = "card-face card-front";
+
  front.textContent = card.name;
 
  inner.appendChild(back);
  inner.appendChild(front);
+
  el.appendChild(inner);
 
  el.dataset.index = i;
@@ -396,6 +454,7 @@ function renderDeck() {
  const offset = i * 5;
 
  el.style.zIndex = deck.length - i;
+
  el.style.transform =
  `translate(-50%, -50%) translateY(${offset}px) scale(${1 - i * 0.02})`;
 
@@ -406,37 +465,61 @@ function renderDeck() {
  el.onclick = () => handleCard(i);
 
  container.appendChild(el);
+
  });
+
 }
 
 /* ---------------- CLICK LOGIC ---------------- */
 
 function handleCard(index) {
- const cardEl = document.querySelectorAll(".deck-card")index;
- const data = deckindex;
+
+ const cardEl =
+ document.querySelectorAll(".deck-card")[index];
+
+ const data = deck[index];
 
  if (!cardEl.classList.contains("flipped")) {
+
  cardEl.classList.add("flipped");
 
- const front = cardEl.querySelector(".card-front");
+ const front =
+ cardEl.querySelector(".card-front");
 
  setTimeout(() => {
- front.textContent = `${data.name} (${data.rarity})`;
+
+ front.textContent =
+ `${data.name} (${data.rarity})`;
+
  saveCard(data.name, data.rarity);
- if (data.rarity === "common") cardEl.classList.add("commonGlow");
- if (data.rarity === "uncommon") cardEl.classList.add("uncommonGlow");
- if (data.rarity === "rare") cardEl.classList.add("rareGlow");
- if (data.rarity === "ultra") cardEl.classList.add("ultraGlow");
+
+ if (data.rarity === "common")
+ cardEl.classList.add("commonGlow");
+
+ if (data.rarity === "uncommon")
+ cardEl.classList.add("uncommonGlow");
+
+ if (data.rarity === "rare")
+ cardEl.classList.add("rareGlow");
+
+ if (data.rarity === "ultra")
+ cardEl.classList.add("ultraGlow");
+
  }, 250);
 
  return;
  }
 
- const discard = document.getElementById("discardPile");
+ const discard =
+ document.getElementById("discardPile");
 
  const final = document.createElement("div");
+
  final.className = "discardCard";
- final.textContent = `${data.name} (${data.rarity})`;
+
+ final.textContent =
+ `${data.name} (${data.rarity})`;
+
  discard.appendChild(final);
 
  openedCards.push(data);
@@ -450,36 +533,59 @@ function handleCard(index) {
  }
 }
 
-/* ---------------- GRID ---------------- */
+/* ---------------- FINAL GRID ---------------- */
 
 function showGrid() {
- renderGrid(openedCards, false);
+ renderGrid(openedCards, true);
 }
 
+/* ---------------- BINDER ---------------- */
+
 function showBinder() {
- const collected = JSON.parse(localStorage.getItem("collectedCards")) || [];
+
+ const collected =
+ JSON.parse(localStorage.getItem("collectedCards")) || [];
 
  if (collected.length === 0) {
- const grid = document.getElementById("gridView");
- grid.innerHTML = `<div style="grid-column:1/-1;color:white;font-family:Arial;">
+
+ const grid =
+ document.getElementById("gridView");
+
+ grid.innerHTML = `
+ <div style="grid-column:1/-1;color:white;font-family:Arial;">
  No cards collected yet. Open a pack!
- </div>`;
+ </div>
+ `;
+
  grid.style.display = "grid";
+
  document.getElementById("packReveal").style.display = "none";
+
  return;
  }
 
- // Add back button
  renderGrid(collected, false);
- const grid = document.getElementById("gridView");
- const backBtn = document.createElement("button");
+
+ const grid =
+ document.getElementById("gridView");
+
+ const backBtn =
+ document.createElement("button");
+
  backBtn.textContent = "← Back to Packs";
+
  backBtn.style.marginBottom = "12px";
+
  backBtn.style.gridColumn = "1 / -1";
+
  backBtn.onclick = () => {
+
  document.getElementById("gridView").style.display = "none";
+
  document.getElementById("packReveal").style.display = "block";
+
  };
+
  grid.prepend(backBtn);
 }
 </script>
