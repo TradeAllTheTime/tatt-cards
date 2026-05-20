@@ -105,7 +105,11 @@
 </div>
 
 <div id="packReveal">
-  <p style="opacity:0.5;">Your pack will appear here</p>
+
+  <div id="deckStack"></div>
+  <div id="activeCard"></div>
+  <div id="revealedStack"></div>
+
 </div>
 
 <script>
@@ -173,8 +177,7 @@ updateTimer();
 /* ---------------- PACK SYSTEM ---------------- */
 
 let deck = [];
-let activeIndex = null;
-let isAnimating = false;
+let activeCard = null;
 
 /* ---------------- CARD POOL ---------------- */
 
@@ -216,94 +219,56 @@ function openPack() {
 /* ---------------- RENDER STACK ---------------- */
 
 function renderDeck() {
-  const container = document.getElementById("packReveal");
-  container.innerHTML = "";
+  const stack = document.getElementById("deckStack");
+  stack.innerHTML = "";
 
   deck.forEach((cardData, index) => {
 
-    const card = document.createElement("div");
-    card.className = "card";
+    const card = createCard(cardData);
 
-    const offset = index * 5;
-
-    card.style.position = "absolute";
-    card.style.left = "50%";
-    card.style.top = "50%";
     card.style.zIndex = deck.length - index;
-
     card.style.transform =
-      `translate(-50%, -50%) translateY(${offset}px)`;
+      `translate(-50%, -50%) translateY(${index * 4}px)`;
 
-    const inner = document.createElement("div");
-    inner.className = "card-inner";
+    card.onclick = () => openCard(index);
 
-    const back = document.createElement("div");
-    back.className = "card-face card-back";
-    back.textContent = "TATT CARD";
-
-    const front = document.createElement("div");
-    front.className = "card-face card-front";
-
-    // ❗ HIDDEN UNTIL FLIP
-    front.textContent = "???";
-
-    inner.appendChild(back);
-    inner.appendChild(front);
-    card.appendChild(inner);
-
-    card.onclick = (e) => {
-      e.stopPropagation();
-      openCard(index);
-    };
-
-    container.appendChild(card);
+    stack.appendChild(card);
   });
 }
 
 /* ---------------- OPEN CARD ---------------- */
 
 function openCard(index) {
-  if (isAnimating) return;
-  isAnimating = true;
+  const deckStack = document.getElementById("deckStack");
+  const active = document.getElementById("activeCard");
 
-  activeIndex = index;
-
-  const cards = document.querySelectorAll(".card");
-  const card = cards[index];
   const data = deck[index];
 
-  card.style.zIndex = 9999;
+  const cards = deckStack.querySelectorAll(".card");
+  const card = cards[index];
+
+  active.innerHTML = "";
+  active.appendChild(card);
+
+  card.style.transform = "translate(-50%, -50%) scale(1.2)";
   card.classList.add("flipped");
 
   setTimeout(() => {
-
     const front = card.querySelector(".card-front");
 
-    // reveal AFTER flip
     front.textContent = `${data.name} (${data.rarity})`;
 
-    // ---------------- RARITY COLORS ----------------
-
-    if (data.rarity === "common") {
-      card.style.boxShadow = "0 0 10px yellow";
-    }
-
-    if (data.rarity === "uncommon") {
-      card.style.boxShadow = "0 0 10px dodgerblue";
-    }
-
-    if (data.rarity === "rare") {
-      card.style.boxShadow = "0 0 12px purple";
-    }
+    if (data.rarity === "common") card.style.boxShadow = "0 0 10px yellow";
+    if (data.rarity === "uncommon") card.style.boxShadow = "0 0 10px dodgerblue";
+    if (data.rarity === "rare") card.style.boxShadow = "0 0 12px purple";
 
     if (data.rarity === "ultra rare") {
-      card.style.boxShadow = "0 0 18px white";
       card.style.animation = "rainbowShift 1.5s linear infinite";
+      card.style.boxShadow = "0 0 18px white";
     }
-
-    isAnimating = false;
-
   }, 300);
+
+  active.onclick = closeCard;
 }
 
 /* ---------------- CLOSE ON OUTSIDE CLICK ---------------- */
@@ -316,45 +281,84 @@ document.addEventListener("click", () => {
 /* ---------------- CLOSE CARD ---------------- */
 
 function closeCard() {
-  if (activeIndex === null) return;
+  const active = document.getElementById("activeCard");
+  const revealed = document.getElementById("revealedStack");
 
-  const cards = document.querySelectorAll(".card");
-  const card = cards[activeIndex];
+  const card = active.querySelector(".card");
+  if (!card) return;
 
   card.classList.remove("flipped");
 
-  setTimeout(() => {
+  revealed.appendChild(card);
 
-    const moved = deck.splice(activeIndex, 1)[0];
-    deck.push(moved);
+  card.style.transform = "translate(0,0)";
+  card.style.position = "relative";
 
-    activeIndex = null;
-    renderDeck();
+  active.innerHTML = "";
 
-  }, 500);
+  renderDeck();
+}
+}
+  function createCard(data) {
+  const card = document.createElement("div");
+  card.className = "card";
+
+  const inner = document.createElement("div");
+  inner.className = "card-inner";
+
+  const back = document.createElement("div");
+  back.className = "card-face card-back";
+  back.textContent = "TATT CARD";
+
+  const front = document.createElement("div");
+  front.className = "card-face card-front";
+  front.textContent = "???";
+
+  inner.appendChild(back);
+  inner.appendChild(front);
+  card.appendChild(inner);
+
+  return card;
 }
 </script>
-</style>
-  <style>
+<style>
 #packReveal {
   position: relative;
-  height: 280px;
   width: 420px;
+  height: 280px;
   margin: 20px auto;
   perspective: 1200px;
+}
+
+#deckStack, #revealedStack {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+#activeCard {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
 }
 
 .card {
   width: 220px;
   height: 140px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
   cursor: pointer;
 }
 
 .card-inner {
   width: 100%;
   height: 100%;
-  transition: transform 0.6s;
   transform-style: preserve-3d;
+  transition: transform 0.6s;
 }
 
 .card.flipped .card-inner {
@@ -373,21 +377,14 @@ function closeCard() {
   font-family: Arial;
 }
 
-.card-back {
-  background: #333;
-  color: white;
-}
-
-.card-front {
-  background: #222;
-  transform: rotateY(180deg);
-  color: white;
-}
+.card-back { background: #333; color: white; }
+.card-front { background: #222; transform: rotateY(180deg); color: white; }
 
 @keyframes rainbowShift {
   0% { filter: hue-rotate(0deg); }
   100% { filter: hue-rotate(360deg); }
 }
 </style>
+
 </body>
 </html>
