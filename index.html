@@ -325,7 +325,11 @@ function openPack() {
       rarity === "rare" ? cardPool.rare :
       cardPool.ultraRare;
 
-    deck.push({ name: getRandom(pool), rarity });
+   deck.push({ 
+  id: crypto.randomUUID(),
+  name: getRandom(pool), 
+  rarity 
+});
   }
 
   renderDeck();
@@ -360,7 +364,8 @@ function renderDeck() {
     inner.appendChild(front);
     el.appendChild(inner);
 
-    el.dataset.index = i; // 🔥 IMPORTANT FIX
+    el.dataset.index = i;
+    el.dataset.id = card.id;
 
     const offset = i * 5;
 
@@ -400,7 +405,9 @@ function handleCard(index) {
 
     return;
   }
-openedCards.push({ ...data, isNew: true });
+if (!openedCards.find(c => c.id === data.id)) {
+  openedCards.push({ ...data, isNew: true });
+}
   const discard = document.getElementById("discardPile");
 
  const final = document.createElement("div");
@@ -411,13 +418,12 @@ discard.appendChild(final);
 
 openedCards.push(data);
 
-  deck.splice(index, 1);
+deck = deck.filter(c => c.id !== data.id);
 
-  if (deck.length === 0) {
-    showGrid();
-  } else {
-    renderDeck();
-  }
+if (deck.length === 0) {
+  showGrid();
+} else {
+  renderDeck();
 }
 /* ---------------- GRID ---------------- */
 
