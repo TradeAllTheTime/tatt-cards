@@ -78,6 +78,7 @@
 </div>
 
 <script>
+  window.DEV_MODE = true;
 const concerts = [
   { name: "Amsterdam Night 3", time: new Date("2026-05-20T18:00:00Z") },
   { name: "Amsterdam Night 4", time: new Date("2026-05-22T18:00:00Z") },
@@ -214,15 +215,68 @@ const cardPool = {
   ]
 };
 
+  function canOpenPack() {
+  const last = localStorage.getItem("lastPackTime");
+  const now = new Date().toDateString();
+
+  return last !== now;
+}
+
+function markPackUsed() {
+  localStorage.setItem("lastPackTime", new Date().toDateString());
+}
 let packCounter = 0;
 
 function getRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
-
+  
+let seenCards = new Set();
+  
 function openPack() {
-  packCounter++;
+  if (!canOpenPack()) {
+    alert("You’ve used all 3 packs today.");
+    return;
+  }
 
+  markPackUsed();
+function getPackData() {
+  return JSON.parse(localStorage.getItem("packData")) || {
+    date: null,
+    count: 0
+  };
+}
+
+function savePackData(data) {
+  localStorage.setItem("packData", JSON.stringify(data));
+}
+
+function canOpenPack() {
+  const data = getPackData();
+  const today = new Date().toDateString();
+
+  // reset if new day
+  if (data.date !== today) {
+    data.date = today;
+    data.count = 0;
+    savePackData(data);
+  }
+
+  return data.count < 3 || window.DEV_MODE === true;
+}
+
+function markPackUsed() {
+  const data = getPackData();
+  const today = new Date().toDateString();
+
+  if (data.date !== today) {
+    data.date = today;
+    data.count = 0;
+  }
+
+  data.count++;
+  savePackData(data);
+}
   let pack = [];
 
   // 6 COMMONS
@@ -282,7 +336,23 @@ function openPack() {
       card.style.transition = "all 0.4s ease";
       card.style.fontFamily = "Arial";
 
-      card.textContent = `${pack[i].name} (${pack[i].rarity})`;
+      card.textContent = `${pack[i].name} (${pack[i].rarity})`
+        const cardKey = pack[i].name;
+
+if (!seenCards.has(cardKey)) {
+  const badge = document.createElement("div");
+  badge.textContent = "NEW!";
+  badge.style.fontSize = "10px";
+  badge.style.color = "black";
+  badge.style.background = "yellow";
+  badge.style.display = "inline-block";
+  badge.style.padding = "2px 6px";
+  badge.style.borderRadius = "6px";
+  badge.style.marginLeft = "6px";
+
+  card.appendChild(badge);
+  seenCards.add(cardKey);
+};
 
       // 🌈 rarity glow
       const rarity = pack[i].rarity;
@@ -299,10 +369,9 @@ function openPack() {
         card.style.boxShadow = "0 0 12px purple";
       }
 
-      if (rarity === "ultra rare") {
-        card.style.boxShadow = "0 0 15px magenta, 0 0 25px gold";
-      }
-
+     if (rarity === "ultra rare") {
+  card.style.boxShadow = "0 0 10px red, 0 0 20px orange, 0 0 30px yellow, 0 0 40px green, 0 0 50px blue, 0 0 60px purple";
+}
       container.appendChild(card);
 
       setTimeout(() => {
