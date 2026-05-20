@@ -221,7 +221,6 @@ function openPack() {
     buildDeck();
   }, 800);
 }
-
 function buildDeck() {
   const container = document.getElementById("packReveal");
   container.innerHTML = "";
@@ -231,47 +230,46 @@ function buildDeck() {
     const card = document.createElement("div");
     card.className = "card";
 
-    const offset = index * 4;
+    const inner = document.createElement("div");
+    inner.className = "card-inner";
 
+    const back = document.createElement("div");
+    back.className = "card-face card-back";
+    back.textContent = "TATT CARD";
+
+    const front = document.createElement("div");
+    front.className = "card-face card-front";
+    front.textContent = `${cardData.name} (${cardData.rarity})`;
+
+    inner.appendChild(back);
+    inner.appendChild(front);
+    card.appendChild(inner);
+    container.appendChild(card);
+
+    // STACK EFFECT
+    const offset = index * 4;
     card.style.zIndex = deck.length - index;
     card.style.transform = `translate(-50%, -50%) translateY(${offset}px) scale(${1 - index * 0.02})`;
 
-    card.style.position = "absolute";
-    card.style.left = "50%";
-    card.style.top = "50%";
+    // ONLY TOP CARD CLICKABLE
+    card.style.pointerEvents = index === 0 ? "auto" : "none";
 
-    card.style.padding = "12px";
-    card.style.borderRadius = "10px";
-    card.style.background = "#222";
-    card.style.fontFamily = "Arial";
-    card.style.cursor = "pointer";
-
-    // colors
-    if (cardData.rarity === "common") card.style.boxShadow = "0 0 10px yellow";
-    if (cardData.rarity === "uncommon") card.style.boxShadow = "0 0 10px dodgerblue";
-    if (cardData.rarity === "rare") card.style.boxShadow = "0 0 12px purple";
-
-    if (cardData.rarity === "ultra rare") {
-      card.style.background = "#222";
-      card.style.border = "2px solid transparent";
-      card.style.backgroundImage =
-        "linear-gradient(#222,#222), linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)";
-      card.style.backgroundOrigin = "border-box";
-      card.style.backgroundClip = "padding-box, border-box";
-      card.style.animation = "rainbowShift 2s linear infinite";
-    }
-
-    card.textContent = `${cardData.name} (${cardData.rarity})`;
-
-    container.appendChild(card);
-
-    card.onclick = () => {
-      const removed = deck.splice(index, 1)[0];
-      deck.push(removed);
-      buildDeck();
-    };
+    card.onclick = () => flipCard(index);
   });
 }
+  function flipCard(index) {
+  const cards = document.querySelectorAll(".card");
+  const card = cards[index];
+
+  card.classList.add("flipped");
+
+  setTimeout(() => {
+    const removed = deck.splice(index, 1)[0];
+    deck.push(removed);
+    buildDeck();
+  }, 600);
+}
+
 </script>
 
 <style>
@@ -283,6 +281,46 @@ function buildDeck() {
 #packReveal {
   position: relative;
   height: 260px;
+}
+  .card {
+  width: 220px;
+  height: 140px;
+  perspective: 1000px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+}
+
+.card-inner {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.card.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family: Arial;
+}
+
+.card-back {
+  background:#333;
+}
+
+.card-front {
+  background:#222;
+  transform: rotateY(180deg);
 }
 </style>
 
