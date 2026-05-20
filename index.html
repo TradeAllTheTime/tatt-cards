@@ -291,8 +291,11 @@ function openPack() {
       if (rarity === "common") card.style.boxShadow = "0 0 10px yellow";
       if (rarity === "uncommon") card.style.boxShadow = "0 0 10px dodgerblue";
       if (rarity === "rare") card.style.boxShadow = "0 0 12px purple";
-      if (rarity === "ultra rare") card.style.boxShadow = "0 0 20px magenta, 0 0 40px gold";
+     if (rarity === "ultra rare") {
+  card.style.boxShadow = "0 0 15px red";
 
+  card.style.animation = "rainbowBorder 2s linear infinite";
+}
       const key = pack[i].name;
 
       if (!seenCards.has(key)) {
