@@ -87,13 +87,20 @@
 
 .ultraGlow {
   box-shadow: 0 0 18px white;
+  border: 2px solid transparent;
+  background-image:
+    linear-gradient(#222, #222),
+    linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
   animation: rainbow 1.5s linear infinite;
 }
 
 @keyframes rainbow {
-  0% { filter:hue-rotate(0deg); }
-  100% { filter:hue-rotate(360deg); }
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
 }
+
 
 /* GRID END VIEW */
 #gridView {
@@ -110,6 +117,23 @@
   border-radius: 10px;
   font-family: Arial;
   text-align:center;
+}
+    button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  background: #222;
+  color: white;
+  cursor: pointer;
+  margin: 5px;
+}
+
+/* ensures pack never overlaps UI */
+#packReveal {
+  margin-top: 20px;
+  position: relative;
+  min-height: 300px;
+  overflow: visible;
 }
   </style>
 </head>
@@ -310,13 +334,17 @@ function renderDeck() {
     inner.appendChild(front);
     el.appendChild(inner);
 
+    el.dataset.index = i; // 🔥 IMPORTANT FIX
+
     const offset = i * 5;
 
     el.style.zIndex = deck.length - i;
     el.style.transform =
       `translate(-50%, -50%) translateY(${offset}px) scale(${1 - i * 0.02})`;
 
-    el.style.pointerEvents = i === 0 ? "auto" : "none";
+    el.style.position = "absolute";
+    el.style.left = "50%";
+    el.style.top = "50%";
 
     el.onclick = () => handleCard(i);
 
@@ -327,14 +355,10 @@ function renderDeck() {
 /* ---------------- CLICK LOGIC ---------------- */
 
 function handleCard(index) {
-  const cards = document.querySelectorAll(".deck-card");
-  const cardEl = cards[index];
+  const cardEl = document.querySelectorAll(".deck-card")[index];
   const data = deck[index];
 
-  // FLIP
-  if (flippedIndex !== index) {
-    flippedIndex = index;
-
+  if (!cardEl.classList.contains("flipped")) {
     cardEl.classList.add("flipped");
 
     const front = cardEl.querySelector(".card-front");
@@ -351,7 +375,6 @@ function handleCard(index) {
     return;
   }
 
-  // DISCARD
   const discard = document.getElementById("discardPile");
 
   const final = document.createElement("div");
@@ -360,10 +383,7 @@ function handleCard(index) {
 
   discard.appendChild(final);
 
-  openedCards.push(data);
   deck.splice(index, 1);
-
-  flippedIndex = null;
 
   if (deck.length === 0) {
     showGrid();
@@ -371,7 +391,6 @@ function handleCard(index) {
     renderDeck();
   }
 }
-
 /* ---------------- GRID ---------------- */
 
 function showGrid() {
