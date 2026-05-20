@@ -73,6 +73,21 @@
 
 <script>
 window.DEV_MODE = true;
+  
+  const style = document.createElement("style");
+style.innerHTML = `
+@keyframes rainbowBorder {
+  0%   { box-shadow: 0 0 12px red; }
+  14%  { box-shadow: 0 0 12px orange; }
+  28%  { box-shadow: 0 0 12px yellow; }
+  42%  { box-shadow: 0 0 12px lime; }
+  57%  { box-shadow: 0 0 12px cyan; }
+  71%  { box-shadow: 0 0 12px blue; }
+  85%  { box-shadow: 0 0 12px violet; }
+  100% { box-shadow: 0 0 12px red; }
+}
+`;
+document.head.appendChild(style);
 
 /* ---------------- CONCERTS ---------------- */
 
