@@ -114,6 +114,16 @@
   align-items: center;
   justify-content: center;
 }
+    .deck-card {
+  width: 220px;
+  height: 140px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-style: preserve-3d;
+  transition: transform 0.35s ease;
+  cursor: pointer;
+}
 </style>
 </head>
 
@@ -308,19 +318,8 @@ setInterval(updateTimer, 1000);
 updateTimer();
 
 /* ---------------- PACK SYSTEM ---------------- */
-const cardPool = {
-  common: ["Common Sketch", "Tour Draft", "Stage Study"],
-  uncommon: ["Lighting Scene", "Green Room"],
-  rare: ["Golden Moment"],
-  ultraRare: ["Legendary Shot"]
-};
-
-function getRandom(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
 let deck = [];
-let flipped = null;
+let flippedIndex = null;
 
 /* ---------------- OPEN PACK ---------------- */
 
@@ -339,28 +338,32 @@ function openPack() {
       rarity === "rare" ? cardPool.rare :
       cardPool.ultraRare;
 
-    deck.push({
-      name: getRandom(pool),
-      rarity
-    });
+    deck.push({ name: getRandom(pool), rarity });
   }
 
   renderDeck();
 }
 
-/* ---------------- RENDER STACK ---------------- */
+/* ---------------- RENDER ---------------- */
 
 function renderDeck() {
   const container = document.getElementById("packReveal");
-  container.innerHTML = "";
 
+  // preserve discard pile
   const discard = document.createElement("div");
-  discard.className = "discard-pile";
   discard.id = "discardPile";
+  discard.style.position = "absolute";
+  discard.style.right = "10px";
+  discard.style.top = "10px";
+  discard.style.width = "220px";
+  discard.style.display = "flex";
+  discard.style.flexDirection = "column";
+  discard.style.gap = "10px";
+
+  container.innerHTML = "";
   container.appendChild(discard);
 
   deck.forEach((cardData, i) => {
-
     const card = document.createElement("div");
     card.className = "deck-card";
 
@@ -373,66 +376,70 @@ function renderDeck() {
 
     const front = document.createElement("div");
     front.className = "card-front";
-
-    // ❗ ONLY SHOW DATA AFTER FLIP
     front.textContent = cardData.name;
-
-    // rarity hidden until flip
-    card.dataset.rarity = cardData.rarity;
 
     inner.appendChild(back);
     inner.appendChild(front);
     card.appendChild(inner);
 
-    // stack effect
+    // STACK POSITION
+    const offset = i * 5;
     card.style.zIndex = deck.length - i;
-    card.style.transform = `translate(-50%, -50%) translateY(${i * 4}px) scale(${1 - i * 0.02})`;
+    card.style.transform =
+      `translate(-50%, -50%) translateY(${offset}px) scale(${1 - i * 0.02})`;
 
-    // only top clickable
+    // ONLY TOP CARD CLICKABLE
     card.style.pointerEvents = i === 0 ? "auto" : "none";
 
-    card.onclick = () => flipCard(card, cardData, i);
+    card.onclick = () => handleCardClick(i);
 
     container.appendChild(card);
   });
 }
 
-/* ---------------- FLIP + MOVE ---------------- */
+/* ---------------- CLICK LOGIC ---------------- */
 
-function flipCard(card, data, index) {
-  if (!card.classList.contains("flipped")) {
+function handleCardClick(index) {
+  const cards = document.querySelectorAll(".deck-card");
+  const card = cards[index];
 
-    // FIRST CLICK → FLIP
+  const data = deck[index];
+
+  // FIRST CLICK → FLIP
+  if (flippedIndex !== index) {
+    flippedIndex = index;
+
     card.classList.add("flipped");
 
     const front = card.querySelector(".card-front");
 
-    // show rarity ONLY after flip
     setTimeout(() => {
       front.textContent = `${data.name} (${data.rarity})`;
 
-      if (data.rarity === "common") card.classList.add("common");
-      if (data.rarity === "uncommon") card.classList.add("uncommon");
-      if (data.rarity === "rare") card.classList.add("rare");
-      if (data.rarity === "ultra") card.classList.add("ultra");
+      if (data.rarity === "common") card.classList.add("commonGlow");
+      if (data.rarity === "uncommon") card.classList.add("uncommonGlow");
+      if (data.rarity === "rare") card.classList.add("rareGlow");
+      if (data.rarity === "ultra") card.classList.add("ultraRareGlow");
+    }, 250);
 
-      flipped = card;
-    }, 300);
-
-  } else {
-
-    // SECOND CLICK → MOVE TO DISCARD PILE
-    const discard = document.getElementById("discardPile");
-
-    card.style.position = "relative";
-    card.style.transform = "none";
-    card.style.marginBottom = "10px";
-
-    discard.appendChild(card);
-
-    deck.splice(index, 1);
-    renderDeck();
+    return;
   }
+
+  // SECOND CLICK → MOVE TO DISCARD PILE
+  const discard = document.getElementById("discardPile");
+
+  const finalCard = document.createElement("div");
+  finalCard.className = "discardCard";
+  finalCard.textContent = `${data.name} (${data.rarity})`;
+
+  discard.appendChild(finalCard);
+
+  // REMOVE FROM DECK
+  deck.splice(index, 1);
+
+  flippedIndex = null;
+
+  renderDeck();
 }
 
 </script>
