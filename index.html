@@ -708,6 +708,8 @@ function renderFitcheck(next) {
 <button style="margin-top:20px;" onclick="submitFitcheck('${next.name}')">
      Lock Prediction
    </button>
+    `;
+}
    setTimeout(() => {
 
  const selects = ["shirt", "tie", "jacket", "pattern"];
@@ -732,8 +734,7 @@ if (saved) {
  document.getElementById("jacket").value = saved.jacket || "";
  document.getElementById("pattern").value = saved.pattern || "";
 }
- `;
-}
+
  
 function submitFitcheck(showName) {
 
