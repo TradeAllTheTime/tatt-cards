@@ -649,7 +649,6 @@ function renderFitcheck(next) {
    </button>
  `;
 }
-
 function submitFitcheck(showName) {
 
  const guess = {
@@ -661,7 +660,8 @@ function submitFitcheck(showName) {
 
  localStorage.setItem("fitcheck_" + showName, JSON.stringify(guess));
 
- alert("Fitcheck locked!");
+ // switch to "results view"
+ showFitcheckResults(showName, guess);
 }
  let points = JSON.parse(localStorage.getItem("points")) || 0;
 
@@ -710,6 +710,26 @@ updatePointsUI();
  function hideAll() {
 hideAll();
  document.getElementById("fitcheckScreen").style.display = "none";
+}
+ function showFitcheckResults(showName, guess) {
+
+ const screen = document.getElementById("fitcheckScreen");
+
+ screen.innerHTML = `
+   <h2>Fitcheck Locked ✔</h2>
+   <h3>${showName}</h3>
+
+   <div style="margin-top:15px;text-align:left;">
+     <p><b>Shirt:</b> ${guess.shirt}</p>
+     <p><b>Tie:</b> ${guess.tie}</p>
+     <p><b>Jacket:</b> ${guess.jacket}</p>
+     <p><b>Pattern:</b> ${guess.pattern}</p>
+   </div>
+
+   <p style="margin-top:20px;opacity:0.7;">
+     Check back later for results!
+   </p>
+ `;
 }
 </script>
 
