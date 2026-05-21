@@ -604,221 +604,191 @@ document.getElementById("fitcheckScreen").style.display = "none";
 
  renderGrid(collected, false);
 }
- function openFitcheck() {
- const now = new Date();
- const next = concerts.find(c => c.time > now);
+/* ---------------- FITCHECK ---------------- */
 
- if (!next) return;
+// TEMP TEST MODE — bypass time lock if needed
+const fitcheckAnswers = {
+  "Amsterdam Night 3": {
+    shirt: "white",
+    tie: "black",
+    jacket: "red",
+    pattern: "stripes"
+  }
+};
 
- const openTime = new Date(next.time.getTime() - 24 * 60 * 60 * 1000);
- const closeTime = next.time;
+function openFitcheck() {
+  const now = new Date();
+  const next = concerts.find(c => c.time > now);
 
- const screen = document.getElementById("fitcheckScreen");
- screen.style.display = "block";
+  if (!next) return;
 
- document.getElementById("packReveal").style.display = "none";
- document.getElementById("gridView").style.display = "none";
+  const screen = document.getElementById("fitcheckScreen");
 
-// TEMP TEST MODE — bypass time lock
+  const openTime = new Date(next.time.getTime() - 24 * 60 * 60 * 1000);
+  const closeTime = next.time;
 
+  document.getElementById("packReveal").style.display = "none";
+  document.getElementById("gridView").style.display = "none";
+  screen.style.display = "block";
 
- if (now >= closeTime) {
-   screen.innerHTML = `
-     <h2>Fitcheck Closed</h2>
-     <p>Check back later for the points you've earned!</p>
-   `;
-   return;
- }
+  const saved = JSON.parse(localStorage.getItem("fitcheck_" + next.name));
 
- renderFitcheck(next);
+  // NOT OPEN YET
+  if (now < openTime) {
+    screen.innerHTML = `
+      <h2>Fitcheck</h2>
+      <p>Opens 24 hours before the show.</p>
+    `;
+    return;
+  }
+
+  // CLOSED
+  if (now >= closeTime) {
+    screen.innerHTML = `
+      <h2>Fitcheck Closed</h2>
+      <p>Check back later for results.</p>
+    `;
+    return;
+  }
+
+  // LOCKED VIEW
+  if (saved) {
+    showFitcheckResults(next.name, saved);
+    return;
+  }
+
+  renderFitcheck(next);
 }
 
 function renderFitcheck(next) {
- const screen = document.getElementById("fitcheckScreen");
+  const screen = document.getElementById("fitcheckScreen");
 
- screen.innerHTML = `
-   <h2>Fitcheck: ${next.name}</h2>
+  screen.innerHTML = `
+    <h2>Fitcheck: ${next.name}</h2>
 
-   <div style="text-align:left; margin-top:15px;">
+    <div style="text-align:left; margin-top:15px;">
 
-   <label style="display:block; margin-top:10px; font-weight:bold;">Shirt Color</label>
-   <select id="shirt">
-     <option value="">Shirt color</option>
-     <option value="white">White</option>
-     <option value="black">Black</option>
-     <option value="red">Red</option>
-     <option value="blue">Blue</option>
-     <option value="green">Green</option>
-     <option value="yellow">Yellow</option>
-     <option value="orange">Orange</option>
-     <option value="pink">Pink</option>
-     <option value="purple">Purple</option>
-     <option value="other">Other</option>
-   </select><br><br>
+      <label style="font-weight:bold;">Shirt Color</label>
+      <select id="shirt">
+        <option value="">Select</option>
+        <option value="white">White</option>
+        <option value="black">Black</option>
+        <option value="red">Red</option>
+        <option value="blue">Blue</option>
+        <option value="green">Green</option>
+        <option value="yellow">Yellow</option>
+        <option value="orange">Orange</option>
+        <option value="pink">Pink</option>
+        <option value="purple">Purple</option>
+        <option value="other">Other</option>
+      </select><br><br>
 
-   <label style="display:block; margin-top:15px; font-weight:bold;">Tie Color</label>
-   <select id="tie">
-     <option value="">Tie color</option>
-     <option value="white">White</option>
-     <option value="black">Black</option>
-     <option value="red">Red</option>
-     <option value="blue">Blue</option>
-     <option value="green">Green</option>
-     <option value="yellow">Yellow</option>
-     <option value="orange">Orange</option>
-     <option value="pink">Pink</option>
-     <option value="purple">Purple</option>
-     <option value="other">Other</option>
-   </select><br><br>
+      <label style="font-weight:bold;">Tie Color</label>
+      <select id="tie">
+        <option value="">Select</option>
+        <option value="white">White</option>
+        <option value="black">Black</option>
+        <option value="red">Red</option>
+        <option value="blue">Blue</option>
+        <option value="green">Green</option>
+        <option value="yellow">Yellow</option>
+        <option value="orange">Orange</option>
+        <option value="pink">Pink</option>
+        <option value="purple">Purple</option>
+        <option value="other">Other</option>
+      </select><br><br>
 
-   <label style="display:block; margin-top:15px; font-weight:bold;">Jacket Color</label>
-   <select id="jacket">
-     <option value="white">White</option>
-     <option value="black">Black</option>
-     <option value="red">Red</option>
-     <option value="blue">Blue</option>
-     <option value="green">Green</option>
-     <option value="yellow">Yellow</option>
-     <option value="orange">Orange</option>
-     <option value="pink">Pink</option>
-     <option value="purple">Purple</option>
-     <option value="other">Other</option>
-   </select><br><br>
+      <label style="font-weight:bold;">Jacket Color</label>
+      <select id="jacket">
+        <option value="">Select</option>
+        <option value="white">White</option>
+        <option value="black">Black</option>
+        <option value="red">Red</option>
+        <option value="blue">Blue</option>
+        <option value="green">Green</option>
+        <option value="yellow">Yellow</option>
+        <option value="orange">Orange</option>
+        <option value="pink">Pink</option>
+        <option value="purple">Purple</option>
+        <option value="other">Other</option>
+      </select><br><br>
 
-   <label style="display:block; margin-top:15px; font-weight:bold;">Tie Pattern</label>
-   <select id="pattern">
-     <option value="">Tie pattern</option>
-     <option value="stripes">Stripes</option>
-     <option value="dots">Dots</option>
-     <option value="solid">Solid</option>
-     <option value="floral">Floral</option>
-     <option value="other">Other</option>
-   </select><br><br>
+      <label style="font-weight:bold;">Tie Pattern</label>
+      <select id="pattern">
+        <option value="">Select</option>
+        <option value="stripes">Stripes</option>
+        <option value="dots">Dots</option>
+        <option value="solid">Solid</option>
+        <option value="floral">Floral</option>
+        <option value="other">Other</option>
+      </select><br><br>
 
-   </div>
+    </div>
 
-   <button style="margin-top:20px;" onclick="submitFitcheck('${next.name}')">
-     Lock Prediction
-   </button>
- `;
+    <button style="margin-top:20px;" onclick="submitFitcheck('${next.name}')">
+      Lock Prediction
+    </button>
+  `;
 }
+
 function submitFitcheck(showName) {
+  const guess = {
+    shirt: document.getElementById("shirt").value.trim().toLowerCase(),
+    tie: document.getElementById("tie").value.trim().toLowerCase(),
+    jacket: document.getElementById("jacket").value.trim().toLowerCase(),
+    pattern: document.getElementById("pattern").value.trim().toLowerCase()
+  };
 
- const guess = {
-   shirt: document.getElementById("shirt").value.trim().toLowerCase(),
-   tie: document.getElementById("tie").value.trim().toLowerCase(),
-   jacket: document.getElementById("jacket").value.trim().toLowerCase(),
-   pattern: document.getElementById("pattern").value.trim().toLowerCase()
- };
+  localStorage.setItem("fitcheck_" + showName, JSON.stringify(guess));
 
- localStorage.setItem("fitcheck_" + showName, JSON.stringify(guess));
-
- localStorage.removeItem("fitcheck_draft_" + showName);
-
- showFitcheckResults(showName, guess);
+  showFitcheckResults(showName, guess);
 }
- // switch to "results view"
- showFitcheckResults(showName, guess);
-}
- let points = JSON.parse(localStorage.getItem("points")) || 0;
-
-function addPoints(amount) {
- points += amount;
- localStorage.setItem("points", JSON.stringify(points));
- updatePointsUI();
-}
- function calculateFitcheck(showName) {
-
- const guess =
- JSON.parse(localStorage.getItem("fitcheck_" + showName));
-
- const actual = fitcheckAnswers[showName];
-
- if (!guess || !actual) return;
-
- let score = 0;
-
- if (guess.shirt === actual.shirt) score++;
- if (guess.tie === actual.tie) score++;
- if (guess.jacket === actual.jacket) score++;
- if (guess.pattern === actual.pattern) score++;
-
- addPoints(score * 10);
-
- return score;
-}
- function updatePointsUI() {
- let el = document.getElementById("pointsDisplay");
-
- if (!el) {
-   el = document.createElement("div");
-   el.id = "pointsDisplay";
-   el.style = "text-align:center;color:white;font-family:Arial;margin-top:10px;";
-   document.body.insertBefore(el, document.body.children[2]);
- }
-
- el.textContent = `Points: ${points}`;
-}
-
-updatePointsUI();
- window.runFitcheckTest = function(name) {
- console.log(calculateFitcheck(name));
-};
-
- document.getElementById("fitcheckScreen").style.display = "none";
 
 function showFitcheckResults(showName, guess) {
+  const screen = document.getElementById("fitcheckScreen");
+  const actual = fitcheckAnswers[showName];
 
- const screen = document.getElementById("fitcheckScreen");
+  if (!actual) {
+    screen.innerHTML = `
+      <h2>Fitcheck Locked ✔</h2>
+      <p>Results not available yet.</p>
+    `;
+    return;
+  }
 
- const actual = fitcheckAnswers[showName];
+  function row(label, userValue, correctValue) {
+    const isCorrect = userValue === correctValue;
 
- screen.innerHTML = `<h2>Fitcheck Locked ✔</h2><h3>${showName}</h3>`;
+    return `
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        padding:8px;
+        margin:6px 0;
+        background:#1a1a1a;
+        border-radius:8px;
+      ">
+        <span>${label}: ${userValue}</span>
+        <span style="color:${isCorrect ? 'limegreen' : 'red'}; font-weight:bold;">
+          ${isCorrect ? "✔" : "✖"} ${correctValue}
+        </span>
+      </div>
+    `;
+  }
 
- function row(label, userValue, correctValue) {
+  screen.innerHTML = `
+    <h2>Fitcheck Results</h2>
+    <h3>${showName}</h3>
 
-   const isCorrect = userValue === correctValue;
+    ${row("Shirt", guess.shirt, actual.shirt)}
+    ${row("Tie", guess.tie, actual.tie)}
+    ${row("Jacket", guess.jacket, actual.jacket)}
+    ${row("Pattern", guess.pattern, actual.pattern)}
 
-   return `
-     <div style="
-       display:flex;
-       justify-content:space-between;
-       padding:8px;
-       margin:6px 0;
-       background:#1a1a1a;
-       border-radius:8px;
-     ">
-       <span>${label}: ${userValue}</span>
-       <span style="font-weight:bold; color:${isCorrect ? 'limegreen' : 'red'}">
-         ${isCorrect ? "✔" : "✖"} ${correctValue}
-       </span>
-     </div>
-   `;
- }
-
- screen.innerHTML += `
-   <div style="margin-top:15px;">
-     ${row("Shirt", guess.shirt, actual.shirt)}
-     ${row("Tie", guess.tie, actual.tie)}
-     ${row("Jacket", guess.jacket, actual.jacket)}
-     ${row("Pattern", guess.pattern, actual.pattern)}
-   </div>
-
-   <p style="margin-top:20px;opacity:0.7;">
-     Check back later for results!
-   </p>
- `;
-}
- function saveFitcheckDraft(showName) {
-
- const draft = {
-   shirt: document.getElementById("shirt")?.value || "",
-   tie: document.getElementById("tie")?.value || "",
-   jacket: document.getElementById("jacket")?.value || "",
-   pattern: document.getElementById("pattern")?.value || ""
- };
-
- localStorage.setItem("fitcheck_draft_" + showName, JSON.stringify(draft));
+    <p style="margin-top:15px; opacity:0.7;">
+      Check back after the show for points.
+    </p>
+  `;
 }
 </script>
 
