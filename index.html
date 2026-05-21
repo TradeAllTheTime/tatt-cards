@@ -639,103 +639,69 @@ function renderFitcheck(next) {
  screen.innerHTML = `
    <h2>Fitcheck: ${next.name}</h2>
 
- <div style="text-align:left; margin-top:15px;">
+   <div style="text-align:left; margin-top:15px;">
 
- <label style="display:block; margin-top:10px; font-weight:bold;">
-       Shirt Color
-       </label>
-<select id="shirt">
-  <option value="">Shirt color</option>
-  <option value="white">White</option>
-  <option value="black">Black</option>
-  <option value="red">Red</option>
-  <option value="blue">Blue</option>
-  <option value="green">Green</option>
-  <option value="yellow">Yellow</option>
-  <option value="orange">Orange</option>
-  <option value="pink">Pink</option>
-  <option value="purple">Purple</option>
-  <option value="other">Other</option>
-</select><br><br>
+   <label style="display:block; margin-top:10px; font-weight:bold;">Shirt Color</label>
+   <select id="shirt">
+     <option value="">Shirt color</option>
+     <option value="white">White</option>
+     <option value="black">Black</option>
+     <option value="red">Red</option>
+     <option value="blue">Blue</option>
+     <option value="green">Green</option>
+     <option value="yellow">Yellow</option>
+     <option value="orange">Orange</option>
+     <option value="pink">Pink</option>
+     <option value="purple">Purple</option>
+     <option value="other">Other</option>
+   </select><br><br>
 
-  <label style="display:block; margin-top:15px; font-weight:bold;">
-       Tie Color
-     </label>
-<select id="tie">
-  <option value="">Tie color</option>
-  <option value="white">White</option>
-  <option value="black">Black</option>
-  <option value="red">Red</option>
-  <option value="blue">Blue</option>
-  <option value="green">Green</option>
-  <option value="yellow">Yellow</option>
-  <option value="orange">Orange</option>
-  <option value="pink">Pink</option>
-  <option value="purple">Purple</option>
-  <option value="other">Other</option>
-</select><br><br>
+   <label style="display:block; margin-top:15px; font-weight:bold;">Tie Color</label>
+   <select id="tie">
+     <option value="">Tie color</option>
+     <option value="white">White</option>
+     <option value="black">Black</option>
+     <option value="red">Red</option>
+     <option value="blue">Blue</option>
+     <option value="green">Green</option>
+     <option value="yellow">Yellow</option>
+     <option value="orange">Orange</option>
+     <option value="pink">Pink</option>
+     <option value="purple">Purple</option>
+     <option value="other">Other</option>
+   </select><br><br>
 
- <label style="display:block; margin-top:15px; font-weight:bold;">
-       Jacket Color
-     </label>
-<select id="jacket">
-  <option value="white">White</option>
-  <option value="black">Black</option>
-  <option value="red">Red</option>
-  <option value="blue">Blue</option>
-  <option value="green">Green</option>
-  <option value="yellow">Yellow</option>
-  <option value="orange">Orange</option>
-  <option value="pink">Pink</option>
-  <option value="purple">Purple</option>
-  <option value="other">Other</option>
-</select><br><br>
+   <label style="display:block; margin-top:15px; font-weight:bold;">Jacket Color</label>
+   <select id="jacket">
+     <option value="white">White</option>
+     <option value="black">Black</option>
+     <option value="red">Red</option>
+     <option value="blue">Blue</option>
+     <option value="green">Green</option>
+     <option value="yellow">Yellow</option>
+     <option value="orange">Orange</option>
+     <option value="pink">Pink</option>
+     <option value="purple">Purple</option>
+     <option value="other">Other</option>
+   </select><br><br>
 
-    <label style="display:block; margin-top:15px; font-weight:bold;">
-       Tie Pattern
-     </label>
-<select id="pattern">
-  <option value="">Tie pattern</option>
-  <option value="stripes">Stripes</option>
-  <option value="dots">Dots</option>
-  <option value="solid">Solid</option>
-  <option value="floral">Floral</option>
-  <option value="other">Other</option>
-</select><br><br>
+   <label style="display:block; margin-top:15px; font-weight:bold;">Tie Pattern</label>
+   <select id="pattern">
+     <option value="">Tie pattern</option>
+     <option value="stripes">Stripes</option>
+     <option value="dots">Dots</option>
+     <option value="solid">Solid</option>
+     <option value="floral">Floral</option>
+     <option value="other">Other</option>
+   </select><br><br>
 
    </div>
 
-<button style="margin-top:20px;" onclick="submitFitcheck('${next.name}')">
+   <button style="margin-top:20px;" onclick="submitFitcheck('${next.name}')">
      Lock Prediction
    </button>
-    `;
+ `;
 }
-   setTimeout(() => {
-
- const selects = ["shirt", "tie", "jacket", "pattern"];
-
- selects.forEach(id => {
-   const el = document.getElementById(id);
-   if (!el) return;
-
-   el.addEventListener("change", () => {
-     saveFitcheckDraft("${next.name}");
-   });
- });
-
-}, 0);
-const saved =
- JSON.parse(localStorage.getItem("fitcheck_draft_" + next.name));
-
-if (saved) {
-
- document.getElementById("shirt").value = saved.shirt || "";
- document.getElementById("tie").value = saved.tie || "";
- document.getElementById("jacket").value = saved.jacket || "";
- document.getElementById("pattern").value = saved.pattern || "";
-}
-
- 
 function submitFitcheck(showName) {
 
  const guess = {
@@ -747,12 +713,10 @@ function submitFitcheck(showName) {
 
  localStorage.setItem("fitcheck_" + showName, JSON.stringify(guess));
 
- // REMOVE draft after locking
  localStorage.removeItem("fitcheck_draft_" + showName);
 
  showFitcheckResults(showName, guess);
-};
-
+}
  // switch to "results view"
  showFitcheckResults(showName, guess);
 }
@@ -800,10 +764,9 @@ updatePointsUI();
  window.runFitcheckTest = function(name) {
  console.log(calculateFitcheck(name));
 };
- function hideAll() {
-hideAll();
+
  document.getElementById("fitcheckScreen").style.display = "none";
-}
+
 function showFitcheckResults(showName, guess) {
 
  const screen = document.getElementById("fitcheckScreen");
