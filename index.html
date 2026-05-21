@@ -619,12 +619,7 @@ document.getElementById("fitcheckScreen").style.display = "none";
  document.getElementById("packReveal").style.display = "none";
  document.getElementById("gridView").style.display = "none";
 
- if (now < openTime) {
-   screen.innerHTML = `
-     <h2>Fitcheck</h2>
-     <p>Opens 24 hours before the show.</p>
-   `;
-   return;
+// TEMP TEST MODE — bypass time lock
  }
 
  if (now >= closeTime) {
