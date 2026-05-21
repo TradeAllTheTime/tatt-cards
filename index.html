@@ -160,6 +160,20 @@ button {
 
 <h1 style="text-align:center; font-family: Arial;">TATT Cards</h1>
 
+ <div id="bankDisplay" style="
+  max-width:420px;
+  margin:10px auto;
+  padding:12px;
+  background:#111;
+  color:white;
+  border-radius:12px;
+  text-align:center;
+  font-family:Arial;
+  font-weight:bold;
+">
+  Bank: 0 points
+</div>
+ 
 <div style="
  max-width: 420px;
  margin: 30px auto;
@@ -613,7 +627,8 @@ let fitcheckBank = JSON.parse(localStorage.getItem("fitcheck_bank")) || 0;
 function addToBank(amount) {
   fitcheckBank += amount;
   localStorage.setItem("fitcheck_bank", JSON.stringify(fitcheckBank));
-}
+
+  updateBankDisplay(); 
 
 /* OPEN FITCHECK */
 function openFitcheck() {
@@ -812,6 +827,13 @@ function showFitcheckResults(showName, guess) {
       </div>
     </div>
   `;
+}
+ function updateBankDisplay() {
+  const el = document.getElementById("bankDisplay");
+  if (!el) return;
+
+  const bank = JSON.parse(localStorage.getItem("fitcheck_bank")) || 0;
+  el.textContent = `Bank: ${bank} points`;
 }
 </script>
 
