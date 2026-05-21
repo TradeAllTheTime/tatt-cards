@@ -285,10 +285,10 @@ const concerts = [
 ];
  const fitcheckAnswers = {
  "Amsterdam Night 3": {
-   shirt: "white",
+   shirt: "pink",
    tie: "black",
-   jacket: "red",
-   pattern: "stripes"
+   jacket: "blue",
+   pattern: "solid"
  }
 };
 
@@ -711,23 +711,45 @@ updatePointsUI();
 hideAll();
  document.getElementById("fitcheckScreen").style.display = "none";
 }
- function showFitcheckResults(showName, guess) {
+function showFitcheckResults(showName, guess) {
 
  const screen = document.getElementById("fitcheckScreen");
 
- screen.innerHTML = `
-   <h2>Fitcheck Locked ✔</h2>
-   <h3>${showName}</h3>
+ const actual = fitcheckAnswers[showName];
 
-   <div style="margin-top:15px;text-align:left;">
-     <p><b>Shirt:</b> ${guess.shirt}</p>
-     <p><b>Tie:</b> ${guess.tie}</p>
-     <p><b>Jacket:</b> ${guess.jacket}</p>
-     <p><b>Pattern:</b> ${guess.pattern}</p>
+ screen.innerHTML = `<h2>Fitcheck Locked ✔</h2><h3>${showName}</h3>`;
+
+ function row(label, userValue, correctValue) {
+
+   const isCorrect = userValue === correctValue;
+
+   return `
+     <div style="
+       display:flex;
+       justify-content:space-between;
+       padding:8px;
+       margin:6px 0;
+       background:#1a1a1a;
+       border-radius:8px;
+     ">
+       <span>${label}: ${userValue}</span>
+       <span style="font-weight:bold; color:${isCorrect ? 'limegreen' : 'red'}">
+         ${isCorrect ? "✔" : "✖"} ${correctValue}
+       </span>
+     </div>
+   `;
+ }
+
+ screen.innerHTML += `
+   <div style="margin-top:15px;">
+     ${row("Shirt", guess.shirt, actual.shirt)}
+     ${row("Tie", guess.tie, actual.tie)}
+     ${row("Jacket", guess.jacket, actual.jacket)}
+     ${row("Pattern", guess.pattern, actual.pattern)}
    </div>
 
    <p style="margin-top:20px;opacity:0.7;">
-     Check back later for results!
+     Waiting for results...
    </p>
  `;
 }
