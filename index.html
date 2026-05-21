@@ -329,12 +329,6 @@ let deck = [];
 let flippedIndex = null;
 let openedCards = [];
 let newCards = [];
-let fitcheckBank = JSON.parse(localStorage.getItem("fitcheck_bank")) || 0;
-
-function addToBank(amount) {
-  fitcheckBank += amount;
-  localStorage.setItem("fitcheck_bank", JSON.stringify(fitcheckBank));
-}
 
 /* ---------------- OPEN PACK ---------------- */
 
