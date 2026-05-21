@@ -648,10 +648,7 @@ function openFitcheck() {
   const now = new Date();
   const next = concerts.find(c => c.time > now);
 
-  if (!next) {
-    alert("No upcoming shows found");
-    return;
-  }
+  if (!next) return;
 
   const screen = document.getElementById("fitcheckScreen");
 
@@ -659,9 +656,24 @@ function openFitcheck() {
   document.getElementById("gridView").style.display = "none";
   screen.style.display = "block";
 
-  const saved = JSON.parse(
-    localStorage.getItem("fitcheck_" + next.name)
-  );
+  // ALWAYS load saved guess first
+  const saved = JSON.parse(localStorage.getItem("fitcheck_" + next.name));
+
+  // DEV MODE (still respects saved data)
+  if (window.DEV_MODE === true) {
+    if (saved) {
+      showFitcheckResults(next.name, saved);
+    } else {
+      renderFitcheck(next);
+    }
+    return;
+  }
+
+  // NORMAL MODE
+  if (saved) {
+    showFitcheckResults(next.name, saved);
+    return;
+  }
 
   renderFitcheck(next);
 }
