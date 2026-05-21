@@ -708,8 +708,33 @@ function renderFitcheck(next) {
 <button style="margin-top:20px;" onclick="submitFitcheck('${next.name}')">
      Lock Prediction
    </button>
+   setTimeout(() => {
+
+ const selects = ["shirt", "tie", "jacket", "pattern"];
+
+ selects.forEach(id => {
+   const el = document.getElementById(id);
+   if (!el) return;
+
+   el.addEventListener("change", () => {
+     saveFitcheckDraft("${next.name}");
+   });
+ });
+
+}, 0);
+const saved =
+ JSON.parse(localStorage.getItem("fitcheck_draft_" + next.name));
+
+if (saved) {
+
+ document.getElementById("shirt").value = saved.shirt || "";
+ document.getElementById("tie").value = saved.tie || "";
+ document.getElementById("jacket").value = saved.jacket || "";
+ document.getElementById("pattern").value = saved.pattern || "";
+}
  `;
 }
+ 
 function submitFitcheck(showName) {
 
  const guess = {
@@ -718,12 +743,14 @@ function submitFitcheck(showName) {
    jacket: document.getElementById("jacket").value.trim().toLowerCase(),
    pattern: document.getElementById("pattern").value.trim().toLowerCase()
  };
- if (!guess.shirt || !guess.tie || !guess.jacket || !guess.pattern) {
- alert("Please complete all fields before locking Fitcheck.");
- return;
-}
 
  localStorage.setItem("fitcheck_" + showName, JSON.stringify(guess));
+
+ // REMOVE draft after locking
+ localStorage.removeItem("fitcheck_draft_" + showName);
+
+ showFitcheckResults(showName, guess);
+};
 
  // switch to "results view"
  showFitcheckResults(showName, guess);
@@ -814,9 +841,20 @@ function showFitcheckResults(showName, guess) {
    </div>
 
    <p style="margin-top:20px;opacity:0.7;">
-     Waiting for results...
+     Check back later for results!
    </p>
  `;
+}
+ function saveFitcheckDraft(showName) {
+
+ const draft = {
+   shirt: document.getElementById("shirt")?.value || "",
+   tie: document.getElementById("tie")?.value || "",
+   jacket: document.getElementById("jacket")?.value || "",
+   pattern: document.getElementById("pattern")?.value || ""
+ };
+
+ localStorage.setItem("fitcheck_draft_" + showName, JSON.stringify(draft));
 }
 </script>
 
