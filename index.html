@@ -119,6 +119,22 @@
  border-radius: 10px;
  font-family: Arial;
  text-align:center;
+ position: relative;
+ border: 1.5px solid #444;
+ box-sizing: border-box;
+}
+ .grid-card.ultraGlow {
+ border: 3px solid transparent;
+ background-image:
+ linear-gradient(#222, #222),
+ linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet);
+
+ background-origin: border-box;
+ background-clip: padding-box, border-box;
+
+ animation: rainbow 1.5s linear infinite;
+
+ box-shadow: 0 0 20px 6px white;
 }
 
 button {
@@ -297,7 +313,8 @@ let newCards = [];
 /* ---------------- OPEN PACK ---------------- */
 
 function openPack() {
-
+document.getElementById("packReveal").innerHTML = "";
+ 
  document.getElementById("gridView").style.display = "none";
  document.getElementById("packReveal").style.display = "block";
 
@@ -569,25 +586,6 @@ function showBinder() {
  const grid =
  document.getElementById("gridView");
 
- const backBtn =
- document.createElement("button");
-
- backBtn.textContent = "← Back to Packs";
-
- backBtn.style.marginBottom = "12px";
-
- backBtn.style.gridColumn = "1 / -1";
-
- backBtn.onclick = () => {
-
- document.getElementById("gridView").style.display = "none";
-
- document.getElementById("packReveal").style.display = "block";
-
- };
-
- grid.prepend(backBtn);
-}
 </script>
 
 </body>
