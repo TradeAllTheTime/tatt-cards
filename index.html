@@ -329,6 +329,12 @@ let deck = [];
 let flippedIndex = null;
 let openedCards = [];
 let newCards = [];
+let fitcheckBank = JSON.parse(localStorage.getItem("fitcheck_bank")) || 0;
+
+function addToBank(amount) {
+  fitcheckBank += amount;
+  localStorage.setItem("fitcheck_bank", JSON.stringify(fitcheckBank));
+}
 
 /* ---------------- OPEN PACK ---------------- */
 
@@ -763,13 +769,75 @@ function showFitcheckResults(showName, guess) {
   const screen = document.getElementById("fitcheckScreen");
   const actual = fitcheckAnswers[showName];
 
+  // NO RESULTS YET (admin hasn't entered answers)
   if (!actual) {
     screen.innerHTML = `
       <h2>Fitcheck Locked ✔</h2>
-      <p>Results not available yet.</p>
+      <h3>${showName}</h3>
+      <p style="margin-top:15px; opacity:0.8;">
+        Check back after the show for results.
+      </p>
     `;
     return;
   }
+
+  function row(label, userValue, correctValue) {
+    const isCorrect = userValue === correctValue;
+
+    return `
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        padding:8px;
+        margin:6px 0;
+        background:#1a1a1a;
+        border-radius:8px;
+      ">
+        <span>${label}: ${userValue}</span>
+        <span style="font-weight:bold; color:${isCorrect ? 'limegreen' : 'red'}">
+          ${isCorrect ? "✔" : "✖"} ${correctValue}
+        </span>
+      </div>
+    `;
+  }
+
+  // COUNT CORRECT
+  let correct = 0;
+
+  if (guess.shirt === actual.shirt) correct++;
+  if (guess.tie === actual.tie) correct++;
+  if (guess.jacket === actual.jacket) correct++;
+  if (guess.pattern === actual.pattern) correct++;
+
+  const earned = calculatePoints(correct);
+  addToBank(earned);
+
+  screen.innerHTML = `
+    <h2>Fitcheck Results</h2>
+    <h3>${showName}</h3>
+
+    ${row("Shirt", guess.shirt, actual.shirt)}
+    ${row("Tie", guess.tie, actual.tie)}
+    ${row("Jacket", guess.jacket, actual.jacket)}
+    ${row("Pattern", guess.pattern, actual.pattern)}
+
+    <div style="
+      margin-top:20px;
+      padding:12px;
+      background:#111;
+      border-radius:10px;
+      text-align:center;
+      font-size:16px;
+    ">
+      🎉 Congratulations, you've earned <b>${earned}</b> points!
+    </div>
+
+    <p style="margin-top:10px; opacity:0.7;">
+      Total Bank: ${fitcheckBank} points
+    </p>
+  `;
+}
+
 
   function row(label, userValue, correctValue) {
     const isCorrect = userValue === correctValue;
@@ -805,7 +873,13 @@ function showFitcheckResults(showName, guess) {
     </p>
   `;
 }
-
+function calculatePoints(correctCount) {
+  if (correctCount <= 1) return 1;
+  if (correctCount === 2) return 2;
+  if (correctCount === 3) return 5;
+  if (correctCount === 4) return 10;
+  return 0;
+}
 </script>
 
 </body>
