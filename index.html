@@ -616,8 +616,49 @@ function openFitcheck() {
 
   const screen = document.getElementById("fitcheckScreen");
 
+  document.getElementById("packReveal").style.display = "none";
+  document.getElementById("gridView").style.display = "none";
+  screen.style.display = "block";
+
+  const saved = JSON.parse(localStorage.getItem("fitcheck_" + next.name));
+
+  // DEV MODE: bypass ALL time rules
+  if (window.DEV_MODE === true) {
+    if (saved) {
+      showFitcheckResults(next.name, saved);
+    } else {
+      renderFitcheck(next);
+    }
+    return;
+  }
+
+  // NORMAL MODE (locked timing system)
   const openTime = new Date(next.time.getTime() - 24 * 60 * 60 * 1000);
   const closeTime = next.time;
+
+  if (now < openTime) {
+    screen.innerHTML = `
+      <h2>Fitcheck</h2>
+      <p>Opens 24 hours before the show.</p>
+    `;
+    return;
+  }
+
+  if (now >= closeTime) {
+    screen.innerHTML = `
+      <h2>Fitcheck Closed</h2>
+      <p>Check back later for results.</p>
+    `;
+    return;
+  }
+
+  if (saved) {
+    showFitcheckResults(next.name, saved);
+    return;
+  }
+
+  renderFitcheck(next);
+}
 
   document.getElementById("packReveal").style.display = "none";
   document.getElementById("gridView").style.display = "none";
