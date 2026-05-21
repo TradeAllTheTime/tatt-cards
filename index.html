@@ -639,6 +639,11 @@ function renderFitcheck(next) {
  screen.innerHTML = `
    <h2>Fitcheck: ${next.name}</h2>
 
+ <div style="text-align:left; margin-top:15px;">
+
+ <label style="display:block; margin-top:10px; font-weight:bold;">
+       Shirt Color
+       </label>
 <select id="shirt">
   <option value="">Shirt color</option>
   <option value="white">White</option>
@@ -653,6 +658,9 @@ function renderFitcheck(next) {
   <option value="other">Other</option>
 </select><br><br>
 
+  <label style="display:block; margin-top:15px; font-weight:bold;">
+       Tie Color
+     </label>
 <select id="tie">
   <option value="">Tie color</option>
   <option value="white">White</option>
@@ -667,6 +675,9 @@ function renderFitcheck(next) {
   <option value="other">Other</option>
 </select><br><br>
 
+ <label style="display:block; margin-top:15px; font-weight:bold;">
+       Jacket Color
+     </label>
 <select id="jacket">
   <option value="white">White</option>
   <option value="black">Black</option>
@@ -680,6 +691,9 @@ function renderFitcheck(next) {
   <option value="other">Other</option>
 </select><br><br>
 
+    <label style="display:block; margin-top:15px; font-weight:bold;">
+       Tie Pattern
+     </label>
 <select id="pattern">
   <option value="">Tie pattern</option>
   <option value="stripes">Stripes</option>
@@ -689,7 +703,9 @@ function renderFitcheck(next) {
   <option value="other">Other</option>
 </select><br><br>
 
-   <button onclick="submitFitcheck('${next.name}')">
+   </div>
+
+<button style="margin-top:20px;" onclick="submitFitcheck('${next.name}')">
      Lock Prediction
    </button>
  `;
