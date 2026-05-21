@@ -622,33 +622,36 @@ document.getElementById("fitcheckScreen").style.display = "none";
         FITCHECK SYSTEM
    ========================= */
 
-let fitcheckBank = JSON.parse(localStorage.getItem("fitcheck_bank")) || 0;
+/* -------- BANK -------- */
 
-/* BANK */
+let fitcheckBank =
+  JSON.parse(localStorage.getItem("fitcheck_bank")) || 0;
+
+function updateBankDisplay() {
+  const el = document.getElementById("bankDisplay");
+  if (!el) return;
+  el.textContent = `Bank: ${fitcheckBank} points`;
+}
+
 function addToBank(amount) {
   fitcheckBank += amount;
   localStorage.setItem("fitcheck_bank", JSON.stringify(fitcheckBank));
   updateBankDisplay();
 }
 
-/* BANK UI */
-function updateBankDisplay() {
-  const el = document.getElementById("bankDisplay");
-  if (!el) return;
-
-  const bank = JSON.parse(localStorage.getItem("fitcheck_bank")) || 0;
-  el.textContent = `Bank: ${bank} points`;
-}
-
-/* RUN ON LOAD */
+/* run once on load */
 updateBankDisplay();
 
-/* OPEN FITCHECK */
+/* -------- OPEN FITCHECK -------- */
+
 function openFitcheck() {
   const now = new Date();
   const next = concerts.find(c => c.time > now);
 
-  if (!next) return;
+  if (!next) {
+    alert("No upcoming shows found");
+    return;
+  }
 
   const screen = document.getElementById("fitcheckScreen");
 
@@ -656,18 +659,188 @@ function openFitcheck() {
   document.getElementById("gridView").style.display = "none";
   screen.style.display = "block";
 
-  const saved = JSON.parse(localStorage.getItem("fitcheck_" + next.name));
+  const saved = JSON.parse(
+    localStorage.getItem("fitcheck_" + next.name)
+  );
 
-  if (window.DEV_MODE === true) {
-    if (saved && fitcheckAnswers[next.name]) {
-      showFitcheckResults(next.name, saved);
-    } else {
-      renderFitcheck(next);
-    }
+  renderFitcheck(next);
+}
+
+/* -------- RENDER FORM -------- */
+
+function renderFitcheck(next) {
+  const screen = document.getElementById("fitcheckScreen");
+
+  screen.innerHTML = `
+    <h2>Fitcheck: ${next.name}</h2>
+
+    <div style="text-align:left; margin-top:15px;">
+
+      <label><b>Shirt Color</b></label>
+      <select id="shirt">
+        <option value="">Select</option>
+        <option value="white">White</option>
+        <option value="black">Black</option>
+        <option value="red">Red</option>
+        <option value="blue">Blue</option>
+        <option value="green">Green</option>
+        <option value="yellow">Yellow</option>
+        <option value="orange">Orange</option>
+        <option value="pink">Pink</option>
+        <option value="purple">Purple</option>
+        <option value="other">Other</option>
+      </select><br><br>
+
+      <label><b>Tie Color</b></label>
+      <select id="tie">
+        <option value="">Select</option>
+        <option value="white">White</option>
+        <option value="black">Black</option>
+        <option value="red">Red</option>
+        <option value="blue">Blue</option>
+        <option value="green">Green</option>
+        <option value="yellow">Yellow</option>
+        <option value="orange">Orange</option>
+        <option value="pink">Pink</option>
+        <option value="purple">Purple</option>
+        <option value="other">Other</option>
+      </select><br><br>
+
+      <label><b>Jacket Color</b></label>
+      <select id="jacket">
+        <option value="">Select</option>
+        <option value="white">White</option>
+        <option value="black">Black</option>
+        <option value="red">Red</option>
+        <option value="blue">Blue</option>
+        <option value="green">Green</option>
+        <option value="yellow">Yellow</option>
+        <option value="orange">Orange</option>
+        <option value="pink">Pink</option>
+        <option value="purple">Purple</option>
+        <option value="other">Other</option>
+      </select><br><br>
+
+      <label><b>Tie Pattern</b></label>
+      <select id="pattern">
+        <option value="">Select</option>
+        <option value="stripes">Stripes</option>
+        <option value="dots">Dots</option>
+        <option value="solid">Solid</option>
+        <option value="floral">Floral</option>
+        <option value="other">Other</option>
+      </select>
+
+    </div>
+
+    <button style="margin-top:20px;" onclick="submitFitcheck('${next.name}')">
+      Lock Prediction
+    </button>
+  `;
+}
+
+/* -------- SAVE GUESS -------- */
+
+function submitFitcheck(showName) {
+  const guess = {
+    shirt: document.getElementById("shirt").value,
+    tie: document.getElementById("tie").value,
+    jacket: document.getElementById("jacket").value,
+    pattern: document.getElementById("pattern").value
+  };
+
+  localStorage.setItem(
+    "fitcheck_" + showName,
+    JSON.stringify(guess)
+  );
+
+  showFitcheckResults(showName, guess);
+}
+
+/* -------- RESULTS -------- */
+
+function showFitcheckResults(showName, guess) {
+  const screen = document.getElementById("fitcheckScreen");
+  const actual = fitcheckAnswers[showName];
+
+  if (!actual) {
+    screen.innerHTML = `
+      <h2>Fitcheck Locked ✔</h2>
+      <p>Check back after the show for results.</p>
+    `;
     return;
   }
 
-  renderFitcheck(next);
+  function row(label, user, correct) {
+    const ok = user === correct;
+
+    return `
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        padding:10px;
+        margin:6px 0;
+        background:#1a1a1a;
+        border-radius:8px;
+        font-family:Arial;
+      ">
+        <span>${label}: <b>${user || "none"}</b></span>
+        <span style="color:${ok ? "limegreen" : "red"}; font-weight:bold;">
+          ${ok ? "✔" : "✖"} ${correct}
+        </span>
+      </div>
+    `;
+  }
+
+  let correct = 0;
+  if (guess.shirt === actual.shirt) correct++;
+  if (guess.tie === actual.tie) correct++;
+  if (guess.jacket === actual.jacket) correct++;
+  if (guess.pattern === actual.pattern) correct++;
+
+  const earned =
+    correct <= 1 ? 1 :
+    correct === 2 ? 2 :
+    correct === 3 ? 5 :
+    10;
+
+  addToBank(earned);
+
+  screen.innerHTML = `
+    <h2>Fitcheck Results</h2>
+    <h3>${showName}</h3>
+
+    ${row("Shirt", guess.shirt, actual.shirt)}
+    ${row("Tie", guess.tie, actual.tie)}
+    ${row("Jacket", guess.jacket, actual.jacket)}
+    ${row("Pattern", guess.pattern, actual.pattern)}
+
+    <div style="
+      margin-top:15px;
+      padding:12px;
+      background:#111;
+      border-radius:10px;
+      text-align:center;
+      font-family:Arial;
+    ">
+      <div>${correct}/4 correct</div>
+      <div style="margin-top:8px; font-weight:bold;">
+        🎉 You earned ${earned} points!
+      </div>
+      <div style="opacity:0.7; margin-top:5px;">
+        Total Bank: ${fitcheckBank}
+      </div>
+    </div>
+  `;
+}
+
+/* -------- POINT CALC -------- */
+
+function calculatePoints(correctCount) {
+  if (correctCount <= 1) return 1;
+  if (correctCount === 2) return 2;
+  if (correctCount === 3) return 5;
+  if (correctCount === 4) return 10;
 }
 </script>
 
