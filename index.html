@@ -604,9 +604,9 @@ document.getElementById("fitcheckScreen").style.display = "none";
 
  renderGrid(collected, false);
 }
-/* ---------------- FITCHECK ---------------- */
-
-// TEMP TEST MODE — bypass time lock if needed
+/* =========================
+        FITCHECK SYSTEM
+   ========================= */
 
 function openFitcheck() {
   const now = new Date();
@@ -622,7 +622,7 @@ function openFitcheck() {
 
   const saved = JSON.parse(localStorage.getItem("fitcheck_" + next.name));
 
-  // DEV MODE: bypass ALL time rules
+  // DEV MODE (bypass time rules)
   if (window.DEV_MODE === true) {
     if (saved) {
       showFitcheckResults(next.name, saved);
@@ -632,7 +632,7 @@ function openFitcheck() {
     return;
   }
 
-  // NORMAL MODE (locked timing system)
+  // NORMAL MODE (future live system)
   const openTime = new Date(next.time.getTime() - 24 * 60 * 60 * 1000);
   const closeTime = next.time;
 
@@ -647,7 +647,7 @@ function openFitcheck() {
   if (now >= closeTime) {
     screen.innerHTML = `
       <h2>Fitcheck Closed</h2>
-      <p>Check back later for results.</p>
+      <p>Check back later for the points you've earned!</p>
     `;
     return;
   }
@@ -660,38 +660,10 @@ function openFitcheck() {
   renderFitcheck(next);
 }
 
-  document.getElementById("packReveal").style.display = "none";
-  document.getElementById("gridView").style.display = "none";
-  screen.style.display = "block";
 
-  const saved = JSON.parse(localStorage.getItem("fitcheck_" + next.name));
-
-  // NOT OPEN YET
-  if (now < openTime) {
-    screen.innerHTML = `
-      <h2>Fitcheck</h2>
-      <p>Opens 24 hours before the show.</p>
-    `;
-    return;
-  }
-
-  // CLOSED
-  if (now >= closeTime) {
-    screen.innerHTML = `
-      <h2>Fitcheck Closed</h2>
-      <p>Check back later for results.</p>
-    `;
-    return;
-  }
-
-  // LOCKED VIEW
-  if (saved) {
-    showFitcheckResults(next.name, saved);
-    return;
-  }
-
-  renderFitcheck(next);
-}
+/* =========================
+        FITCHECK UI
+   ========================= */
 
 function renderFitcheck(next) {
   const screen = document.getElementById("fitcheckScreen");
@@ -703,7 +675,7 @@ function renderFitcheck(next) {
 
       <label style="font-weight:bold;">Shirt Color</label>
       <select id="shirt">
-        <option value="">Select</option>
+        <option value="">Shirt color</option>
         <option value="white">White</option>
         <option value="black">Black</option>
         <option value="red">Red</option>
@@ -718,7 +690,7 @@ function renderFitcheck(next) {
 
       <label style="font-weight:bold;">Tie Color</label>
       <select id="tie">
-        <option value="">Select</option>
+        <option value="">Tie color</option>
         <option value="white">White</option>
         <option value="black">Black</option>
         <option value="red">Red</option>
@@ -733,7 +705,7 @@ function renderFitcheck(next) {
 
       <label style="font-weight:bold;">Jacket Color</label>
       <select id="jacket">
-        <option value="">Select</option>
+        <option value="">Jacket color</option>
         <option value="white">White</option>
         <option value="black">Black</option>
         <option value="red">Red</option>
@@ -748,7 +720,7 @@ function renderFitcheck(next) {
 
       <label style="font-weight:bold;">Tie Pattern</label>
       <select id="pattern">
-        <option value="">Select</option>
+        <option value="">Tie pattern</option>
         <option value="stripes">Stripes</option>
         <option value="dots">Dots</option>
         <option value="solid">Solid</option>
@@ -764,6 +736,11 @@ function renderFitcheck(next) {
   `;
 }
 
+
+/* =========================
+      SAVE PREDICTION
+   ========================= */
+
 function submitFitcheck(showName) {
   const guess = {
     shirt: document.getElementById("shirt").value.trim().toLowerCase(),
@@ -776,6 +753,11 @@ function submitFitcheck(showName) {
 
   showFitcheckResults(showName, guess);
 }
+
+
+/* =========================
+        RESULTS VIEW
+   ========================= */
 
 function showFitcheckResults(showName, guess) {
   const screen = document.getElementById("fitcheckScreen");
@@ -802,7 +784,7 @@ function showFitcheckResults(showName, guess) {
         border-radius:8px;
       ">
         <span>${label}: ${userValue}</span>
-        <span style="color:${isCorrect ? 'limegreen' : 'red'}; font-weight:bold;">
+        <span style="font-weight:bold; color:${isCorrect ? 'limegreen' : 'red'}">
           ${isCorrect ? "✔" : "✖"} ${correctValue}
         </span>
       </div>
@@ -823,6 +805,7 @@ function showFitcheckResults(showName, guess) {
     </p>
   `;
 }
+
 </script>
 
 </body>
