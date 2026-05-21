@@ -734,24 +734,51 @@ function showFitcheckResults(showName, guess) {
   const screen = document.getElementById("fitcheckScreen");
   const actual = fitcheckAnswers[showName];
 
+  // if no answers yet
   if (!actual) {
     screen.innerHTML = `
       <h2>Fitcheck Locked ✔</h2>
-      <p>Check back after the show for results.</p>
+      <p style="margin-top:10px; opacity:0.8;">
+        Check back after the show for results.
+      </p>
     `;
     return;
   }
 
+  function row(label, userValue, correctValue) {
+    const isCorrect = userValue === correctValue;
+
+    return `
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        padding:10px;
+        margin:6px 0;
+        background:#1a1a1a;
+        border-radius:8px;
+        font-family:Arial;
+      ">
+        <span>${label}: <b>${userValue || "none"}</b></span>
+        <span style="font-weight:bold; color:${isCorrect ? 'limegreen' : 'red'}">
+          ${isCorrect ? "✔" : "✖"} ${correctValue}
+        </span>
+      </div>
+    `;
+  }
+
+  // count correct
   let correct = 0;
   if (guess.shirt === actual.shirt) correct++;
   if (guess.tie === actual.tie) correct++;
   if (guess.jacket === actual.jacket) correct++;
   if (guess.pattern === actual.pattern) correct++;
 
+  // points system
   const earned =
     correct <= 1 ? 1 :
     correct === 2 ? 2 :
-    correct === 3 ? 5 : 10;
+    correct === 3 ? 5 :
+    10;
 
   addToBank(earned);
 
@@ -759,10 +786,31 @@ function showFitcheckResults(showName, guess) {
     <h2>Fitcheck Results</h2>
     <h3>${showName}</h3>
 
-    <p>Correct: ${correct}/4</p>
+    ${row("Shirt", guess.shirt, actual.shirt)}
+    ${row("Tie", guess.tie, actual.tie)}
+    ${row("Jacket", guess.jacket, actual.jacket)}
+    ${row("Pattern", guess.pattern, actual.pattern)}
 
-    <h3>🎉 Congratulations, you've earned ${earned} points!</h3>
-    <p>Total Bank: ${fitcheckBank}</p>
+    <div style="
+      margin-top:15px;
+      padding:12px;
+      background:#111;
+      border-radius:10px;
+      text-align:center;
+      font-family:Arial;
+    ">
+      <div style="font-size:16px;">
+        ${correct}/4 correct
+      </div>
+
+      <div style="margin-top:8px; font-size:18px; font-weight:bold;">
+        🎉 Congratulations, you've earned ${earned} points!
+      </div>
+
+      <div style="margin-top:6px; opacity:0.7;">
+        Total Bank: ${fitcheckBank}
+      </div>
+    </div>
   `;
 }
 </script>
