@@ -177,10 +177,22 @@ button {
 <div style="text-align:center;">
  <button onclick="openPack()">Open Pack</button>
  <button onclick="showBinder()">Binder</button>
+ <button onclick="openFitcheck()">Play Fitcheck!</button>
 </div>
 
 <div id="packReveal"></div>
 <div id="gridView"></div>
+ <div id="fitcheckScreen" style="
+ display:none;
+ max-width: 420px;
+ margin: 20px auto;
+ padding: 20px;
+ border-radius: 16px;
+ background: #111;
+ color: white;
+ font-family: Arial;
+ text-align: center;
+"></div>
 
 <script>
 window.DEV_MODE = true;
@@ -271,10 +283,18 @@ const concerts = [
  { name: "Melbourne Night 6", time: new Date("2026-12-13T10:00:00Z") }
 
 ];
+ const fitcheckAnswers = {
+ "Amsterdam Night 3": {
+   shirt: "white",
+   tie: "black",
+   jacket: "red",
+   pattern: "stripes"
+ }
+};
 
 function updateTimer() {
 
- const next = concerts.find(c => c.time > new Date());
+ const next = concerts.find(c => c.time.getTime() > Date.now())
 
  if (!next) return;
 
@@ -314,6 +334,7 @@ let newCards = [];
 
 function openPack() {
 document.getElementById("packReveal").innerHTML = "";
+ document.getElementById("fitcheckScreen").style.display = "none";
  
  document.getElementById("gridView").style.display = "none";
  document.getElementById("packReveal").style.display = "block";
@@ -559,7 +580,7 @@ function showGrid() {
 /* ---------------- BINDER ---------------- */
 
 function showBinder() {
-
+document.getElementById("fitcheckScreen").style.display = "none";
  const collected =
  JSON.parse(localStorage.getItem("collectedCards")) || [];
 
@@ -582,6 +603,118 @@ function showBinder() {
  }
 
  renderGrid(collected, false);
+}
+ function openFitcheck() {
+ const now = new Date();
+ const next = concerts.find(c => c.time > now);
+
+ if (!next) return;
+
+ const openTime = new Date(next.time.getTime() - 24 * 60 * 60 * 1000);
+ const closeTime = next.time;
+
+ const screen = document.getElementById("fitcheckScreen");
+ screen.style.display = "block";
+
+ document.getElementById("packReveal").style.display = "none";
+ document.getElementById("gridView").style.display = "none";
+
+ if (now < openTime) {
+   screen.innerHTML = `
+     <h2>Fitcheck</h2>
+     <p>Opens 24 hours before the show.</p>
+   `;
+   return;
+ }
+
+ if (now >= closeTime) {
+   screen.innerHTML = `
+     <h2>Fitcheck Closed</h2>
+     <p>Check back later for the points you've earned!</p>
+   `;
+   return;
+ }
+
+ renderFitcheck(next);
+}
+
+function renderFitcheck(next) {
+ const screen = document.getElementById("fitcheckScreen");
+
+ screen.innerHTML = `
+   <h2>Fitcheck: ${next.name}</h2>
+
+   <input id="shirt" placeholder="Shirt color"><br><br>
+   <input id="tie" placeholder="Tie color"><br><br>
+   <input id="jacket" placeholder="Jacket color"><br><br>
+   <input id="pattern" placeholder="Tie pattern"><br><br>
+
+   <button onclick="submitFitcheck('${next.name}')">
+     Lock Prediction
+   </button>
+ `;
+}
+
+function submitFitcheck(showName) {
+
+ const guess = {
+   shirt: document.getElementById("shirt").value.trim().toLowerCase(),
+   tie: document.getElementById("tie").value.trim().toLowerCase(),
+   jacket: document.getElementById("jacket").value.trim().toLowerCase(),
+   pattern: document.getElementById("pattern").value.trim().toLowerCase()
+ };
+
+ localStorage.setItem("fitcheck_" + showName, JSON.stringify(guess));
+
+ alert("Fitcheck locked!");
+}
+ let points = JSON.parse(localStorage.getItem("points")) || 0;
+
+function addPoints(amount) {
+ points += amount;
+ localStorage.setItem("points", JSON.stringify(points));
+ updatePointsUI();
+}
+ function calculateFitcheck(showName) {
+
+ const guess =
+ JSON.parse(localStorage.getItem("fitcheck_" + showName));
+
+ const actual = fitcheckAnswers[showName];
+
+ if (!guess || !actual) return;
+
+ let score = 0;
+
+ if (guess.shirt === actual.shirt) score++;
+ if (guess.tie === actual.tie) score++;
+ if (guess.jacket === actual.jacket) score++;
+ if (guess.pattern === actual.pattern) score++;
+
+ addPoints(score * 10);
+
+ return score;
+}
+ function updatePointsUI() {
+ let el = document.getElementById("pointsDisplay");
+
+ if (!el) {
+   el = document.createElement("div");
+   el.id = "pointsDisplay";
+   el.style = "text-align:center;color:white;font-family:Arial;margin-top:10px;";
+   document.body.insertBefore(el, document.body.children[2]);
+ }
+
+ el.textContent = `Points: ${points}`;
+}
+
+updatePointsUI();
+ window.runFitcheckTest = function(name) {
+ console.log(calculateFitcheck(name));
+};
+ function hideAll() {
+hideAll();
+ document.getElementById("fitcheckScreen").style.display = "none";
 }
 </script>
 
