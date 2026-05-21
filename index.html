@@ -684,7 +684,7 @@ function renderFitcheck(next) {
   <option value="">Tie pattern</option>
   <option value="stripes">Stripes</option>
   <option value="dots">Dots</option>
-  <option value="solid">Plain</option>
+  <option value="solid">Solid</option>
   <option value="floral">Floral</option>
   <option value="other">Other</option>
 </select><br><br>
@@ -695,16 +695,17 @@ function renderFitcheck(next) {
  `;
 }
 function submitFitcheck(showName) {
-if (!guess.shirt || !guess.tie || !guess.jacket || !guess.pattern) {
- alert("Please complete all fields before locking Fitcheck.");
- return;
-}
+
  const guess = {
    shirt: document.getElementById("shirt").value.trim().toLowerCase(),
    tie: document.getElementById("tie").value.trim().toLowerCase(),
    jacket: document.getElementById("jacket").value.trim().toLowerCase(),
    pattern: document.getElementById("pattern").value.trim().toLowerCase()
  };
+ if (!guess.shirt || !guess.tie || !guess.jacket || !guess.pattern) {
+ alert("Please complete all fields before locking Fitcheck.");
+ return;
+}
 
  localStorage.setItem("fitcheck_" + showName, JSON.stringify(guess));
 
