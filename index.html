@@ -303,6 +303,7 @@ const concerts = [
    tie: "black",
    jacket: "blue",
    pattern: "solid"
+   Surprise Song: "medicine"
  }
 };
 
@@ -742,6 +743,41 @@ function renderFitcheck(next) {
         <option value="floral">Floral</option>
         <option value="other">Other</option>
       </select>
+      
+       <label><b>Surprise Song</b></label>
+ <select id="song">
+ <option value="">Select</option>
+ <option value="MMITH">MMITH</option>
+ <option value="Carolina">Carolina</option>
+ <option value="Two Ghosts">Two Ghosts</option>
+ <option value="Sweet Creature">Sweet Creature</option>
+ <option value="Only Angel">Only Angel</option>
+ <option value="Kiwi">Kiwi</option>
+ <option value="ESNY">ESNY</option>
+ <option value="Woman">Woman</option>
+ <option value="FTDT">FTDT</option>
+ <option value="Sweet Creature">Sweet Creature</option>
+ <option value="Lights Up">Lights Up</option>
+ <option value="Cherry">Cherry</option>
+ <option value="Falling">Falling</option>
+ <option value="TBSL">TBSL</option>
+ <option value="She">She</option>
+ <option value="Sunflower Vol 6">Sunflower Vol 6</option>
+ <option value="Canyon Moon">Canyon Moon</option>
+ <option value="Late Night Talking">Late Night Talking</option>
+ <option value="Grapejuice">Grapejuice</option>
+ <option value="Daylight">Daylight</option>
+ <option value="Little Freak">Little Freak</option>
+ <option value="Matilda">Matilda</option>
+ <option value="Cinema">Cinema</option>
+ <option value="Daydreaming">Daydreaming</option>
+ <option value="Boyfriends">Boyfriends</option>
+ <option value="LOML">LOML</option>
+ <option value="The Waiting Game">The Waiting Game</option>
+ <option value="Paint By Numbers">Paint By Numbers</option>
+ <option value="Medicine">Medicine</option>
+ <option value="other">Other</option>
+ </select><br><br>
 
     </div>
 
@@ -809,12 +845,16 @@ function showFitcheckResults(showName, guess) {
   if (guess.tie === actual.tie) correct++;
   if (guess.jacket === actual.jacket) correct++;
   if (guess.pattern === actual.pattern) correct++;
+  if (guess.song === actual.song) correct++;
 
   const earned =
     correct <= 1 ? 1 :
     correct === 2 ? 2 :
     correct === 3 ? 5 :
-    10;
+    correct === 4 ? 8 :
+    correct === 5 ? 12 ;
+
+
 
   addToBank(earned);
 
@@ -826,6 +866,7 @@ function showFitcheckResults(showName, guess) {
     ${row("Tie", guess.tie, actual.tie)}
     ${row("Jacket", guess.jacket, actual.jacket)}
     ${row("Pattern", guess.pattern, actual.pattern)}
+    ${row("Song", guess.song, actual.song)}
 
     <div style="
       margin-top:15px;
