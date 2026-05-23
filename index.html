@@ -742,9 +742,9 @@ function renderFitcheck(next) {
         <option value="solid">Solid</option>
         <option value="floral">Floral</option>
         <option value="other">Other</option>
-      </select>
-      
-       <label><b>Surprise Song</b></label>
+     </select><br><br>
+
+<label><b>Surprise Song</b></label>
  <select id="song">
  <option value="">Select</option>
  <option value="MMITH">MMITH</option>
@@ -848,12 +848,13 @@ function showFitcheckResults(showName, guess) {
   if (guess.pattern === actual.pattern) correct++;
   if (guess.song === actual.song) correct++;
 
-  const earned =
-    correct <= 1 ? 1 :
-    correct === 2 ? 2 :
-    correct === 3 ? 5 :
-    correct === 4 ? 8 :
-    correct === 5 ? 12 ;
+const earned =
+  correct <= 1 ? 1 :
+  correct === 2 ? 2 :
+  correct === 3 ? 5 :
+  correct === 4 ? 8 :
+  correct === 5 ? 12 :
+  0;
 
 
 
@@ -894,7 +895,8 @@ function calculatePoints(correctCount) {
   if (correctCount <= 1) return 1;
   if (correctCount === 2) return 2;
   if (correctCount === 3) return 5;
-  if (correctCount === 4) return 10;
+  if (correctCount === 4) return 8;
+  if (correctCount === 5) return 12;
 }
 </script>
 
