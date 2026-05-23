@@ -309,9 +309,6 @@ button:hover {
 
 <div style="text-align:center;">
 
-  <button onclick="openFitcheck()">
-    Play Fitcheck!
-  </button>
 
 </div>
 <div style="text-align:center; margin-bottom:20px;">
@@ -1041,7 +1038,12 @@ const earned =
 
 
 
+  const rewardKey = "rewarded_" + showName;
+
+if (!localStorage.getItem(rewardKey)) {
   addToBank(earned);
+  localStorage.setItem(rewardKey, "true");
+}
 
   screen.innerHTML = `
     <h2>Fitcheck Results</h2>
