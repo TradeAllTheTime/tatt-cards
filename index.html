@@ -189,9 +189,31 @@ button {
 </div>
 
 <div style="text-align:center;">
- <button onclick="openPack()">Open Pack</button>
- <button onclick="showBinder()">Binder</button>
- <button onclick="openFitcheck()">Play Fitcheck!</button>
+
+  <button onclick="openFitcheck()">
+    Play Fitcheck!
+  </button>
+
+  <button
+    style="
+      opacity:0.6;
+      cursor:not-allowed;
+    "
+    disabled
+  >
+    Packs — Coming Soon
+  </button>
+
+  <button
+    style="
+      opacity:0.6;
+      cursor:not-allowed;
+    "
+    disabled
+  >
+    Binder — Coming Soon
+  </button>
+
 </div>
 
 <div id="packReveal"></div>
@@ -210,6 +232,7 @@ button {
 
 <script>
 window.DEV_MODE = true;
+const PUBLIC_MODE = true;
 
 /* ---------------- TIMER ---------------- */
 
@@ -642,6 +665,14 @@ function addToBank(amount) {
 
 /* run once on load */
 updateBankDisplay();
+ 
+ if (!PUBLIC_MODE) {
+
+  document.getElementById("packButton").style.display = "inline-block";
+
+  document.getElementById("binderButton").style.display = "inline-block";
+
+}
 
 /* -------- OPEN FITCHECK -------- */
 
