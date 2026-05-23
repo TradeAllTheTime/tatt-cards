@@ -1,15 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
+ <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
 <title>TATT Cards</title>
 
 <style>
-#packReveal {
- position: relative;
- height: 340px;
- margin-top: 20px;
+
+body {
+ margin:0;
+ min-height:100vh;
+ padding:20px;
+ box-sizing:border-box;
+
+ background:
+ radial-gradient(circle at top left, #ff4fd830, transparent 30%),
+ radial-gradient(circle at top right, #5bc0ff30, transparent 30%),
+ linear-gradient(180deg, #09090f 0%, #111120 100%);
+
+color:white;
+font-family: 'Space Grotesk', sans-serif;
+ overflow-x:hidden;
 }
 
+#packReveal {
+  position: relative;
+  margin-top: 20px;
+  min-height: 340px;
+  overflow: visible;
+}
 /* STACK */
 .deck-card {
  width: 220px;
@@ -138,26 +156,100 @@
 }
 
 button {
- padding: 10px 16px;
- border-radius: 10px;
- border: none;
- background: #222;
- color: white;
- cursor: pointer;
- margin: 5px;
+  padding: 12px 18px;
+  border-radius: 16px;
+  border: none;
+
+  background: linear-gradient(135deg, #ff4fd8, #9b5cff, #5bc0ff);
+  background-size: 200% 200%;
+
+  color: white;
+  font-weight: bold;
+  font-size: 15px;
+
+  cursor: pointer;
+  margin: 6px;
+
+  box-shadow: 0 0 20px rgba(255,79,216,0.3);
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  animation: discoGlow 6s ease infinite;
 }
 
-#packReveal {
- margin-top: 20px;
- position: relative;
- min-height: 300px;
- overflow: visible;
+button:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 0 25px rgba(91,192,255,0.45);
 }
+
+@keyframes discoGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+  .sparkle {
+ position:fixed;
+ width:300px;
+ height:300px;
+ border-radius:50%;
+
+ background:
+ radial-gradient(
+ circle,
+ rgba(255,79,216,0.18),
+ transparent 70%
+ );
+
+ top:-100px;
+ left:-100px;
+
+ pointer-events:none;
+ filter:blur(30px);
+
+ animation: floatGlow 10s ease-in-out infinite;
+}
+
+.sparkle2 {
+ left:auto;
+ right:-100px;
+ top:20%;
+ background:
+ radial-gradient(
+ circle,
+ rgba(91,192,255,0.15),
+ transparent 70%
+ );
+ animation-delay:2s;
+}
+
+.sparkle3 {
+ top:auto;
+ bottom:-120px;
+ left:40%;
+ background:
+ radial-gradient(
+ circle,
+ rgba(155,92,255,0.15),
+ transparent 70%
+ );
+ animation-delay:5s;
+}
+
+@keyframes floatGlow {
+ 0% { transform:translateY(0px); }
+ 50% { transform:translateY(40px); }
+ 100% { transform:translateY(0px); }
+}
+
 </style>
 </head>
 
 <body>
-
+<div class="sparkle"></div>
+<div class="sparkle sparkle2"></div>
+<div class="sparkle sparkle3"></div>
+ 
 <h1 style="text-align:center; font-family: Arial;">TATT Cards</h1>
 
  <div id="bankDisplay" style="
@@ -175,14 +267,27 @@ button {
 </div>
  
 <div style="
- max-width: 420px;
- margin: 30px auto;
- padding: 24px;
- border-radius: 16px;
- background: #111;
- color: white;
- text-align: center;
- font-family: Arial;
+ max-width:420px;
+ margin:30px auto;
+ padding:28px;
+ border-radius:24px;
+
+ background:
+ linear-gradient(
+ 135deg,
+ rgba(255,79,216,0.12),
+ rgba(91,192,255,0.12)
+ );
+
+ border:1px solid rgba(255,255,255,0.12);
+
+ box-shadow:
+ 0 0 30px rgba(255,79,216,0.2),
+ 0 0 60px rgba(91,192,255,0.12);
+
+ text-align:center;
+ color:white;
+ backdrop-filter: blur(12px);
 ">
  <div style="font-size: 12px; opacity: 0.7;">NEXT SHOW</div>
  <h2 id="timer">Loading...</h2>
@@ -192,26 +297,6 @@ button {
 
   <button onclick="openFitcheck()">
     Play Fitcheck!
-  </button>
-
-  <button
-    style="
-      opacity:0.6;
-      cursor:not-allowed;
-    "
-    disabled
-  >
-    Packs — Coming Soon
-  </button>
-
-  <button
-    style="
-      opacity:0.6;
-      cursor:not-allowed;
-    "
-    disabled
-  >
-    Binder — Coming Soon
   </button>
 
 </div>
@@ -691,12 +776,12 @@ function addToBank(amount) {
 /* run once on load */
 updateBankDisplay();
  
- if (!PUBLIC_MODE) {
+if (!PUBLIC_MODE) {
+  const packBtn = document.getElementById("packButton");
+  const binderBtn = document.getElementById("binderButton");
 
-  document.getElementById("packButton").style.display = "inline-block";
-
-  document.getElementById("binderButton").style.display = "inline-block";
-
+  if (packBtn) packBtn.style.display = "inline-block";
+  if (binderBtn) binderBtn.style.display = "inline-block";
 }
 
 /* -------- OPEN FITCHECK -------- */
@@ -945,15 +1030,6 @@ const earned =
   `;
 }
 
-/* -------- POINT CALC -------- */
-
-function calculatePoints(correctCount) {
-  if (correctCount <= 1) return 1;
-  if (correctCount === 2) return 2;
-  if (correctCount === 3) return 5;
-  if (correctCount === 4) return 8;
-  if (correctCount === 5) return 12;
-}
 </script>
 
 </body>
