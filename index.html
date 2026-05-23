@@ -302,8 +302,8 @@ const concerts = [
    shirt: "pink",
    tie: "black",
    jacket: "blue",
-   pattern: "solid"
-   Surprise Song: "medicine"
+   pattern: "solid",
+   song: "Medicine"
  }
 };
 
@@ -794,7 +794,8 @@ function submitFitcheck(showName) {
     shirt: document.getElementById("shirt").value,
     tie: document.getElementById("tie").value,
     jacket: document.getElementById("jacket").value,
-    pattern: document.getElementById("pattern").value
+    pattern: document.getElementById("pattern").value,
+    song: document.getElementById("song").value
   };
 
   localStorage.setItem(
@@ -876,7 +877,7 @@ function showFitcheckResults(showName, guess) {
       text-align:center;
       font-family:Arial;
     ">
-      <div>${correct}/4 correct</div>
+      <div>${correct}/5 correct</div>
       <div style="margin-top:8px; font-weight:bold;">
         🎉 You earned ${earned} points!
       </div>
