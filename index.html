@@ -61,7 +61,21 @@ font-family: 'Space Grotesk', sans-serif;
  display:flex;
  align-items:center;
  justify-content:center;
- font-family: Arial;
+ font-family: Arial;<div style="text-align:center; margin-bottom:20px;">
+
+  <button onclick="openPack()">
+    Open Pack
+  </button>
+
+  <button onclick="showBinder()">
+    Binder
+  </button>
+
+  <button onclick="openFitcheck()">
+    Play Fitcheck!
+  </button>
+
+</div>
 }
 
 .card-back {
@@ -300,7 +314,33 @@ button:hover {
   </button>
 
 </div>
+<div style="text-align:center; margin-bottom:20px;">
 
+  <!-- PUBLIC MODE BUTTONS -->
+  <button id="publicPackBtn">
+    Packs Coming Soon
+  </button>
+
+  <button id="publicBinderBtn">
+    Binder Coming Soon
+  </button>
+
+  <!-- REAL BUTTON -->
+  <button onclick="openFitcheck()">
+    Play Fitcheck!
+  </button>
+
+  <!-- DEV BUTTONS -->
+  <button id="packButton" onclick="openPack()" style="display:none;">
+    Open Pack
+  </button>
+
+  <button id="binderButton" onclick="showBinder()" style="display:none;">
+    Binder
+  </button>
+
+</div>
+ 
 <div id="packReveal"></div>
 <div id="gridView"></div>
  <div id="fitcheckScreen" style="
@@ -777,11 +817,13 @@ function addToBank(amount) {
 updateBankDisplay();
  
 if (!PUBLIC_MODE) {
-  const packBtn = document.getElementById("packButton");
-  const binderBtn = document.getElementById("binderButton");
 
-  if (packBtn) packBtn.style.display = "inline-block";
-  if (binderBtn) binderBtn.style.display = "inline-block";
+  document.getElementById("packButton").style.display = "inline-block";
+  document.getElementById("binderButton").style.display = "inline-block";
+
+  document.getElementById("publicPackBtn").style.display = "none";
+  document.getElementById("publicBinderBtn").style.display = "none";
+
 }
 
 /* -------- OPEN FITCHECK -------- */
