@@ -332,11 +332,35 @@ const concerts = [
 
 function updateTimer() {
 
- const next = concerts.find(c => c.time.getTime() > Date.now())
+ const now = new Date();
+
+ const next = concerts.find(c => {
+
+   const endTime =
+     new Date(c.time.getTime() + (3 * 60 * 60 * 1000));
+
+   return endTime > now;
+
+ });
 
  if (!next) return;
 
- const diff = next.time - new Date();
+ const showStart = next.time;
+
+ const showEnd =
+   new Date(showStart.getTime() + (3 * 60 * 60 * 1000));
+
+ // SHOW IS LIVE
+ if (now >= showStart && now <= showEnd) {
+
+   document.getElementById("timer").textContent =
+   `${next.name}: HAPPENING NOW`;
+
+   return;
+ }
+
+ // NORMAL COUNTDOWN
+ const diff = showStart - now;
 
  const d = Math.floor(diff / 86400000);
  const h = Math.floor((diff % 86400000) / 3600000);
@@ -345,6 +369,7 @@ function updateTimer() {
 
  document.getElementById("timer").textContent =
  `${next.name}: ${d}d ${h}h ${m}m ${s}s`;
+
 }
 
 setInterval(updateTimer, 1000);
