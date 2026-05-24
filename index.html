@@ -1209,18 +1209,16 @@ function buyRare() {
     </div>
   `;
 }
- let shopOpen = false;
 
 function toggleShop() {
-
   const shopBtn = document.getElementById("shopButton");
   const shop = document.getElementById("shopScreen");
 
   if (!shopOpen) {
-
-    closeAllScreens(); // hides everything else
+    closeAllScreens();
 
     shop.style.display = "block";
+
     shop.innerHTML = `
       <h2>Shop</h2>
 
@@ -1233,20 +1231,16 @@ function toggleShop() {
     shopOpen = true;
 
   } else {
-
-    shop.style.display = "none";
-    shopBtn.textContent = "Open Shop";
-    shopOpen = false;
+    closeAllScreens();
   }
 }
- function closeAllScreens() {
+function closeAllScreens() {
 
   document.getElementById("packReveal").style.display = "none";
   document.getElementById("gridView").style.display = "none";
   document.getElementById("fitcheckScreen").style.display = "none";
   document.getElementById("shopScreen").style.display = "none";
 
-  // reset shop button state
   shopOpen = false;
 
   const shopBtn = document.getElementById("shopButton");
