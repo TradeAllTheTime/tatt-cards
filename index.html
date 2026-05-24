@@ -261,6 +261,33 @@ button:hover {
 </head>
 
 <body>
+ <div id="homeScreen" style="
+  max-width:420px;
+  margin:30px auto;
+  padding:24px;
+  border-radius:20px;
+  background:#111;
+  color:white;
+  text-align:center;
+  font-family:Arial;
+">
+  <h2>Welcome to TATT Cards</h2>
+
+  <p style="opacity:0.8; line-height:1.4;">
+    Collect cards, earn points, and predict concerts in Fitcheck.
+  </p>
+
+  <div style="margin-top:15px; text-align:left; font-size:14px;">
+    <p>🎁 <b>Open Packs</b> → Get random cards</p>
+    <p>📖 <b>Binder</b> → View your collection</p>
+    <p>🛍 <b>Shop</b> → Spend points for cards</p>
+    <p>🎤 <b>Fitcheck</b> → Predict concert outfits & songs</p>
+  </div>
+
+  <button onclick="enterGame()" style="margin-top:20px;">
+    Start Playing
+  </button>
+</div>
 <div class="sparkle"></div>
 <div class="sparkle sparkle2"></div>
 <div class="sparkle sparkle3"></div>
@@ -377,6 +404,7 @@ const PUBLIC_MODE = false;
 const DAILY_PACK_LIMIT = 2;
 const PACK_COST = 10;
 let shopOpen = false;
+let gameStarted = false;
 /* ---------------- TIMER ---------------- */
 
 const concerts = [
@@ -1246,6 +1274,21 @@ function closeAllScreens() {
   const shopBtn = document.getElementById("shopButton");
   if (shopBtn) shopBtn.textContent = "Open Shop";
 }
+ function enterGame() {
+  gameStarted = true;
+
+  document.getElementById("homeScreen").style.display = "none";
+
+  // show main UI buttons
+  document.getElementById("packButton").style.display = "inline-block";
+  document.getElementById("binderButton").style.display = "inline-block";
+  document.getElementById("shopButton").style.display = "inline-block";
+}
+ document.getElementById("packButton").style.display = "none";
+document.getElementById("binderButton").style.display = "none";
+document.getElementById("shopButton").style.display = "none";
+ closeAllScreens();
+document.getElementById("homeScreen").style.display = "block";
 </script>
 
 </body>
