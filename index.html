@@ -1264,17 +1264,25 @@ function enterGame() {
   updateTimer();
 }
 
- function showScreen(id) {
+function showOnly(screenId) {
+  const screens = [
+    "homeScreen",
+    "packReveal",
+    "gridView",
+    "fitcheckScreen",
+    "shopScreen",
+    "gameUI"
+  ];
 
- const screens = ["packReveal","gridView","fitcheckScreen","shopScreen"];
+  screens.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
 
- screens.forEach(s => {
-   document.getElementById(s).style.display = "none";
- });
+    el.style.display = "none";
+  });
 
- if (id) {
-   document.getElementById(id).style.display = "block";
- }
+  const target = document.getElementById(screenId);
+  if (target) target.style.display = "block";
 }
  function initHome() {
   document.getElementById("homeScreen").style.display = "block";
