@@ -5,7 +5,18 @@
 <title>TATT Cards</title>
 
 <style>
-
+ 
+.hidden {
+ display:none !important;
+}
+ #homeScreen {
+ position:relative;
+ z-index:10;
+}
+ #gameUI {
+ position:relative;
+ z-index:1;
+}
 body {
  margin:0;
  min-height:100vh;
@@ -1247,13 +1258,22 @@ function closeAllScreens() {
   if (shopBtn) shopBtn.textContent = "Open Shop";
 }
 function enterGame() {
-  document.getElementById("homeScreen").style.display = "none";
-  setGameVisible(true);
+ document.getElementById("homeScreen").classList.add("hidden");
+ document.getElementById("gameUI").classList.remove("hidden");
 
-  // show main UI buttons
-  document.getElementById("packButton").style.display = "inline-block";
-  document.getElementById("binderButton").style.display = "inline-block";
-  document.getElementById("shopButton").style.display = "inline-block";
+ // ALWAYS reset all game screens so nothing leaks from previous state
+ const screens = ["packReveal","gridView","fitcheckScreen","shopScreen"];
+
+ screens.forEach(id => {
+   const el = document.getElementById(id);
+   if (el) {
+     el.style.display = "none";
+     el.innerHTML = "";
+   }
+ });
+
+ updateBankDisplay();
+ updateTimer();
 }
  
 function setGameVisible(isVisible) {
@@ -1276,6 +1296,18 @@ window.onload = function () {
  setGameVisible(false);
 document.getElementById("homeScreen").style.display = "block";
 };
+ function showScreen(id) {
+
+ const screens = ["packReveal","gridView","fitcheckScreen","shopScreen"];
+
+ screens.forEach(s => {
+   document.getElementById(s).style.display = "none";
+ });
+
+ if (id) {
+   document.getElementById(id).style.display = "block";
+ }
+}
 </script>
 
 </body>
