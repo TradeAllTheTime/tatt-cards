@@ -590,7 +590,11 @@ function incrementDailyUse() {
   localStorage.setItem("dailyPacks", JSON.stringify(data));
 }
 function openPack() {
+  showScreen("packReveal");
 
+  document.getElementById("gridView").style.display = "none";
+  document.getElementById("fitcheckScreen").style.display = "none";
+}
   const daily = getDailyData();
   const hasFreePack = daily.used < DAILY_PACK_LIMIT;
  const canUsePoints = (fitcheckBank || 0) >= 10;
@@ -605,11 +609,6 @@ function openPack() {
   } else {
     addToBank(-10);
   }
-
-  document.getElementById("packReveal").innerHTML = "";
-  document.getElementById("fitcheckScreen").style.display = "none";
-  document.getElementById("gridView").style.display = "none";
-  document.getElementById("packReveal").style.display = "block";
 
   deck = [];
   openedCards = [];
@@ -851,29 +850,25 @@ function showGrid() {
 /* ---------------- BINDER ---------------- */
 
 function showBinder() {
-document.getElementById("fitcheckScreen").style.display = "none";
- const collected =
- JSON.parse(localStorage.getItem("collectedCards")) || [];
+  document.getElementById("fitcheckScreen").style.display = "none";
+  showScreen("gridView");
 
- if (collected.length === 0) {
+  const collected =
+    JSON.parse(localStorage.getItem("collectedCards")) || [];
 
- const grid =
- document.getElementById("gridView");
+  if (collected.length === 0) {
+    const grid = document.getElementById("gridView");
 
- grid.innerHTML = `
- <div style="grid-column:1/-1;color:white;font-family:Arial;">
- No cards collected yet. Open a pack!
- </div>
- `;
+    grid.innerHTML = `
+      <div style="grid-column:1/-1;color:white;font-family:Arial;">
+        No cards collected yet. Open a pack!
+      </div>
+    `;
 
- grid.style.display = "grid";
+    return;
+  }
 
- document.getElementById("packReveal").style.display = "none";
-
- return;
- }
-
- renderGrid(collected, false);
+  renderGrid(collected, false);
 }
 /* =========================
         FITCHECK SYSTEM
@@ -912,29 +907,21 @@ if (!PUBLIC_MODE) {
 /* -------- OPEN FITCHECK -------- */
 
 function openFitcheck() {
+  showScreen("fitcheckScreen");
+
   const now = new Date();
   const next = concerts.find(c => c.time > now);
 
   if (!next) return;
 
-  const screen = document.getElementById("fitcheckScreen");
-
-  document.getElementById("packReveal").style.display = "none";
-  document.getElementById("gridView").style.display = "none";
-  screen.style.display = "block";
-
-  // ALWAYS load saved guess first
   const saved = JSON.parse(localStorage.getItem("fitcheck_" + next.name));
 
-  // DEV MODE (still respects saved data)
-  if (window.DEV_MODE === true) {
-    if (saved) {
-      showFitcheckResults(next.name, saved);
-    } else {
-      renderFitcheck(next);
-    }
-    return;
+  if (saved) {
+    showFitcheckResults(next.name, saved);
+  } else {
+    renderFitcheck(next);
   }
+}
 
   // NORMAL MODE
   if (saved) {
@@ -1212,12 +1199,11 @@ function buyRare() {
 
 function toggleShop() {
   const shopBtn = document.getElementById("shopButton");
-  const shop = document.getElementById("shopScreen");
 
   if (!shopOpen) {
-    closeAllScreens();
+    showScreen("shopScreen");
 
-    shop.style.display = "block";
+    const shop = document.getElementById("shopScreen");
 
     shop.innerHTML = `
       <h2>Shop</h2>
@@ -1235,11 +1221,19 @@ function toggleShop() {
   }
 }
 function closeAllScreens() {
+  const screens = [
+    "packReveal",
+    "gridView",
+    "fitcheckScreen",
+    "shopScreen"
+  ];
 
-  document.getElementById("packReveal").style.display = "none";
-  document.getElementById("gridView").style.display = "none";
-  document.getElementById("fitcheckScreen").style.display = "none";
-  document.getElementById("shopScreen").style.display = "none";
+  screens.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.style.display = "none";
+  });
 
   shopOpen = false;
 
@@ -1290,6 +1284,14 @@ function showOnly(screenId) {
 }
 
 initHome();
+ function showScreen(screenId) {
+  closeAllScreens();
+
+  const el = document.getElementById(screenId);
+  if (el) {
+    el.style.display = "block";
+  }
+}
 </script>
 
 </body>
