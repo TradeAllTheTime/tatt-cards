@@ -6,9 +6,6 @@
 
 <style>
  
-.hidden {
- display:none !important;
-}
  #homeScreen {
  position:relative;
  z-index:10;
@@ -1258,44 +1255,23 @@ function closeAllScreens() {
   if (shopBtn) shopBtn.textContent = "Open Shop";
 }
 function enterGame() {
- document.getElementById("homeScreen").classList.add("hidden");
- document.getElementById("gameUI").classList.remove("hidden");
+  document.getElementById("homeScreen").style.display = "none";
+  document.getElementById("gameUI").style.display = "block";
 
- // ALWAYS reset all game screens so nothing leaks from previous state
- const screens = ["packReveal","gridView","fitcheckScreen","shopScreen"];
-
- screens.forEach(id => {
-   const el = document.getElementById(id);
-   if (el) {
-     el.style.display = "none";
-     el.innerHTML = "";
-   }
- });
-
- updateBankDisplay();
- updateTimer();
-}
- 
-function setGameVisible(isVisible) {
-  const show = isVisible ? "block" : "none";
-
-  const screens = [
-    "homeScreen",
-    "fitcheckScreen",
-    "packReveal",
-    "gridView",
-    "shopScreen"
-  ];
+  const screens = ["packReveal","gridView","fitcheckScreen","shopScreen"];
 
   screens.forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.style.display = show;
+    if (el) {
+      el.style.display = "none";
+      el.innerHTML = "";
+    }
   });
+
+  updateBankDisplay();
+  updateTimer();
 }
-window.onload = function () {
- setGameVisible(false);
-document.getElementById("homeScreen").style.display = "block";
-};
+
  function showScreen(id) {
 
  const screens = ["packReveal","gridView","fitcheckScreen","shopScreen"];
@@ -1308,6 +1284,12 @@ document.getElementById("homeScreen").style.display = "block";
    document.getElementById(id).style.display = "block";
  }
 }
+ function initHome() {
+  document.getElementById("homeScreen").style.display = "block";
+  document.getElementById("gameUI").style.display = "none";
+}
+
+initHome();
 </script>
 
 </body>
