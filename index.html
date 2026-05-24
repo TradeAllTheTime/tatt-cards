@@ -594,10 +594,10 @@ function openPack() {
 
   document.getElementById("gridView").style.display = "none";
   document.getElementById("fitcheckScreen").style.display = "none";
-}
+
   const daily = getDailyData();
   const hasFreePack = daily.used < DAILY_PACK_LIMIT;
- const canUsePoints = (fitcheckBank || 0) >= 10;
+  const canUsePoints = (fitcheckBank || 0) >= 10;
 
   if (!hasFreePack && !canUsePoints) {
     alert("No free packs left today and not enough points!");
@@ -921,15 +921,6 @@ function openFitcheck() {
   } else {
     renderFitcheck(next);
   }
-}
-
-  // NORMAL MODE
-  if (saved) {
-    showFitcheckResults(next.name, saved);
-    return;
-  }
-
-  renderFitcheck(next);
 }
 
 /* -------- RENDER FORM -------- */
