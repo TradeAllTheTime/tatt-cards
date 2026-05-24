@@ -1184,6 +1184,31 @@ function buyRare() {
   openedCards.push({ name: card, rarity: "ultra" });
   showGrid();
 }
+ function openShop() {
+
+  // hide other screens
+  document.getElementById("packReveal").style.display = "none";
+  document.getElementById("gridView").style.display = "none";
+  document.getElementById("fitcheckScreen").style.display = "none";
+
+  // show shop
+  const shop = document.getElementById("shopScreen");
+  shop.style.display = "block";
+
+  shop.innerHTML = `
+    <h2>Shop</h2>
+
+    <div style="margin-top:15px;">
+
+      <button onclick="buyPack()">Buy Pack - 10 pts</button><br><br>
+
+      <button onclick="buyRare()">Buy Random Rare - 20 pts</button><br><br>
+
+      <button onclick="buyUltra()">Buy Random Ultra Rare - 50 pts</button>
+
+    </div>
+  `;
+}
 </script>
 
 </body>
