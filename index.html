@@ -1274,11 +1274,10 @@ function closeAllScreens() {
   const shopBtn = document.getElementById("shopButton");
   if (shopBtn) shopBtn.textContent = "Open Shop";
 }
- function enterGame() {
-  gameStarted = true;
-
+function enterGame() {
   document.getElementById("homeScreen").style.display = "none";
-
+  setGameVisible(true);
+}
   // show main UI buttons
   document.getElementById("packButton").style.display = "inline-block";
   document.getElementById("binderButton").style.display = "inline-block";
@@ -1289,6 +1288,29 @@ document.getElementById("binderButton").style.display = "none";
 document.getElementById("shopButton").style.display = "none";
  closeAllScreens();
 document.getElementById("homeScreen").style.display = "block";
+ 
+ function setGameVisible(isVisible) {
+  const elements = [
+    "bankDisplay",
+    "packButton",
+    "binderButton",
+    "shopButton",
+    "timer",
+    "fitcheckScreen",
+    "packReveal",
+    "gridView",
+    "shopScreen"
+  ];
+
+  elements.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isVisible ? "block" : "none";
+  });
+}
+window.onload = function () {
+ setGameVisible(false);
+document.getElementById("homeScreen").style.display = "block";
+};
 </script>
 
 </body>
