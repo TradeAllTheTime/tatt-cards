@@ -335,6 +335,12 @@ button:hover {
   <button id="binderButton" onclick="showBinder()" style="display:none;">
     Binder
   </button>
+ 
+ <div style="text-align:center; margin-top:10px;">
+
+  <button onclick="openShop()">Shop</button>
+
+</div>
 
 </div>
  
@@ -351,10 +357,24 @@ button:hover {
  font-family: Arial;
  text-align: center;
 "></div>
+ 
+ <div id="shopScreen" style="
+ display:none;
+ max-width: 420px;
+ margin: 20px auto;
+ padding: 20px;
+ border-radius: 16px;
+ background: #111;
+ color: white;
+ font-family: Arial;
+ text-align: center;
+"></div>
 
 <script>
 window.DEV_MODE = true;
 const PUBLIC_MODE = false;
+const DAILY_PACK_LIMIT = 2;
+const PACK_COST = 10;
 
 /* ---------------- TIMER ---------------- */
 
@@ -516,8 +536,55 @@ let openedCards = [];
 let newCards = [];
 
 /* ---------------- OPEN PACK ---------------- */
+function getTodayKey() {
+  return new Date().toISOString().split("T")[0];
+}
 
+function getDailyData() {
+  const data = JSON.parse(localStorage.getItem("dailyPacks")) || {
+    date: null,
+    used: 0
+  };
+
+  const today = getTodayKey();
+
+  // reset if new day
+  if (data.date !== today) {
+    data.date = today;
+    data.used = 0;
+    localStorage.setItem("dailyPacks", JSON.stringify(data));
+  }
+
+  return data;
+}
+
+function incrementDailyUse() {
+  const data = getDailyData();
+  data.used += 1;
+  localStorage.setItem("dailyPacks", JSON.stringify(data));
+}
 function openPack() {
+
+  const daily = getDailyData();
+  const hasFreePack = daily.used < DAILY_PACK_LIMIT;
+
+  const canUsePoints = fitcheckBank >= 10;
+
+  // CASE 1: FREE PACK AVAILABLE
+  if (hasFreePack) {
+    incrementDailyUse();
+  }
+
+  // CASE 2: NO FREE PACK → USE POINTS
+  else {
+    if (!canUsePoints) {
+      alert("No free packs left today and not enough points!");
+      return;
+    }
+
+    addToBank(-10);
+  }
+ {
 document.getElementById("packReveal").innerHTML = "";
  document.getElementById("fitcheckScreen").style.display = "none";
  
@@ -896,6 +963,7 @@ function renderFitcheck(next) {
         <option value="orange">Orange</option>
         <option value="pink">Pink</option>
         <option value="purple">Purple</option>
+        <option value="no tie">No tie</option>
         <option value="other">Other</option>
       </select><br><br>
 
@@ -921,6 +989,7 @@ function renderFitcheck(next) {
         <option value="dots">Dots</option>
         <option value="solid">Solid</option>
         <option value="floral">Floral</option>
+        <option value="no tie">No Tie</option>
         <option value="other">Other</option>
      </select><br><br>
 
@@ -1073,7 +1142,54 @@ if (!localStorage.getItem(rewardKey)) {
     </div>
   `;
 }
+function buyPack() {
 
+  if (fitcheckBank < 10) {
+    alert("Not enough points!");
+    return;
+  }
+
+  const confirmBuy = confirm("Spend 10 points for 1 pack?");
+  if (!confirmBuy) return;
+
+  addToBank(-10);
+  openPack();
+}
+function buyRare() {
+
+  if (fitcheckBank < 20) {
+    alert("Not enough points!");
+    return;
+  }
+
+  const confirmBuy = confirm("Spend 20 points for a RANDOM Rare card?");
+  if (!confirmBuy) return;
+
+  addToBank(-20);
+
+  const rarePool = cardPool.rare;
+  const card = getRandom(rarePool);
+
+  openedCards.push({ name: card, rarity: "rare" });
+  showGrid();
+} 
+ function buyUltra() {
+
+  if (fitcheckBank < 50) {
+    alert("Not enough points!");
+    return;
+  }
+
+  const confirmBuy = confirm("Spend 50 points for a RANDOM Ultra Rare card?");
+  if (!confirmBuy) return;
+
+  addToBank(-50);
+
+  const card = getRandom(cardPool.ultraRare);
+
+  openedCards.push({ name: card, rarity: "ultra" });
+  showGrid();
+}
 </script>
 
 </body>
