@@ -339,7 +339,7 @@ button:hover {
  
  <div style="text-align:center; margin-top:10px;">
 
-  <button onclick="openShop()">Shop</button>
+ <button id="shopButton" onclick="toggleShop()">Open Shop</button>
 
 </div>
 
@@ -376,7 +376,7 @@ window.DEV_MODE = true;
 const PUBLIC_MODE = false;
 const DAILY_PACK_LIMIT = 2;
 const PACK_COST = 10;
-
+let shopOpen = false;
 /* ---------------- TIMER ---------------- */
 
 const concerts = [
@@ -1208,6 +1208,49 @@ function buyRare() {
 
     </div>
   `;
+}
+ let shopOpen = false;
+
+function toggleShop() {
+
+  const shopBtn = document.getElementById("shopButton");
+  const shop = document.getElementById("shopScreen");
+
+  if (!shopOpen) {
+
+    closeAllScreens(); // hides everything else
+
+    shop.style.display = "block";
+    shop.innerHTML = `
+      <h2>Shop</h2>
+
+      <button onclick="buyPack()">Buy Pack - 10 pts</button><br><br>
+      <button onclick="buyRare()">Buy Rare - 20 pts</button><br><br>
+      <button onclick="buyUltra()">Buy Ultra - 50 pts</button>
+    `;
+
+    shopBtn.textContent = "Close Shop";
+    shopOpen = true;
+
+  } else {
+
+    shop.style.display = "none";
+    shopBtn.textContent = "Open Shop";
+    shopOpen = false;
+  }
+}
+ function closeAllScreens() {
+
+  document.getElementById("packReveal").style.display = "none";
+  document.getElementById("gridView").style.display = "none";
+  document.getElementById("fitcheckScreen").style.display = "none";
+  document.getElementById("shopScreen").style.display = "none";
+
+  // reset shop button state
+  shopOpen = false;
+
+  const shopBtn = document.getElementById("shopButton");
+  if (shopBtn) shopBtn.textContent = "Open Shop";
 }
 </script>
 
