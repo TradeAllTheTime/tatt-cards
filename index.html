@@ -64,21 +64,6 @@ font-family: 'Space Grotesk', sans-serif;
  font-family: Arial;
 }
 
-  <button onclick="openPack()">
-    Open Pack
-  </button>
-
-  <button onclick="showBinder()">
-    Binder
-  </button>
-
-  <button onclick="openFitcheck()">
-    Play Fitcheck!
-  </button>
-
-</div>
-}
-
 .card-back {
  background:#333;
  color:white;
@@ -261,6 +246,20 @@ button:hover {
 </head>
 
 <body>
+   <button onclick="openPack()">
+    Open Pack
+  </button>
+
+  <button onclick="showBinder()">
+    Binder
+  </button>
+
+  <button onclick="openFitcheck()">
+    Play Fitcheck!
+  </button>
+
+</div>
+}
  <div id="homeScreen" style="
   max-width:420px;
   margin:30px auto;
@@ -1283,11 +1282,6 @@ function enterGame() {
   document.getElementById("binderButton").style.display = "inline-block";
   document.getElementById("shopButton").style.display = "inline-block";
 }
- document.getElementById("packButton").style.display = "none";
-document.getElementById("binderButton").style.display = "none";
-document.getElementById("shopButton").style.display = "none";
- closeAllScreens();
-document.getElementById("homeScreen").style.display = "block";
  
  function setGameVisible(isVisible) {
   const elements = [
