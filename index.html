@@ -914,7 +914,28 @@ function openFitcheck() {
 
   if (!next) return;
 
-  const saved = JSON.parse(localStorage.getItem("fitcheck_" + next.name));
+  const diff = next.time - now;
+  const hoursUntilShow = diff / (1000 * 60 * 60);
+
+  // LOCKED UNTIL 24 HOURS BEFORE
+  if (hoursUntilShow > 24) {
+
+    document.getElementById("fitcheckScreen").innerHTML = `
+      <h2>Fitcheck Locked</h2>
+      <p>
+        Predictions open 24 hours before the next show.
+      </p>
+      <p style="opacity:0.7;">
+        ${next.name}
+      </p>
+    `;
+
+    return;
+  }
+
+  const saved = JSON.parse(
+    localStorage.getItem("fitcheck_" + next.name)
+  );
 
   if (saved) {
     showFitcheckResults(next.name, saved);
@@ -922,7 +943,6 @@ function openFitcheck() {
     renderFitcheck(next);
   }
 }
-
 /* -------- RENDER FORM -------- */
 
 function renderFitcheck(next) {
@@ -1061,7 +1081,7 @@ function showFitcheckResults(showName, guess) {
   if (!actual) {
     screen.innerHTML = `
       <h2>Fitcheck Locked ✔</h2>
-      <p>Fitcheck will open 24 hours before the next show. If you have already submitted Fitcheck, check back after the show for results.</p>
+      <p> Check back after the show for results.</p>
     `;
     return;
   }
