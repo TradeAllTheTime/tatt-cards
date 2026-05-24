@@ -258,8 +258,6 @@ button:hover {
     Play Fitcheck!
   </button>
 
-</div>
-}
  <div id="homeScreen" style="
   max-width:420px;
   margin:30px auto;
@@ -595,7 +593,7 @@ function openPack() {
 
   const daily = getDailyData();
   const hasFreePack = daily.used < DAILY_PACK_LIMIT;
-  const canUsePoints = fitcheckBank >= 10;
+ const canUsePoints = (fitcheckBank || 0) >= 10;
 
   if (!hasFreePack && !canUsePoints) {
     alert("No free packs left today and not enough points!");
@@ -1211,31 +1209,6 @@ function buyRare() {
   openedCards.push({ name: card, rarity: "ultra" });
   showGrid();
 }
- function openShop() {
-
-  // hide other screens
-  document.getElementById("packReveal").style.display = "none";
-  document.getElementById("gridView").style.display = "none";
-  document.getElementById("fitcheckScreen").style.display = "none";
-
-  // show shop
-  const shop = document.getElementById("shopScreen");
-  shop.style.display = "block";
-
-  shop.innerHTML = `
-    <h2>Shop</h2>
-
-    <div style="margin-top:15px;">
-
-      <button onclick="buyPack()">Buy Pack - 10 pts</button><br><br>
-
-      <button onclick="buyRare()">Buy Random Rare - 20 pts</button><br><br>
-
-      <button onclick="buyUltra()">Buy Random Ultra Rare - 50 pts</button>
-
-    </div>
-  `;
-}
 
 function toggleShop() {
   const shopBtn = document.getElementById("shopButton");
@@ -1276,29 +1249,27 @@ function closeAllScreens() {
 function enterGame() {
   document.getElementById("homeScreen").style.display = "none";
   setGameVisible(true);
-}
+
   // show main UI buttons
   document.getElementById("packButton").style.display = "inline-block";
   document.getElementById("binderButton").style.display = "inline-block";
   document.getElementById("shopButton").style.display = "inline-block";
 }
  
- function setGameVisible(isVisible) {
-  const elements = [
-    "bankDisplay",
-    "packButton",
-    "binderButton",
-    "shopButton",
-    "timer",
+function setGameVisible(isVisible) {
+  const show = isVisible ? "block" : "none";
+
+  const screens = [
+    "homeScreen",
     "fitcheckScreen",
     "packReveal",
     "gridView",
     "shopScreen"
   ];
 
-  elements.forEach(id => {
+  screens.forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.style.display = isVisible ? "block" : "none";
+    if (el) el.style.display = show;
   });
 }
 window.onload = function () {
