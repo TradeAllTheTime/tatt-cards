@@ -61,7 +61,8 @@ font-family: 'Space Grotesk', sans-serif;
  display:flex;
  align-items:center;
  justify-content:center;
- font-family: Arial;<div style="text-align:center; margin-bottom:20px;">
+ font-family: Arial;
+}
 
   <button onclick="openPack()">
     Open Pack
@@ -567,56 +568,49 @@ function openPack() {
 
   const daily = getDailyData();
   const hasFreePack = daily.used < DAILY_PACK_LIMIT;
-
   const canUsePoints = fitcheckBank >= 10;
 
-  // CASE 1: FREE PACK AVAILABLE
+  if (!hasFreePack && !canUsePoints) {
+    alert("No free packs left today and not enough points!");
+    return;
+  }
+
   if (hasFreePack) {
     incrementDailyUse();
-  }
-
-  // CASE 2: NO FREE PACK → USE POINTS
-  else {
-    if (!canUsePoints) {
-      alert("No free packs left today and not enough points!");
-      return;
-    }
-
+  } else {
     addToBank(-10);
   }
- {
-document.getElementById("packReveal").innerHTML = "";
- document.getElementById("fitcheckScreen").style.display = "none";
- 
- document.getElementById("gridView").style.display = "none";
- document.getElementById("packReveal").style.display = "block";
 
- deck = [];
- openedCards = [];
- flippedIndex = null;
- newCards = [];
+  document.getElementById("packReveal").innerHTML = "";
+  document.getElementById("fitcheckScreen").style.display = "none";
+  document.getElementById("gridView").style.display = "none";
+  document.getElementById("packReveal").style.display = "block";
 
- for (let i = 0; i < 10; i++) {
+  deck = [];
+  openedCards = [];
+  flippedIndex = null;
+  newCards = [];
 
- let rarity =
- i < 6 ? "common" :
- i < 9 ? "uncommon" :
- Math.random() < 0.75 ? "rare" : "ultra";
+  for (let i = 0; i < 10; i++) {
 
- let pool =
- rarity === "common" ? cardPool.common :
- rarity === "uncommon" ? cardPool.uncommon :
- rarity === "rare" ? cardPool.rare :
- cardPool.ultraRare;
+    let rarity =
+      i < 6 ? "common" :
+      i < 9 ? "uncommon" :
+      Math.random() < 0.75 ? "rare" : "ultra";
 
- deck.push({
- name: getRandom(pool),
- rarity
- });
+    let pool =
+      rarity === "common" ? cardPool.common :
+      rarity === "uncommon" ? cardPool.uncommon :
+      rarity === "rare" ? cardPool.rare :
+      cardPool.ultraRare;
 
- }
+    deck.push({
+      name: getRandom(pool),
+      rarity
+    });
+  }
 
- renderDeck();
+  renderDeck();
 }
 
 function saveCard(cardName, rarity) {
