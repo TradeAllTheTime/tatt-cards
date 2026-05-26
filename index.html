@@ -502,14 +502,13 @@ function updateTimer() {
 
  const now = new Date();
 
- const next = concerts.find(c => {
-
-   const endTime =
-     new Date(c.time.getTime() + (3 * 60 * 60 * 1000));
-
-   return endTime > now;
-
- });
+ const next =
+  [...concerts]
+    .reverse()
+    .find(c => {
+      const saved = localStorage.getItem("fitcheck_" + c.name);
+      return saved || c.time > now;
+    });
 
  if (!next) return;
 
