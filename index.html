@@ -502,13 +502,7 @@ function updateTimer() {
 
  const now = new Date();
 
- const next =
-  [...concerts]
-    .reverse()
-    .find(c => {
-      const saved = localStorage.getItem("fitcheck_" + c.name);
-      return saved || c.time > now;
-    });
+const next = concerts.find(c => c.time > now);
 
  if (!next) return;
 
@@ -904,43 +898,41 @@ if (!PUBLIC_MODE) {
 }
 
 /* -------- OPEN FITCHECK -------- */
-
 function openFitcheck() {
   showScreen("fitcheckScreen");
 
   const now = new Date();
-  const next = concerts.find(c => c.time > now);
 
-  if (!next) return;
+  // look for most recent submitted fitcheck
+  const submittedShow = [...concerts]
+    .reverse()
+    .find(c =>
+      localStorage.getItem("fitcheck_" + c.name)
+    );
 
-  const diff = next.time - now;
-  const hoursUntilShow = diff / (1000 * 60 * 60);
+  // show saved results first
+  if (submittedShow) {
 
-  // LOCKED UNTIL 24 HOURS BEFORE
-  if (hoursUntilShow > 24) {
+    const saved = JSON.parse(
+      localStorage.getItem(
+        "fitcheck_" + submittedShow.name
+      )
+    );
 
-    document.getElementById("fitcheckScreen").innerHTML = `
-      <h2>Fitcheck Locked</h2>
-      <p>
-        Predictions open 24 hours before the next show.
-      </p>
-      <p style="opacity:0.7;">
-        ${next.name}
-      </p>
-    `;
+    showFitcheckResults(
+      submittedShow.name,
+      saved
+    );
 
     return;
   }
 
-  const saved = JSON.parse(
-    localStorage.getItem("fitcheck_" + next.name)
-  );
+  // otherwise open next upcoming show
+  const next = concerts.find(c => c.time > now);
 
-  if (saved) {
-    showFitcheckResults(next.name, saved);
-  } else {
-    renderFitcheck(next);
-  }
+  if (!next) return;
+
+  renderFitcheck(next);
 }
 /* -------- RENDER FORM -------- */
 
