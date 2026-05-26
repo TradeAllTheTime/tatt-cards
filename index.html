@@ -491,7 +491,7 @@ const concerts = [
  const fitcheckAnswers = {
  "Amsterdam Night 6": {
    shirt: "yellow",
-   tie: "blue", "white",
+   tie: ["blue", "white"],
    jacket: "white",
    pattern: "stripes",
    song: "Paint By Numbers"
@@ -1109,7 +1109,11 @@ function showFitcheckResults(showName, guess) {
 
   let correct = 0;
   if (guess.shirt === actual.shirt) correct++;
-  if (guess.tie === actual.tie) correct++;
+ if (
+  Array.isArray(actual.tie)
+    ? actual.tie.includes(guess.tie)
+    : guess.tie === actual.tie
+) correct++;
   if (guess.jacket === actual.jacket) correct++;
   if (guess.pattern === actual.pattern) correct++;
   if (guess.song === actual.song) correct++;
